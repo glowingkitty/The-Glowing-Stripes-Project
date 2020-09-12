@@ -19,7 +19,7 @@ wifi_networks = wlan.scan()
 
 # search for wifi hotspot
 print('Searching for host nearby...')
-host_wifi_name = '🌟GlowingStripes'
+host_wifi_name = 'GlowingStripes'
 host_wifi_password = 'letsglow'
 
 for network_info in wifi_networks:
@@ -28,15 +28,18 @@ for network_info in wifi_networks:
         role = 'participant'
         break
 else:
+    print('Host not found. Therefore this is now a host...')
     role = 'host'
 
 # if hotspot found, connect ⇒ role: participant
 if role == 'participant':
+    print('Connecting to host...')
     wlan.connect(host_wifi_name, host_wifi_password)
 
 
 # else create wifi hotspot ⇒ role: host
 elif role == 'host':
+    print('Starting host wifi...')
     ap = network.WLAN(network.AP_IF)
     ap.active(True)
     ap.config(essid=host_wifi_name,
