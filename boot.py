@@ -22,7 +22,7 @@ dreamcolor_input_pin = Pin(dreamcolor_input_pin_num, Pin.IN)
 led_strip_data_pin = Pin(led_strip_data_pin_num, Pin.OUT)
 
 esp.osdebug(None)
-# uos.dupterm(None, 1) # disable REPL on UART(0)
+gc.collect()
 
 # activate wifi
 print('Activate WiFi...')
@@ -56,10 +56,6 @@ elif role == 'host':
               authmode=network.AUTH_WPA_WPA2_PSK,
               password=host_wifi_password)
 
-# start webrepl to interact with ESP, update code and test
-webrepl.start()
-gc.collect()
-
 # if host: get signal from Dreamcolor Microcontroller & share it via wifi
 
 
@@ -67,13 +63,9 @@ def callback(p):
     led_strip_data_pin.value(p.value())
 
 
-def output_callback(p):
-    print('output: '+str(p.value()))
-
-
 dreamcolor_input_pin.irq(trigger=Pin.IRQ_RISING |
                          Pin.IRQ_FALLING, handler=callback)
-led_strip_data_pin.irq(trigger=Pin.IRQ_RISING |
-                       Pin.IRQ_FALLING, handler=output_callback)
+
+# test with oscilloscope (signal)
 
 # if participant: get signal from host via wifi
