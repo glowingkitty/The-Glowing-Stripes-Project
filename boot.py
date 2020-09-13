@@ -3,10 +3,19 @@ import sys
 from os import listdir
 
 import esp
-import machine
 import network
 import uos
 import webrepl
+from machine import Pin
+
+################
+# Settings #####
+################
+host_wifi_name = 'GlowingStripes'
+host_wifi_password = 'letsglow'
+dreamcolor_input_pin = 5
+led_strip_data_pin = 4
+#################
 
 esp.osdebug(None)
 # uos.dupterm(None, 1) # disable REPL on UART(0)
@@ -19,9 +28,6 @@ wifi_networks = wlan.scan()
 
 # search for wifi hotspot
 print('Searching for host nearby...')
-host_wifi_name = 'GlowingStripes'
-host_wifi_password = 'letsglow'
-
 for network_info in wifi_networks:
     if host_wifi_name in network_info[0]:
         print('Found existing host nearby. Connecting as participant...')
@@ -46,9 +52,17 @@ elif role == 'host':
               authmode=network.AUTH_WPA_WPA2_PSK,
               password=host_wifi_password)
 
-
-# if host: get signal from Dreamcolor Microcontroller & share it via wifi
-# if participant: get signal from host via wifi
-
+# start webrepl to interact with ESP, update code and test
 webrepl.start()
 gc.collect()
+
+# if host: get signal from Dreamcolor Microcontroller & share it via wifi
+test_counter = 0
+while test_counter < 100:
+    dreamcolor_input = Pin(dreamcolor_input_pin, Pin.IN).value()
+    print('dreamcolor_input: '+str(dreamcolor_input))
+    Pin(led_strip_data_pin, Pin.OUT).value(dreamcolor_input)
+    test_counter += 1
+
+
+# if participant: get signal from host via wifi
