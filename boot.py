@@ -13,9 +13,13 @@ from machine import Pin
 ################
 host_wifi_name = 'GlowingStripes'
 host_wifi_password = 'letsglow'
-dreamcolor_input_pin = 5
-led_strip_data_pin = 4
+dreamcolor_input_pin_num = 5
+led_strip_data_pin_num = 4
 #################
+
+# define pins
+dreamcolor_input_pin = Pin(dreamcolor_input_pin_num, Pin.IN)
+led_strip_data_pin = Pin(led_strip_data_pin_num, Pin.OUT)
 
 esp.osdebug(None)
 # uos.dupterm(None, 1) # disable REPL on UART(0)
@@ -57,12 +61,19 @@ webrepl.start()
 gc.collect()
 
 # if host: get signal from Dreamcolor Microcontroller & share it via wifi
-test_counter = 0
-while test_counter < 100:
-    dreamcolor_input = Pin(dreamcolor_input_pin, Pin.IN).value()
-    print('dreamcolor_input: '+str(dreamcolor_input))
-    Pin(led_strip_data_pin, Pin.OUT).value(dreamcolor_input)
-    test_counter += 1
 
+
+def callback(p):
+    led_strip_data_pin.value(p.value())
+
+
+def output_callback(p):
+    print('output: '+str(p.value()))
+
+
+dreamcolor_input_pin.irq(trigger=Pin.IRQ_RISING |
+                         Pin.IRQ_FALLING, handler=callback)
+led_strip_data_pin.irq(trigger=Pin.IRQ_RISING |
+                       Pin.IRQ_FALLING, handler=output_callback)
 
 # if participant: get signal from host via wifi
