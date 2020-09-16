@@ -83,6 +83,9 @@ class Stripe():
             else:
                 print('Host not found. Please turn on the host.')
 
+    def glow_boot(self, num_of_leds):
+        self.leds.glowup_and_down(limit=num_of_leds)
+
     def glow_test(self):
         self.leds.testing()
 
@@ -112,9 +115,15 @@ class Stripe():
                 break
         s.close()
 
-    def get_signal(self):
+    def install_updates(self):
         # TODO
+        print('Search for updates...')
 
+        # see if files on host are more recently updated - if true, copy those files and restart
+
+        print('Updated files...')
+
+    def get_signal(self):
         tim1 = Timer(1)
         tim1.init(callback=self.get_current_mode, period=2000)
 
@@ -126,7 +135,10 @@ class Stripe():
                 self.glow_up_and_down()
 
     def on(self):
+        self.glow_boot(1)
         self.connect_to_host()
+
+        self.glow_boot(2)
         self.get_signal()
 
     def restart(self):

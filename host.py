@@ -1,8 +1,12 @@
+import os
 import socket
+import sys
+import time
 
 import network
 import webrepl
 from machine import Pin
+from update import Update
 
 
 class Host():
@@ -81,9 +85,26 @@ class Host():
 
         self.server_socket = socket.socket()
         self.server_socket.bind(self.server_addr)
-        self.server_socket.listen(1)
+        self.server_socket.listen(10)
 
         print('Started istening on', self.server_addr)
+
+        # while True:
+        #     self.server_cl, self.server_addr = self.server_socket.accept()
+        #     print('client connected from', self.server_addr)
+
+        #     f = open('stripe.py', 'wb')  # open in binary
+        #     while (True):
+        #         # receive data and write it to file
+        #         l = self.server_cl.recv(1024)
+        #         while (l):
+        #             f.write(l)
+        #             l = self.server_cl.recv(1024)
+        #     f.close()
+
+        #     self.server_cl.close()
+
+        # self.server_socket.close()
 
         while True:
             self.server_cl, self.server_addr = self.server_socket.accept()
