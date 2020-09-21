@@ -2,11 +2,13 @@ import os
 import socket
 import sys
 import time
+from time import sleep
+
+from MicroWebSrv2 import *
 
 import network
 import webrepl
 from machine import Pin
-from update import Update
 
 
 class Host():
@@ -62,13 +64,6 @@ class Host():
                            password=self.host_wifi_password)
             print('Host wifi accessible now as "{}"'.format(self.host_wifi_name))
 
-    def forward_dreamcolor_signal(self):
-        def callback(p):
-            self.led_strip_data_pin.value(p.value())
-            print(p.value())
-
-        self.dreamcolor_input_pin.irq(handler=callback)
-
     def activate_webrepl(self):
         if self.test:
             print('webrepl can only be used on real hardware, not in test mode.')
@@ -81,46 +76,33 @@ class Host():
 
     def start_server(self):
         print('Starting server...')
-        self.server_addr = socket.getaddrinfo('192.168.4.1', 80)[0][-1]
 
-        self.server_socket = socket.socket()
-        self.server_socket.bind(self.server_addr)
-        self.server_socket.listen(10)
+        @WebRoute(GET, '/mode', name='Current mode')
+        def RequestMode(microWebSrv2, request):
+            request.Response.ReturnOkJSON({
+                'current_mode': 'glow_rainbow'
+            })
 
-        print('Started istening on', self.server_addr)
+        @WebRoute(GET, '/files', name='Overview of available files')
+        def RequestFiles(microWebSrv2, request):
+            request.Response.ReturnOkJSON({
+                'files': ['stripe.py']
+            })
 
-        # while True:
-        #     self.server_cl, self.server_addr = self.server_socket.accept()
-        #     print('client connected from', self.server_addr)
+        mws2 = MicroWebSrv2()
+        mws2.SetEmbeddedConfig()
+        mws2._slotsCount = 4
+        mws2.StartManaged()
 
-        #     f = open('stripe.py', 'wb')  # open in binary
-        #     while (True):
-        #         # receive data and write it to file
-        #         l = self.server_cl.recv(1024)
-        #         while (l):
-        #             f.write(l)
-        #             l = self.server_cl.recv(1024)
-        #     f.close()
-
-        #     self.server_cl.close()
-
-        # self.server_socket.close()
-
-        while True:
-            self.server_cl, self.server_addr = self.server_socket.accept()
-            print('client connected from', self.server_addr)
-            self.server_cl.send(
-                'HTTP/1.0 200 OK\r\nContent-type: application/json\r\n\r\n')
-            self.server_cl.send(
-                """{"current_mode": """+('"'+self.default_mode+'"')+"""}""")
-            self.server_cl.close()
+        # Main program loop until keyboard interrupt,
+        try:
+            while True:
+                sleep(1)
+        except KeyboardInterrupt:
+            mws2.Stop()
 
     def on(self):
         self.start_host_wifi()
-
-        # TODO: forwarding signal doesn't work
-        # self.forward_dreamcolor_signal()
-
         self.start_server()
 
     def restart(self):

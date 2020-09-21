@@ -2,13 +2,13 @@
 import gc
 
 import esp
-from stripe import Stripe
+from www.host import Host
 
-# from host import Host
+# from www.stripe import Stripe
 
 esp.osdebug(None)
 
 gc.collect()
 
-Stripe().on()
-# Host().on()
+# Stripe().on()
+Host().on()

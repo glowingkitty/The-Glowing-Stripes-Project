@@ -84,7 +84,7 @@ class Stripe():
                 print('Host not found. Please turn on the host.')
 
     def glow_boot(self, num_of_leds):
-        self.leds.glowup_and_down(limit=num_of_leds)
+        self.leds.count_glowing(limit=num_of_leds)
 
     def glow_test(self):
         self.leds.testing()
@@ -98,7 +98,7 @@ class Stripe():
     def get_current_mode(self, other_arguments=None):
         print('get_current_mode')
         host = self.host_server_ip
-        path = ''
+        path = 'mode'
         addr = socket.getaddrinfo(self.host_server_ip, 80)[0][-1]
         s = socket.socket()
         s.connect(addr)
@@ -106,10 +106,13 @@ class Stripe():
                      (path, host), 'utf8'))
         while True:
             data = s.recv(100)
+            print(data)
+            print(str(data, 'utf8'))
             if data:
                 if '{"current_mode": "' in str(data, 'utf8'):
                     self.current_mode = str(data, 'utf8').split(
                         '{"current_mode": "')[1].split('"}')[0]
+                    print(self.current_mode)
                     print('mode: ', self.current_mode)
             else:
                 break
