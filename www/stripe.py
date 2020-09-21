@@ -98,7 +98,7 @@ class Stripe():
 
     def get_current_mode(self, other_arguments=None):
         print('Request mode ...')
-        response = urequests.get('http://192.168.4.1/mode')
+        response = urequests.get('http://192.168.4.1/current_mode.json')
         parsed = response.json()
         self.current_mode = parsed['current_mode']
         print('mode: ', self.current_mode)
@@ -113,7 +113,7 @@ class Stripe():
 
     def get_signal(self):
         tim1 = Timer(1)
-        tim1.init(callback=self.get_current_mode, period=2000)
+        tim1.init(callback=self.get_current_mode, period=5000)
 
         while True:
 

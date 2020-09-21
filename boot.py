@@ -2,9 +2,9 @@
 import gc
 
 import esp
-from www.host import Host
+from host import Host
 
-# from www.stripe import Stripe
+# from stripe import Stripe
 
 esp.osdebug(None)
 

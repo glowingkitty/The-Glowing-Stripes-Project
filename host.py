@@ -4,11 +4,10 @@ import sys
 import time
 from time import sleep
 
-from MicroWebSrv2 import *
-
 import network
 import webrepl
 from machine import Pin
+from MicroWebSrv2 import *
 
 
 class Host():
@@ -77,16 +76,11 @@ class Host():
     def start_server(self):
         print('Starting server...')
 
-        @WebRoute(GET, '/mode', name='Current mode')
-        def RequestMode(microWebSrv2, request):
-            request.Response.ReturnOkJSON({
-                'current_mode': 'glow_rainbow'
-            })
-
-        @WebRoute(GET, '/files', name='Overview of available files')
+        # Define web routes
+        @WebRoute(GET, '/files', name='Overview of files which can be updated')
         def RequestFiles(microWebSrv2, request):
             request.Response.ReturnOkJSON({
-                'files': ['stripe.py']
+                'files': [x for x in os.listdir('www') if x != '__init__.py' and x != 'current_mode.json']
             })
 
         mws2 = MicroWebSrv2()
@@ -103,6 +97,7 @@ class Host():
 
     def on(self):
         self.start_host_wifi()
+        self.activate_webrepl()
         self.start_server()
 
     def restart(self):
