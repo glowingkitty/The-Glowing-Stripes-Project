@@ -1,6 +1,7 @@
 import socket
 
 import network
+import urequests
 import webrepl
 from machine import Pin, Timer
 from neopixel_plus import NeoPixel
@@ -96,27 +97,11 @@ class Stripe():
         self.leds.rainbow_animation(limit=limit)
 
     def get_current_mode(self, other_arguments=None):
-        print('get_current_mode')
-        host = self.host_server_ip
-        path = 'mode'
-        addr = socket.getaddrinfo(self.host_server_ip, 80)[0][-1]
-        s = socket.socket()
-        s.connect(addr)
-        s.send(bytes('GET /%s HTTP/1.0\r\nHost: %s\r\n\r\n' %
-                     (path, host), 'utf8'))
-        while True:
-            data = s.recv(100)
-            print(data)
-            print(str(data, 'utf8'))
-            if data:
-                if '{"current_mode": "' in str(data, 'utf8'):
-                    self.current_mode = str(data, 'utf8').split(
-                        '{"current_mode": "')[1].split('"}')[0]
-                    print(self.current_mode)
-                    print('mode: ', self.current_mode)
-            else:
-                break
-        s.close()
+        print('Request mode ...')
+        response = urequests.get('http://192.168.4.1/mode')
+        parsed = response.json()
+        self.current_mode = parsed['current_mode']
+        print('mode: ', self.current_mode)
 
     def install_updates(self):
         # TODO
