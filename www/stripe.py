@@ -100,6 +100,7 @@ class Stripe():
         print('Request mode ...')
         response = urequests.get('http://192.168.4.1/current_mode.json')
         parsed = response.json()
+        response.close()
         self.current_mode = parsed['current_mode']
         print('mode: ', self.current_mode)
 

@@ -1,3 +1,4 @@
+import json
 import os
 import socket
 import sys
@@ -77,15 +78,48 @@ class Host():
         print('Starting server...')
 
         # Define web routes
+        @WebRoute(GET, '/', name='Control interface')
+        def RequestFiles(microWebSrv2, request):
+            request.Response.ReturnRedirect('/index.pyhtml')
+
+        @WebRoute(POST, '/', name='Change LED strip mode')
+        def RequestTestPost(microWebSrv2, request):
+            data = request.GetPostedURLEncodedForm()
+            try:
+                print('Updating LED strip mode...')
+
+                # TODO send new status to LED strips and make them listen via socket?
+
+                with open('www/current_mode.json') as json_file:
+                    json_data = json.load(json_file)
+
+                    json_data['current_mode'] = data['mode']
+
+                    # write updated mode
+                    with open('www/current_mode.json', 'w') as outfile:
+                        json.dump(json_data, outfile)
+
+                    print('New mode: ', data['mode'])
+            except:
+                print('Update failed!')
+                request.Response.ReturnBadRequest()
+                return
+            request.Response.ReturnOk()
+
         @WebRoute(GET, '/files', name='Overview of files which can be updated')
         def RequestFiles(microWebSrv2, request):
             request.Response.ReturnOkJSON({
-                'files': [x for x in os.listdir('www') if x != '__init__.py' and x != 'current_mode.json']
+                'files': [x for x in os.listdir('www') if x != '__init__.py' and x.endswith('.py')]
             })
 
         mws2 = MicroWebSrv2()
         mws2.SetEmbeddedConfig()
+
+        pyhtmlTemplateMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
+        pyhtmlTemplateMod.ShowDebug = True
+
         mws2._slotsCount = 4
+        mws2._bindAddr = ('192.168.4.1', '80')
         mws2.StartManaged()
 
         # Main program loop until keyboard interrupt,

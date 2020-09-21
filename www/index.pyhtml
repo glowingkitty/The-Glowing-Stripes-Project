@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>The Glowing Stripes Project - Home</title>
+
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+
+    <body>
+        <form onsubmit="update_mode(this.value)">
+            <label for="mode">Select mode:</label><br>
+
+            <select name="mode" id="mode">
+                <option value="glow_rainbow">Glow: Rainbow</option>
+                <option value="glow_up_and_down">Glow: Up and down</option>
+                <option value="update">Update code</option>
+            </select>
+
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+
+</html>
