@@ -100,14 +100,14 @@ class Host():
                         'New .py file detected: "{}" - moving it to www/ folder'.format(file))
                     os.rename(file, 'www/{}'.format(file))
                     start_update = True
-                    print()
+                    self.files()
                     self.get_storage()
 
                 elif file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
                     print(
                         'New front-end file detected: "{}" - moving it to www/ folder...'.format(file))
                     os.rename(file, 'www/{}'.format(file))
-                    print()
+                    self.files()
                     self.get_storage()
 
         if start_update:
@@ -176,10 +176,16 @@ class Host():
 
     def get_storage(self):
         result = os.statvfs('/')
+        print()
         print('Total storage: {}kb'.format(result[0]))
         print('Free storage: {}kb'.format(result[3]))
+        print()
 
     def files(self):
+        print()
+        print('//////////////')
+        print('/// Files: ///')
+        print('//////////////')
         folders = []
         for filename in os.listdir():
             if '.'not in filename:
@@ -191,17 +197,11 @@ class Host():
                                           [x for x in os.listdir(folder) if '.' in x]))
             except:
                 pass
+        print()
 
     def device_info(self):
         print('//////////////////////////////////////////')
         print('/// The Glowing Stripes Project | HOST ///')
         print('/////////////////////////////////////////')
-        print()
-        print('//////////////')
-        print('/// Files: ///')
-        print('//////////////')
         self.files()
-        print()
         self.get_storage()
-        print()
-        print()

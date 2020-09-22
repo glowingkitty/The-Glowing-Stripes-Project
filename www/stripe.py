@@ -159,10 +159,16 @@ class Stripe():
 
     def get_storage(self):
         result = os.statvfs('/')
+        print()
         print('Total storage: {}kb'.format(result[0]))
         print('Free storage: {}kb'.format(result[3]))
+        print()
 
     def files(self):
+        print()
+        print('//////////////')
+        print('/// Files: ///')
+        print('//////////////')
         folders = []
         for filename in os.listdir():
             if '.'not in filename:
@@ -174,17 +180,11 @@ class Stripe():
                                           [x for x in os.listdir(folder) if '.' in x]))
             except:
                 pass
+        print()
 
     def device_info(self):
         print('///////////////////////////////////////////////')
         print('/// The Glowing Stripes Project | LED strip ///')
         print('//////////////////////////////////////////////')
-        print()
-        print('//////////////')
-        print('/// Files: ///')
-        print('//////////////')
         self.files()
-        print()
         self.get_storage()
-        print()
-        print()
