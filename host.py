@@ -11,6 +11,18 @@ from machine import Pin
 from MicroWebSrv2 import *
 
 
+def change_mode(mode):
+    with open('www/current_mode.json') as json_file:
+        json_data = json.load(json_file)
+        json_data['current_mode'] = mode
+
+    # write updated mode
+    with open('www/current_mode.json', 'w') as outfile:
+        json.dump(json_data, outfile)
+
+        print('New mode: ', json_data['current_mode'])
+
+
 class Host():
     def __init__(self,
                  host_wifi_name='🌟GlowingStripes',
@@ -19,6 +31,8 @@ class Host():
                  dreamcolor_input_pin_num=5,
                  test=False
                  ):
+        self.root_files = os.listdir()
+
         # Wlan
         self.host_wifi_name = host_wifi_name
         self.host_wifi_password = host_wifi_password
@@ -28,11 +42,12 @@ class Host():
 
         # setting up the LEDs
         self.test = test
-        self.dreamcolor_input_pin_num = dreamcolor_input_pin_num
-        self.dreamcolor_input_pin = Pin(self.dreamcolor_input_pin_num, Pin.IN)
 
-        # setting up server
-        self.default_mode = 'glow_rainbow'
+    @property
+    def mode(self):
+        with open('www/current_mode.json') as json_file:
+            json_data = json.load(json_file)
+            return json_data['current_mode']
 
     def activate_wifi(self):
         if self.test:
@@ -74,6 +89,32 @@ class Host():
                 self.start_host_wifi()
             webrepl.start(password=self.webrepl_password)
 
+    def check_for_updates(self):
+        # Check if new files are in main folder
+        root_folder = os.listdir()
+        start_update = False
+        for file in root_folder:
+            if file not in self.root_files:
+                if file.endswith('.py'):
+                    print(
+                        'New .py file detected: "{}" - moving it to www/ folder'.format(file))
+                    os.rename(file, 'www/{}'.format(file))
+                    start_update = True
+
+                elif file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
+                    print(
+                        'New front-end file detected: "{}" - moving it to www/ folder...'.format(file))
+                    os.rename(file, 'www/{}'.format(file))
+
+        if start_update:
+            print('Change mode to "update" to distribute updates...')
+            # save current mode
+            previous_mode = self.mode
+            change_mode('update')
+            # wait for 10 seconds, so every LED strip can get update mode, before switching back to previous mode
+            time.sleep(10)
+            change_mode(previous_mode)
+
     def start_server(self):
         print('Starting server...')
 
@@ -88,18 +129,9 @@ class Host():
             print('Updating LED strip mode...')
             # TODO send new status to LED strips and make them listen via socket?
 
-            with open('www/current_mode.json') as json_file:
-                json_data = json.load(json_file)
-
-                for key in data.keys():
-                    json_data['current_mode'] = key
-                    break
-
-            # write updated mode
-            with open('www/current_mode.json', 'w') as outfile:
-                json.dump(json_data, outfile)
-
-                print('New mode: ', json_data['current_mode'])
+            for key in data.keys():
+                change_mode(key)
+                break
 
             request.Response.ReturnOk()
 
@@ -112,9 +144,6 @@ class Host():
         mws2 = MicroWebSrv2()
         mws2.SetEmbeddedConfig()
 
-        # pyhtmlTemplateMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
-        # pyhtmlTemplateMod.ShowDebug = True
-
         mws2._slotsCount = 4
         mws2._bindAddr = ('192.168.4.1', '80')
         mws2.StartManaged()
@@ -122,6 +151,8 @@ class Host():
         # Main program loop until keyboard interrupt,
         try:
             while True:
+                # check if new files available, if true, move them and activate update mode
+                self.check_for_updates()
                 sleep(1)
         except KeyboardInterrupt:
             mws2.Stop()
