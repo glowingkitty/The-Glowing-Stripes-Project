@@ -105,16 +105,32 @@ class Stripe():
         print('mode: ', self.current_mode)
 
     def install_updates(self):
-        # TODO
         print('Search for updates...')
+        self.glow_boot(3)
+        response = urequests.get('http://192.168.4.1/files')
+        parsed = response.json()
+        response.close()
 
-        # see if files on host are more recently updated - if true, copy those files and restart
+        self.glow_boot(2)
+        print('Download files...', str(parsed['files']))
+        for file_name in parsed['files']:
+            print('Download "{}"...'.format(file_name))
+            response = urequests.get('http://192.168.4.1/'+file_name)
+            content = response.content
+            response.close()
 
+            f = open(file_name, "w")
+            f.write(content)
+            f.close()
         print('Updated files...')
+
+        self.glow_boot(1)
+        print('Restarting LED strip...')
+        self.restart()
 
     def get_signal(self):
         tim1 = Timer(1)
-        tim1.init(callback=self.get_current_mode, period=5000)
+        tim1.init(callback=self.get_current_mode, period=10000)
 
         while True:
 
@@ -122,6 +138,8 @@ class Stripe():
                 self.glow_rainbow()
             elif self.current_mode == 'glow_up_and_down':
                 self.glow_up_and_down()
+            elif self.current_mode == 'update':
+                self.install_updates()
 
     def on(self):
         self.glow_boot(1)
