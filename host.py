@@ -79,31 +79,28 @@ class Host():
 
         # Define web routes
         @WebRoute(GET, '/', name='Control interface')
-        def RequestFiles(microWebSrv2, request):
-            request.Response.ReturnRedirect('/index.pyhtml')
+        def RequestLandingpage(microWebSrv2, request):
+            request.Response.ReturnRedirect('/index.html')
 
         @WebRoute(POST, '/', name='Change LED strip mode')
-        def RequestTestPost(microWebSrv2, request):
+        def PostNewLEDmode(microWebSrv2, request):
             data = request.GetPostedURLEncodedForm()
-            try:
-                print('Updating LED strip mode...')
+            print('Updating LED strip mode...')
+            # TODO send new status to LED strips and make them listen via socket?
 
-                # TODO send new status to LED strips and make them listen via socket?
+            with open('www/current_mode.json') as json_file:
+                json_data = json.load(json_file)
 
-                with open('www/current_mode.json') as json_file:
-                    json_data = json.load(json_file)
+                for key in data.keys():
+                    json_data['current_mode'] = key
+                    break
 
-                    json_data['current_mode'] = data['mode']
+            # write updated mode
+            with open('www/current_mode.json', 'w') as outfile:
+                json.dump(json_data, outfile)
 
-                    # write updated mode
-                    with open('www/current_mode.json', 'w') as outfile:
-                        json.dump(json_data, outfile)
+                print('New mode: ', json_data['current_mode'])
 
-                    print('New mode: ', data['mode'])
-            except:
-                print('Update failed!')
-                request.Response.ReturnBadRequest()
-                return
             request.Response.ReturnOk()
 
         @WebRoute(GET, '/files', name='Overview of files which can be updated')
@@ -115,8 +112,8 @@ class Host():
         mws2 = MicroWebSrv2()
         mws2.SetEmbeddedConfig()
 
-        pyhtmlTemplateMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
-        pyhtmlTemplateMod.ShowDebug = True
+        # pyhtmlTemplateMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
+        # pyhtmlTemplateMod.ShowDebug = True
 
         mws2._slotsCount = 4
         mws2._bindAddr = ('192.168.4.1', '80')
