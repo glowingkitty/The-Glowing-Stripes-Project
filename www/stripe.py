@@ -45,6 +45,8 @@ class Stripe():
     def activate_webrepl(self):
         print('Starting LEDstrip wifi...')
         self.ap = network.WLAN(network.AP_IF)
+        self.ap.ifconfig(
+            config=('192.168.4.91', '255.255.255.0', '192.168.4.1', '192.168.4.1'))
         self.ap.active(True)
         self.ap.config(essid='LEDstrip',
                        authmode=network.AUTH_WPA_WPA2_PSK,
@@ -107,12 +109,11 @@ class Stripe():
 
     def install_updates(self):
         print('Search for updates...')
-        self.glow_boot(3)
+        self.glow_boot(1)
         response = urequests.get('http://192.168.4.1/files')
         parsed = response.json()
         response.close()
 
-        self.glow_boot(2)
         print('Download files...', str(parsed['files']))
         for file_name in parsed['files']:
             print('Download "{}"...'.format(file_name))
@@ -125,7 +126,6 @@ class Stripe():
             f.close()
         print('Updated files...')
 
-        self.glow_boot(1)
         print('Restarting LED strip...')
         self.restart()
 
