@@ -1,3 +1,4 @@
+import os
 import socket
 
 import network
@@ -143,6 +144,7 @@ class Stripe():
 
     def on(self):
         self.glow_boot(1)
+        self.device_info()
         self.connect_to_host()
 
         self.glow_boot(2)
@@ -154,3 +156,35 @@ class Stripe():
         else:
             import machine
             machine.reset()
+
+    def get_storage(self):
+        result = os.statvfs('/')
+        print('Total storage: {}kb'.format(result[0]))
+        print('Free storage: {}kb'.format(result[3]))
+
+    def files(self):
+        folders = []
+        for filename in os.listdir():
+            if '.'not in filename:
+                folders.append(filename)
+        print('/ -> {}'.format([x for x in os.listdir() if '.' in x]))
+        for folder in folders:
+            try:
+                print('/{}/ -> {}'.format(folder,
+                                          [x for x in os.listdir(folder) if '.' in x]))
+            except:
+                pass
+
+    def device_info(self):
+        print('///////////////////////////////////////////////')
+        print('/// The Glowing Stripes Project | LED strip ///')
+        print('//////////////////////////////////////////////')
+        print()
+        print('//////////////')
+        print('/// Files: ///')
+        print('//////////////')
+        self.files()
+        print()
+        self.get_storage()
+        print()
+        print()

@@ -100,11 +100,15 @@ class Host():
                         'New .py file detected: "{}" - moving it to www/ folder'.format(file))
                     os.rename(file, 'www/{}'.format(file))
                     start_update = True
+                    print()
+                    self.get_storage()
 
                 elif file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
                     print(
                         'New front-end file detected: "{}" - moving it to www/ folder...'.format(file))
                     os.rename(file, 'www/{}'.format(file))
+                    print()
+                    self.get_storage()
 
         if start_update:
             print('Change mode to "update" to distribute updates...')
@@ -158,6 +162,7 @@ class Host():
             mws2.Stop()
 
     def on(self):
+        self.device_info()
         self.start_host_wifi()
         self.activate_webrepl()
         self.start_server()
@@ -168,3 +173,35 @@ class Host():
         else:
             import machine
             machine.reset()
+
+    def get_storage(self):
+        result = os.statvfs('/')
+        print('Total storage: {}kb'.format(result[0]))
+        print('Free storage: {}kb'.format(result[3]))
+
+    def files(self):
+        folders = []
+        for filename in os.listdir():
+            if '.'not in filename:
+                folders.append(filename)
+        print('/ -> {}'.format([x for x in os.listdir() if '.' in x]))
+        for folder in folders:
+            try:
+                print('/{}/ -> {}'.format(folder,
+                                          [x for x in os.listdir(folder) if '.' in x]))
+            except:
+                pass
+
+    def device_info(self):
+        print('//////////////////////////////////////////')
+        print('/// The Glowing Stripes Project | HOST ///')
+        print('/////////////////////////////////////////')
+        print()
+        print('//////////////')
+        print('/// Files: ///')
+        print('//////////////')
+        self.files()
+        print()
+        self.get_storage()
+        print()
+        print()
