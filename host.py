@@ -9,6 +9,7 @@ import network
 import webrepl
 from machine import Pin
 from MicroWebSrv2 import *
+from www.error import save_error
 
 
 def change_mode(mode):
@@ -28,7 +29,6 @@ class Host():
                  host_wifi_name='🌟GlowingStripes',
                  host_wifi_password='letsglow',
                  webrepl_password='letsglow',
-                 dreamcolor_input_pin_num=5,
                  test=False
                  ):
         self.root_files = os.listdir()
@@ -172,6 +172,7 @@ class Host():
             print('Restart can only be performed on real hardware, not in test mode.')
         else:
             import machine
+            print('Restarting host...')
             machine.reset()
 
     def get_storage(self):

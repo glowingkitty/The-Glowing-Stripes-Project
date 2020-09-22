@@ -45,8 +45,6 @@ class Stripe():
     def activate_webrepl(self):
         print('Starting LEDstrip wifi...')
         self.ap = network.WLAN(network.AP_IF)
-        self.ap.ifconfig(
-            config=('192.168.4.91', '255.255.255.0', '192.168.4.1', '192.168.4.1'))
         self.ap.active(True)
         self.ap.config(essid='LEDstrip',
                        authmode=network.AUTH_WPA_WPA2_PSK,
