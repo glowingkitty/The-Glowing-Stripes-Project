@@ -67,3 +67,9 @@
     background-size: cover;
     background-image: url("images/shadow.svg");
 }
+
+.sub_menu {
+    width: 700px;
+    margin: auto;
+    text-align: center;
+}
