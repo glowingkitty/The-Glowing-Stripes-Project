@@ -9,6 +9,14 @@
     background: #000000;
 }
 
+.header_overlay {
+    margin: auto;
+    width: 600px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
 .main_window {
     position: relative;
     z-index: 10;
@@ -47,4 +55,15 @@
 
 .glow_text {
     color: #DF0A0A;
+}
+
+.shadow {
+    width: 1195px;
+    height: 200px;
+    margin: auto;
+    margin-top: -100px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("images/shadow.svg");
 }
