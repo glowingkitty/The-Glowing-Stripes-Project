@@ -1,0 +1,50 @@
+.background {
+    background: #FFFFFF;
+    font-family: Lexend Deca;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.background.darkmode {
+    background: #000000;
+}
+
+.main_window {
+    position: relative;
+    z-index: 10;
+    margin: auto;
+    margin-top: -80px;
+    width: 600px;
+    background: #F0F0F0;
+    border: 1px solid #E8E8E8;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 26px;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    color: #000000;
+}
+
+.main_window.darkmode {
+    background: #292929;
+    border: 1px solid #505050;
+    color: #FFFFFF;
+}
+
+.num_of_connected_leds {
+    display: inline-block;
+    width: 19px;
+    height: 19px;
+    padding: 3px;
+    border-radius: 20px;
+    background: #FFFFFF;
+}
+
+.num_of_connected_leds.darkmode {
+    background: #000000;
+}
+
+.glow_text {
+    color: #DF0A0A;
+}

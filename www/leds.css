@@ -1,0 +1,55 @@
+.leds_preview_block {
+    margin: auto;
+    margin-top: 40px;
+    width: 600px;
+    min-height: 300px;
+    text-align: center;
+}
+
+.led_strip {
+    display: inline-block;
+    padding-right: 20px;
+    padding-left: 20px;
+    position: relative;
+    top: 0;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.led_strip.up_1 {
+    top: -20px;
+}
+
+.led_strip.up_2 {
+    top: -40px;
+}
+
+.led_strip.up_3 {
+    top: -60px;
+}
+
+.led_strip_part {
+    margin: auto;
+    width: 12px;
+    padding-right: 2px;
+    padding-left: 2px;
+    background: rgba(85, 85, 85, 0.4);
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.led {
+    width: 8px;
+    height: 6px;
+    margin: auto;
+    background: #ff0000;
+    box-shadow: 0 0px 35px 0 rgb(255, 0, 0)
+}
+
+.led_strip_base {
+    width: 26px;
+    height: 100px;
+    margin: auto;
+    margin-top: -2px;
+    background: rgba(57, 57, 57, 0.69);
+}

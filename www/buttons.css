@@ -1,0 +1,150 @@
+.cta {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px;
+    padding-right: 14px;
+    padding-left: 14px;
+    font-size: 16px;
+    line-height: 18px;
+    border-radius: 6px;
+    box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.4);
+    position: relative;
+    top: 0;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.cta:hover {
+    top: -10px;
+    cursor: pointer;
+}
+
+.cta.primary {
+    background: #FF3F3F;
+    color: #FFFFFF;
+}
+
+.cta.secondary {
+    background: #FFFFFF;
+    color: #575757;
+    border: 1px solid #DCDCDC;
+    box-sizing: border-box;
+}
+
+.cta.darkmode {
+    background: #2F2F2F;
+    color: #FFFFFF;
+    border: 1px solid #414141;
+    box-sizing: border-box;
+}
+
+.with_icon {
+    padding-left: 35px;
+    background-repeat: no-repeat !important;
+    background-position: left 10px center !important;
+    background-size: 17px 17px !important;
+}
+
+.code {
+    background-image: url("icons/code.svg") !important;
+}
+
+.code_dark {
+    background-image: url("icons/code_dark.svg") !important;
+}
+
+.customize {
+    background-image: url("icons/customize.svg") !important;
+}
+
+.customize_dark {
+    background-image: url("icons/customize_dark.svg") !important;
+}
+
+.dark_mode {
+    background-image: url("icons/dark_mode.svg") !important;
+}
+
+.dark_mode_dark {
+    background-image: url("icons/dark_mode_dark.svg") !important;
+}
+
+.delete {
+    background-image: url("icons/delete.svg") !important;
+}
+
+.delete_dark {
+    background-image: url("icons/delete_dark.svg") !important;
+}
+
+.error {
+    background-image: url("icons/error.svg") !important;
+}
+
+.error_dark {
+    background-image: url("icons/error_dark.svg") !important;
+}
+
+.light_mode {
+    background-image: url("icons/light_mode.svg") !important;
+}
+
+.light_mode_dark {
+    background-image: url("icons/light_mode_dark.svg") !important;
+}
+
+.move {
+    background-image: url("icons/move.svg") !important;
+}
+
+.move_dark {
+    background-image: url("icons/move_dark.svg") !important;
+}
+
+.multi_select {
+    background-image: url("icons/multi_select.svg") !important;
+}
+
+.multi_select_dark {
+    background-image: url("icons/multi_select_dark.svg") !important;
+}
+
+.save {
+    background-image: url("icons/save.svg") !important;
+}
+
+.save_dark {
+    background-image: url("icons/save_dark.svg") !important;
+}
+
+.share {
+    background-image: url("icons/share.svg") !important;
+}
+
+.share_dark {
+    background-image: url("icons/share_dark.svg") !important;
+}
+
+.sync {
+    background-image: url("icons/sync.svg") !important;
+}
+
+.sync_dark {
+    background-image: url("icons/sync_dark.svg") !important;
+}
+
+.true {
+    background-image: url("icons/true.svg") !important;
+}
+
+.true_dark {
+    background-image: url("icons/true_dark.svg") !important;
+}
+
+.undo {
+    background-image: url("icons/undo.svg") !important;
+}
+
+.undo_dark {
+    background-image: url("icons/undo_dark.svg") !important;
+}
