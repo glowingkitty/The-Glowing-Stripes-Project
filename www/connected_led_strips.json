@@ -1,0 +1,33 @@
+{
+    "LED strips": [{
+        "id": "hs72si2n",
+        "name": "LED strip 1",
+        "length": 4,
+        "mode": {
+            "name": "rainbow",
+            "direction": "down",
+            "brightness": 100,
+            "speed": 100
+        }
+    }, {
+        "id": "8sjs023d",
+        "name": "LED strip 2",
+        "length": 2,
+        "mode": {
+            "name": "rainbow",
+            "direction": "down",
+            "brightness": 100,
+            "speed": 100
+        }
+    }, {
+        "id": "0dha81hx",
+        "name": "LED strip 3",
+        "length": 4,
+        "mode": {
+            "name": "rainbow",
+            "direction": "down",
+            "brightness": 100,
+            "speed": 100
+        }
+    }]
+}
