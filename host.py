@@ -8,6 +8,7 @@ from time import sleep
 import network
 import webrepl
 from machine import Pin
+
 from MicroWebSrv2 import *
 from www.error import save_error
 
@@ -150,6 +151,7 @@ class Host():
 
         mws2._slotsCount = 4
         mws2._bindAddr = ('192.168.4.1', '80')
+        mws2._allowAllOrigins = True
         mws2.StartManaged()
 
         # Main program loop until keyboard interrupt,

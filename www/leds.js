@@ -46,7 +46,7 @@ let LEDstrip = class {
 
         // show "ready to glow?" if at least one LED strip connected
         if (parseInt(document.getElementById('num_strips').innerText) > 0) {
-            document.getElementById('ready_to_glow').innerHTML = 'Ready to <span class="glow_text">glow</span>?<br><br><a class="cta primary with_icon true">Buildup complete</a>'
+            document.getElementById('ready_to_glow').innerHTML = 'Ready to <span class="glow_text">glow</span>?<br><br><a id="buildup_complete_button" class="cta primary with_icon true">Buildup complete</a>'
         }
 
     }
@@ -90,7 +90,7 @@ function show_connected_led_strips() {
     var intr = setInterval(function () {
         console.log('Searching for LED strips...')
 
-        axios.get("/connected_led_strips.json")
+        axios.get("http://192.168.4.1/connected_led_strips.json")
             .then(function (response) {
                 let led_strips_json = response.data
                 var i;
