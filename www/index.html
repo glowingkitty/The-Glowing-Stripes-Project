@@ -14,6 +14,7 @@
 
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="leds.js"></script>
+        <script src="control.js"></script>
     </head>
 
     <body class="background darkmode" onload="boot()">
@@ -26,16 +27,53 @@
         </div>
 
         <div class="main_window darkmode">
-            <span id="num_strips" class="num_of_connected_leds darkmode">0</span> LED <span id="text_strips">strips</span> connected.<br>
-            <span id="ready_to_glow"></span>
+
+            <div class="main_window_content">
+                
+                <div class="left_aligned_maincontent">
+
+                    <div>
+                        All <span id="num_strips" class="num_of_connected_leds darkmode">0</span> LED <span id="text_strips">strips</span>
+                        <span class="text_cta with_icon edit right_positioned">Edit name</span>
+                    </div>
+
+                    <select class="mode_selector">
+                        <optgroup label="Custom modes">
+                        </optgroup>
+                        <optgroup label="Default modes">
+                            <option selected="selected" value="rainbow">Rainbow</option>
+                            <option value="up_and_down">Up and down</option>
+                        </optgroup>
+                    </select>
+
+                    <a class="button_customize_animation customize right_positioned"></a>
+
+                    <div>
+
+                        <label class="checkbox">Sync all
+                            <input id="sync_all" type="checkbox" checked="checked">
+                            <span class="checkmark"></span>
+                        </label>
+
+                        <label class="checkbox right_positioned">Multi select
+                            <input id="multi_select" type="checkbox" checked="checked">
+                            <span class="checkmark"></span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
     
         <div class="shadow"></div>
 
         <div class="sub_menu">
 
-            <a href="/webrepl.html#192.168.4.1:8266" target="_blank" class="cta darkmode with_icon code">WebREPL</a>
-            <a href="/error_log.json" target="_blank" class="cta darkmode with_icon error">Error log</a>
+            <a href="webrepl.html#192.168.4.1:8266" target="_blank" class="cta darkmode with_icon code">WebREPL</a>
+            <a href="error_log.json" target="_blank" class="cta darkmode with_icon error">Error log</a>
             <a class="cta darkmode with_icon share">Export settings</a>
             <a class="cta darkmode with_icon light_mode">Light mode</a>
         

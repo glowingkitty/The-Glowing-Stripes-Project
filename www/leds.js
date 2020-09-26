@@ -1,3 +1,6 @@
+var intr
+var num_of_led_strips = 0
+
 let LEDstrip = class {
     constructor(id, name, mode, num_of_parts) {
         this.id = id
@@ -36,19 +39,14 @@ let LEDstrip = class {
         document.getElementsByClassName('leds_preview_block')[0].innerHTML = document.getElementsByClassName('leds_preview_block')[0].innerHTML + this.html
 
         // update number of LEDs
-        document.getElementById('num_strips').innerText = parseInt(document.getElementById('num_strips').innerText) + 1;
+        num_of_led_strips += 1
+        document.getElementById('num_strips').innerText = num_of_led_strips;
 
-        if (parseInt(document.getElementById('num_strips').innerText) == 1) {
+        if (num_of_led_strips == 1) {
             document.getElementById('text_strips').innerText = 'strip'
         } else {
             document.getElementById('text_strips').innerText = 'strips'
         }
-
-        // show "ready to glow?" if at least one LED strip connected
-        if (parseInt(document.getElementById('num_strips').innerText) > 0) {
-            document.getElementById('ready_to_glow').innerHTML = 'Ready to <span class="glow_text">glow</span>?<br><br><a id="buildup_complete_button" class="cta primary with_icon true">Buildup complete</a>'
-        }
-
     }
 
     disconnect(inside_div) {
@@ -81,51 +79,3 @@ let LEDstrip = class {
 
     glow_rainbow() {}
 };
-
-
-function show_connected_led_strips() {
-    let led_strips = []
-
-    // load json of connected_led_strips and create objects
-    var intr = setInterval(function () {
-        console.log('Searching for LED strips...')
-
-        axios.get("http://192.168.4.1/connected_led_strips.json")
-            .then(function (response) {
-                let led_strips_json = response.data
-                var i;
-                for (i = 0; i < led_strips_json['LED strips'].length; i++) {
-
-                    // check if LED strip already exists, only add if it doesn't exist yet
-                    if (!document.getElementById(led_strips_json['LED strips'][i]['id'])) {
-                        led_strips[i] = new LEDstrip(
-                            id = led_strips_json['LED strips'][i]['id'],
-                            name = led_strips_json['LED strips'][i]['name'],
-                            mode = led_strips_json['LED strips'][i]['mode'],
-                            num_of_parts = led_strips_json['LED strips'][i]['length']
-                        );
-                        led_strips[i].connect()
-                    }
-
-                }
-
-                // break loop if "Buildup complete" button is pressed
-                if (!document.getElementById('buildup_complete_button')) {
-                    clearInterval(intr)
-                }
-
-            })
-            .catch(function (error) {
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
-            });
-
-    }, 1000)
-
-}
-
-function boot() {
-    show_connected_led_strips()
-}

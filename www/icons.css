@@ -30,6 +30,14 @@
     background-image: url("icons/delete_dark.svg") !important;
 }
 
+.edit {
+    background-image: url("icons/edit.svg") !important;
+}
+
+.edit_dark {
+    background-image: url("icons/edit_dark.svg") !important;
+}
+
 .error {
     background-image: url("icons/error.svg") !important;
 }
