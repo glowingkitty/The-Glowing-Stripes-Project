@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4f, 2020-05-01)"
+   sodipodi:docname="base.svg"
+   id="svg839"
+   version="1.1"
+   viewBox="91 249 296.989013671875 242"
+   height="242mm"
+   width="296.989013671875mm">
+  <metadata
+     id="metadata845">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs843" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg839"
+     inkscape:window-maximized="0"
+     inkscape:window-y="23"
+     inkscape:window-x="0"
+     inkscape:cy="741.39752"
+     inkscape:cx="318.1947"
+     inkscape:zoom="1.2686216"
+     showgrid="false"
+     id="namedview841"
+     inkscape:window-height="1035"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <title
+     id="title833">svgOutput</title>
+  <desc
+     id="desc835">made with tinkercad</desc>
+  <path
+     sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+     style="stroke-width:0.504;stroke-miterlimit:4;stroke-dasharray:none"
+     id="path837"
+     stroke-width="0.001mm"
+     stroke="#ff0000"
+     fill="none"
+     d="M 254.97099,398.99799 H 253 251.96899 V 428 H 250 248 V 296 282 h 3.96899 v 14 5.00299 h 3.002 v 7.995 H 253 251.96899 v 82.005 H 253 h 1.97099 v 7.995 M 240.998,429 v 13 2.00299 h 4 V 442 429.00201 h 1 1.002 1 0.99699 V 429 H 249 v 0.002 5.995 h -1 -1 -1.002 V 442 445.00201 H 249 v 9.99598 h -3.002 v 10.005 H 249 v 9.99902 h -3.002 -1 -4 V 484 H 236 v -42 -13 h 1 1 2.998 M 191,487 v -3.00201 h -1 v -3 h -1 v -3 h -1 v -3 h -1 v -3 h -7.5 v -3 h -18.005 v 3 H 133 v -3 h -1 v -2.995 -0.005 h -1 v -3 h -1 v -3 h -1 v -3 h -1 v -3 h -1 v -3 h -1 v -3 h -1 v -3 h -1 V 442 h 0.099 V 296 H 124 v -2.99701 h 0.099 0.904 v -3 h 1 v -3 h 1 v -3 h 1.00001 v -3 h 1 v -3 h 1 v -3 h 1 v -3 h 1 v -0.005 -2.995 h 1 V 266 H 161.498 v 3.00299 h 0.101 17.90401 V 266 h 0.096 27.399 0.002 0.998 1 1 1 1 1 1 1 1.002 v 2.99799 h -1.002 v 3 h -1 v 3 h -1 v 3 h -1 v 3 h -1 v 3 h -1 v 3 h -1 v 3 h -1 v 0.005 2.995 H 207 206.998 V 296 H 207 v 10.99701 h -2 -0.90401 v 15.005 H 205 h 2 v 14.995 h -2 -0.90401 v 15.005 H 205 h 2 v 14.99598 h -2 -0.90401 v 15.005 H 205 h 2 v 14.995 h -2 -0.90401 v 15.005 H 205 h 2 v 14.995 h -2 -0.90401 V 442 H 205 v -15 h 2 1 v -3.99701 h 1 2 5 3.99699 9.00301 2.99699 0.006 v -8.005 h -0.006 H 229 219.99699 216 h -5 -2 -1 V 412 h -1 -2 v -15 h 2 1 v -15 h -1 -2 v -15 h 2 1 v -15 h -1 -2 v -15 h 2 1 v -3.99701 h 1 2 5 3.99699 9.00301 2.99699 0.006 v -8.005 h -0.006 H 229 219.99699 216 h -5 -2 -1 V 322 h -1 -2 v -15 h 2 1 v -11 h 0.998 0.002 0.998 1 0.002 v -3 h 0.998 1 1 1 H 216 219.99699 229 v 3 h 2.99699 1.09101 1.912 v 10.99701 h -1.912 -1.09101 v 15.005 h 0.006 1.08499 1.912 v 14.995 h -2.99699 -0.006 v 15.005 H 235 v 14.99598 h -3.00301 v 15.005 H 235 v 14.995 h -1.912 -1.09101 v 15.005 h 0.006 1.08499 1.912 v 14.995 h -2.99699 -0.006 V 442 H 229 v 3 H 219.99699 211 v -3 h -2 -2 -0.005 v 3.00299 h 1 v 2.995 0.005 h 1 v 3 h 1 v 3 h 1 v 3 h 0.505 0.495 v 3 h 1 v 3 h 1 v 3 h 1 v 3 h 1 v 3 3 h 1 v 3 h 1 v 3 h 1 v 3 h 1.00199 V 487 h -1.00199 -1 -1 -1 -1 -1 -1 -1 -0.495 v -3.00201 h -0.505 -1 -1 -1 -1 -13.5 V 487 H 191 m 82.99799,-58 v 13 2.00299 h 3 v 0.99902 h 3 v 9.99598 h -3 v 10.005 h 3 v 9.99902 h -3 -3 -2 V 484 H 265 V 475.00201 442 429 h 6 2.99799 m 52.00302,5 v 0.002 h 2.99798 V 442 449.00299 H 329 332.99701 V 480 489 H 329 328.99899 326 v -9.99701 h 2.99899 0.001 v -10.005 h -0.001 H 326 v -9.995 h 2.99899 0.001 v -6.005 h -0.001 H 326 V 442 434.00201 434 h 10e-4 M 269.022,391.00299 H 271 v 7.995 h -1.978 -1.02401 V 428 H 265 262 V 296 282 h 5.99799 v 14 5.00299 H 271 v 7.995 h -1.978 -1.02401 v 82.005 h 1.02401 m 55.99799,42.99902 V 442 489 H 322 319 v -9.99701 h 3 v -10.005 h -3 v -9.995 h 3 v -6.005 h -3 V 442 434 h 1.5 4.51999 v 0.002 M 290.98901,398.99799 H 287.987 V 428 H 281.00299 280 V 296 282 h 7.987 v 14 5.00299 h 3.00201 v 7.995 H 287.987 v 82.005 h 3.00201 v 7.995 m -49.945,2.005 h 1.89698 1.10502 v -82.005 h -1.10502 -1.89698 v -7.995 h 1.89698 1.10502 V 296 282 H 247 v 14 132 h -2.95399 v -19.00201 h -1.10502 -1.89698 v -7.995 m 35.95398,27.99902 H 279 279.99701 V 429 h 9.8e-4 v 0.002 5.995 H 279 276.99799 v -5.995 M 264,434.99701 h -2 -1.00201 V 442 445.00201 H 264 v 9.99598 h -3.00201 v 10.005 H 264 v 9.99902 H 260.99799 255.998 V 484 H 250 V 475.00201 442 429.00201 429 h 4.97099 6.014 0.013 1.00201 2 v 5.99701 M 253,311.00299 h 1.97099 1.03102 V 296 282 h 4.98298 v 14 132 h -4.98298 V 408.99799 H 254.97099 253 v -7.995 h 1.97099 1.03102 v -82.005 H 254.97099 253 v -7.995 M 239.939,428 H 238 V 296 282 h 1.939 v 14 5.00299 h 3.00199 v 7.995 h -1.89698 -1.10501 v 82.005 h 1.10501 1.89698 v 7.995 H 241.04401 239.939 V 428 M 385,489 h -2.5 -6.49701 V 442.99799 H 376 372.99799 V 480 489 H 364.5 356 v -9 -38 -8 h 4.99799 v 8 27.99799 h 3.005 V 442 434 H 364.5 v -3 h 10.5 1 6.5 v 3 h 2.5 v 55 M 233.088,311.00299 H 235 236.09 V 296 282 H 237 v 14 132 h -0.91 V 408.99799 H 235 233.088 v -7.995 h 1.912 1.09 v -82.005 H 235 233.088 v -7.995 m 35.934,0 H 271 272.02499 V 296 282 H 279 v 14 132 h -6.97501 V 408.99799 H 271 269.022 v -7.995 h 1.978 1.02499 v -82.005 H 271 269.022 v -7.995 M 268.00299,267.923 V 266 h 7.995 v 3.00299 h 41 v 2.931 H 239 v -2.931 h 29.00299 V 267.923 m 80,0 V 266 v -1 -0.08 h -41 V 263 H 376 h 9 v 1.92001 h -9 -20.00201 v 0.08 1 1.923 h -7.995 M 325.01999,433 H 320.5 v -3 h -2.50299 -5.953 -1 H 295.00299 292 v -14.99701 h 3.00299 v -15.005 H 292 v -14.99598 h 3.00299 v -15.005 H 292 v -14.995 h 3.00299 v -15.005 H 292 v -14.995 h 3.00299 v -15.005 H 292 V 296 295.00201 h 3.00299 V 284 H 320.5 v -3 h 18 v 3 h 23.48499 1.001 0.012 v 11.00201 h 3.005 V 284 h 4.995 H 375 v 12 134 h -0.99701 -3.005 -4.995 -1.50299 -1.50201 -0.012 v -8.99799 h -0.983 -0.018 -2.987 -5.02601 V 430 H 338.5 v 3 h -5.50299 -7.97702 m 26.983,57 v -10 -0.002 H 352 h -3.00201 -6 -2.995 H 337 v -9.995 h 3.00299 2.995 6 H 352 352.003 V 459.998 H 352 h -3.00201 -6 -2.995 H 337 v -9.995 h 3.00299 2.995 v 4 h 6 H 352 352.00299 355 V 480 490 h -2.99701 M 238,263 v 2 H 219.99699 216 h -9 -27.401 -18 -37.5 H 124 123.997 117 99 97 93 92 v -5.96399 h 1 4 2 18 4.003 v -1.08002 -1.923 h 2.994 0.003 0.099 4.899 v 3.00302 h 32.601 18 27.401 4.00301 v -1.08002 -1.923 H 216 h 2.998 v 3.00302 H 219.99699 238 V 259.978 261.91199 263 m 127.99799,-5 v 1.978 1.02499 H 376 h 9 v 0.909 h -9 -48.99701 v -0.909 h 31 V 259.978 258 h 7.995 M 239,273.05499 h 137 9 v 3.943 h -9 -20.00201 V 280 h -7.995 v -3.00201 h -82.005 V 280 H 262 h -1.01501 -2.982 v -3.00201 H 239 v -3.943 m 77.99799,-12.052 v 0.909 H 239 v -0.909 h 29.00299 V 259.978 258 h 7.995 v 1.978 1.02499 h 41 m 49,4.99701 v 3.00299 H 376 h 9 v 2.931 h -9 -48.99701 v -2.931 h 31 V 267.923 266 h 7.995 m -107.995,1.923 V 266 265 264.92 H 239 V 263 h 57.99799 v 1.92001 h -31 v 0.08 1 1.923 h -7.995 M 337,439.99799 V 435 h 1.5 1.50299 2.995 v 4.99799 h -2.995 H 338.5 337 m -40,-3.00098 h -2.99899 V 442 447.00201 H 297 v 9.99598 h -2.99899 v 10.005 H 297 v 9.99902 h -2.99899 -5 V 486 h -7.004 -0.99402 v -2 -42 -11 H 290.98901 292 294.00101 297 v 5.99701 M 266.99799,258 v 1.978 h -7.995 v -3.00299 H 240 V 256.03299 250 h 136 10 v 6.97501 H 376 356.99799 V 258 v 1.978 h -7.995 V 258 256.97501 h -82.005 V 258 M 239,254.95399 H 219.99699 216 209.998 v 1.079 1.923 H 207 202.00301 v -1.923 -1.079 h -22.40401 -18 -37.5 -0.099 -0.003 -3.999 v 1.079 1.923 H 117 112.003 v -1.923 -1.079 H 99 97 93 V 250 h 4 2 18 6.997 0.003 0.099 37.5 18 27.401 9 3.99699 H 239 v 4.95399 m 73.04401,176.04802 V 442 486 h -1 -0.044 -3 v -9.99701 h 3 v -10.005 h -3 v -9.995 h 3 v -10.005 h -3 V 442 436.00299 h 3 V 431 h 0.044 1 v 0.002 M 382.5,430 H 376 V 296 284 h 7.98599 v 29.00299 h 3.00302 v 7.995 h -3.00302 v 82.005 h 3.00302 v 7.995 h -3.00302 V 430 H 382.5 m -67.50101,1.00201 V 442 446.00299 H 316 317.99701 V 486 H 316 314.99899 313 v -9.99701 H 314.99899 316 v -10.005 H 314.99899 313 v -9.995 H 314.99899 316 v -6.005 H 314.99899 313 V 442 431.00201 431 h 10e-4 v 0.002 h 1.99798 M 123,322.00201 v 14.995 h -2.997 -0.005 v 15.005 H 123 v 14.99598 h -3.002 v 7 H 119.997 117 110.998 v 10.005 h 6.002 2.997 0.001 0.005 v -2 H 123 v 14.995 h -2.997 -0.005 v 15.005 h 0.005 2.997 v 14.995 h -2.997 -0.005 V 442 H 119.997 117 v 3 H 99 v -3 h -2 -4 v -15 h 3 v -3.99701 h 1 2 11.998 6.002 2.997 0.001 0.005 v -8.005 H 119.998 119.997 117 110.998 99 97 96 V 412 h -3 v -15 h 3 v -15 h -3 v -15 h 3 v -15 h -3 v -15 h 3 v -3.99701 h 1 2 11.998 6.002 2.997 0.001 0.005 v -8.005 H 119.998 119.997 117 110.998 99 97 96 V 322 h -3 v -15 h 3 v -11 h 1 2 v -3 h 18 v 3 h 2.997 0.001 3.002 v 10.99701 h -3.002 -0.001 v 15.005 h 0.001 0.005 2.997 m 229,127.99598 h -3.00201 -6 -2.995 H 337 336.998 v 10.00402 h 0.002 3.00299 2.995 6 v 9.8e-4 H 352 v 9.995 h -3.00201 -6 -2.995 H 337 336.998 V 480 H 334 v -38 -8 h 2.99799 v 1 5.00201 h 0.002 1.5 1.50299 2.995 6 v 9.8e-4 H 352 V 442 v 7.99799 m -54.00101,27.00402 V 442 431 h 0.99802 7.99698 v 11 44 h -7.99698 v -8.99799 h -0.99802 m 63.986,-96.00402 h -2.987 v 10.005 h 2.987 0.018 v -10.005 h -0.018 m -157.98699,-109 v 18.005 h 3 0.002 0.003 v -18.005 H 207 h -0.002 -3 m -71,0 v 18.005 h 0.005 3 v -18.005 h -3 -0.005 m 70.997,176 v 18.005 h 3 0.005 v -18.005 h -0.005 -3 m 170.00799,-58 h -3.005 v 10.005 h 3.005 v -10.005 m 0,-15.00098 h -3.005 v 5.00598 h 3.005 v -5.00598 m 0,35.00098 h -3.005 v 10.005 h 3.005 v -10.005 m -241.00799,38 v 18.005 h 0.005 3 v -18.005 h -3 -0.005 m 0.102,-35.995 h 3.00501 v -15.005 H 133.097 v 15.005 m 225.90099,-1 h 2.987 0.018 v -10.005 h -0.018 -2.987 v 10.005 M 133.097,426.99799 V 442 h 3.00501 V 426.99799 H 133.097 m 0,-44.995 h 3.00501 v -15.005 H 133.097 v 15.005 m 229.90099,33 h 3.005 v -15.005 h -3.005 v 15.005 M 133.097,352.00201 h 3.00501 v -15.005 H 133.097 v 15.005 m 229.90099,-42.005 v 15.005 h 3.005 v -15.005 h -3.005 m 0,45.005 h 3.005 v -15.005 h -3.005 v 15.005 m 0,30 h 3.005 v -15.005 h -3.005 v 15.005 m -229.90099,-63 h 3.00501 v -15.005 H 133.097 Z" />
+</svg>
