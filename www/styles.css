@@ -23,22 +23,17 @@
     margin: auto;
     margin-top: -80px;
     width: 600px;
-    background: #F0F0F0;
-    border: 1px solid #E8E8E8;
     box-sizing: border-box;
     border-radius: 10px;
     padding: 26px;
     font-size: 16px;
     line-height: 20px;
     text-align: center;
-    color: #000000;
-}
-
-.main_window.darkmode {
     background: #292929;
     border: 1px solid #505050;
     color: #FFFFFF;
 }
+
 
 .main_window_content {
     /* opacity: 0; */
@@ -79,6 +74,7 @@
     background-position: center;
     background-size: cover;
     background-image: url("images/shadow.svg");
+    margin-bottom: -30px;
 }
 
 .sub_menu {
@@ -182,4 +178,35 @@
     -webkit-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
+}
+
+.mixes {
+    margin-bottom: 30px;
+}
+
+.mix {
+    opacity: 0.5;
+    display: block;
+    position: relative;
+    z-index: 10;
+    margin: auto;
+    width: 600px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding-left: 26px;
+    font-size: 16px;
+    line-height: 60px;
+    text-align: left;
+    background: #292929;
+    border: 1px solid #505050;
+    color: #FFFFFF;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.mix:hover {
+    opacity: 1;
+    cursor: pointer;
 }
