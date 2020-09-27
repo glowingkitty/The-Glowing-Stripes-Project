@@ -120,6 +120,7 @@
     -ms-user-select: none;
     user-select: none;
     margin-top: 20px;
+    margin-bottom: 30px;
 }
 
 .checkbox.with_icon {

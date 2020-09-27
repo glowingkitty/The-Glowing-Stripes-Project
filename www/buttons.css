@@ -80,3 +80,15 @@
     top: -5px;
     cursor: pointer;
 }
+
+.fixed_bottom_left {
+    position: absolute;
+    bottom: -25px;
+    left: 65px;
+}
+
+.fixed_bottom_right {
+    position: absolute;
+    bottom: -25px;
+    right: 65px;
+}
