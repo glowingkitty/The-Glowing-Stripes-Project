@@ -119,6 +119,14 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    margin-top: 20px;
+}
+
+.checkbox.with_icon {
+    padding-left: 54px;
+    background-repeat: no-repeat !important;
+    background-position: left 30px center !important;
+    background-size: 17px 17px !important;
 }
 
 /* Hide the browser's default checkbox */
@@ -147,7 +155,7 @@
 
 /* When the checkbox is checked, add a blue background */
 .checkbox input:checked~.checkmark {
-    background-color: #2196F3;
+    background-color: #f32121;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
