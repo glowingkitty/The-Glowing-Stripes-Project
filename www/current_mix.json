@@ -1,10 +1,21 @@
 {
-    "LED strips": [{
+    "sync_all": true,
+    "multi_select": false,
+    "current_mix": {
+        "id": "89sj3a",
+        "name": "Glow mix"
+    },
+    "selected_led_strips": ["hs72si2n", "8sjs023d", "0dha81hx"],
+    "selected_led_animation": "8sj9d09",
+    "led_strips": [{
         "id": "hs72si2n",
         "name": "LED strip 1",
         "length": 4,
+        "position": 0,
+        "shift": 0,
         "mode": {
-            "name": "rainbow",
+            "id": "8sj9d09",
+            "name": "Rainbow",
             "direction": "down",
             "brightness": 100,
             "speed": 100
@@ -13,8 +24,11 @@
         "id": "8sjs023d",
         "name": "LED strip 2",
         "length": 2,
+        "position": 1,
+        "shift": 1,
         "mode": {
-            "name": "rainbow",
+            "id": "8sj9d09",
+            "name": "Rainbow",
             "direction": "down",
             "brightness": 100,
             "speed": 100
@@ -23,8 +37,11 @@
         "id": "0dha81hx",
         "name": "LED strip 3",
         "length": 4,
+        "position": 2,
+        "shift": 0,
         "mode": {
-            "name": "rainbow",
+            "id": "8sj9d09",
+            "name": "Rainbow",
             "direction": "down",
             "brightness": 100,
             "speed": 100

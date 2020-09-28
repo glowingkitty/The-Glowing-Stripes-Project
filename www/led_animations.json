@@ -1,0 +1,21 @@
+{
+    "led_animations": {
+        "custom": [{
+                "id": "9s9j2js",
+                "name": "Fast rainbow",
+                "based_on": "Rainbow",
+                "direction": "down",
+                "brightness": 100,
+                "speed": 200
+            }
+
+        ],
+        "default": [{
+            "id": "8sj9d09",
+            "name": "Rainbow"
+        }, {
+            "id": "9j9dj21",
+            "name": "Up & down"
+        }]
+    }
+}

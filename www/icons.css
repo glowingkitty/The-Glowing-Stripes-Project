@@ -54,6 +54,14 @@
     background-image: url("icons/light_mode_dark.svg") !important;
 }
 
+.mix {
+    background-image: url("icons/mix.svg") !important;
+}
+
+.mix_dark {
+    background-image: url("icons/mix_dark.svg") !important;
+}
+
 .move {
     background-image: url("icons/move.svg") !important;
 }

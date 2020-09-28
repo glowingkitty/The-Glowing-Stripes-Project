@@ -184,7 +184,7 @@
     margin-bottom: 30px;
 }
 
-.mix {
+.mix_entry {
     opacity: 0.5;
     display: block;
     position: relative;
@@ -206,7 +206,14 @@
     transition: all 200ms ease;
 }
 
-.mix:hover {
+.mix_entry:hover {
     opacity: 1;
     cursor: pointer;
+}
+
+.icon {
+    background-repeat: no-repeat !important;
+    background-position: left 0px center !important;
+    background-size: 17px 17px !important;
+    padding-left: 25px;
 }

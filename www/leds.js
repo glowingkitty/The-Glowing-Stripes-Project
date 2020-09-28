@@ -1,5 +1,4 @@
 var intr
-var num_of_led_strips = 0
 
 let LEDstrip = class {
     constructor(id, name, mode, num_of_parts) {
@@ -39,7 +38,6 @@ let LEDstrip = class {
         document.getElementsByClassName('leds_preview_block')[0].innerHTML = document.getElementsByClassName('leds_preview_block')[0].innerHTML + this.html
 
         // update number of LEDs
-        num_of_led_strips += 1
         document.getElementById('num_strips').innerText = num_of_led_strips;
 
         if (num_of_led_strips == 1) {
