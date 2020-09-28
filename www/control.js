@@ -146,8 +146,10 @@ let Control = class {
                 var num_of_custom_animations = led_animations['led_animations']['custom'].length
                 var i;
                 for (i = 0; i < num_of_custom_animations; i++) {
+                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id']
                     //TODO mark mode as selected if thats the case in "current mix"
-                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id'] + '">'
+                    control_object.main_window_new_html += '">'
+                    control_object.main_window_new_html += '">'
                     control_object.main_window_new_html += led_animations['led_animations']['custom'][i]['name'] + '</option>'
                 }
                 control_object.main_window_new_html += '</optgroup>'
