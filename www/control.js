@@ -64,6 +64,7 @@ let Control = class {
                                 current_mix['led_strips'][i]['length']
                             );
                             led_strips[i].connect()
+                            led_strips[i].send_setup_color()
                         }
 
                     }

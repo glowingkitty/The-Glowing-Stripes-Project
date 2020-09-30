@@ -42,8 +42,8 @@
     width: 8px;
     height: 6px;
     margin: auto;
-    background: rgb(255, 0, 0);
-    box-shadow: 0 0px 35px 0 rgb(255, 0, 0)
+    background: rgb(0, 0, 0);
+    box-shadow: 0 0px 35px 0 rgb(0, 0, 0)
 }
 
 .led_strip_base {
