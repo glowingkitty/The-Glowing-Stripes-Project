@@ -40,9 +40,11 @@ let LEDstrip = class {
         this.animation_direction = animation_direction;
         // get setup_color
         if (setup_color == null) {
-            setup_color = this.get_setup_color()
+            this.setup_color = this.get_setup_color()
+        } else {
+            this.setup_color = setup_color
         }
-        this.leds = Array(this.num_of_leds).fill(setup_color)
+        this.leds = Array(this.num_of_leds).fill(this.setup_color)
 
         this.debug = debug
     }
@@ -56,7 +58,6 @@ let LEDstrip = class {
             console.log('LEDstrip().get_setup_color()')
         }
         for (const color_num in possible_setup_colors) {
-            console.log(possible_setup_colors[color_num])
             if (!used_setup_colors.includes(possible_setup_colors[color_num])) {
                 used_setup_colors.push(possible_setup_colors[color_num])
                 return possible_setup_colors[color_num]
@@ -109,15 +110,20 @@ let LEDstrip = class {
         } else {
             document.getElementById('text_strips').innerText = 'strips'
         }
+
+        // send new color to strip
+        axios.post("http://192.168.4.1/change", {
+            "changes": [{
+                "led_strip_ids": [this.id],
+                "new_animation": {
+                    "id": "000000",
+                    "name": "Setup mode",
+                    "color": [r, g, b]
+                }
+            }]
+        })
     }
 
-    send_setup_color() {
-        if (this.debug) {
-            console.log('LEDstrip().send_setup_color()')
-        }
-
-        //TODO send new color to strip
-    }
 
     disconnect(inside_div) {
         if (this.debug) {

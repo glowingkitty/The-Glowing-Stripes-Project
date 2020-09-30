@@ -27,8 +27,8 @@ class NeoPixel:
         if self.test:
             self.leds = [[0, 0, 0] for x in range(self.strip_length)]
         else:
-            from neopixel import NeoPixel as NeoPixelOriginal
             from machine import Pin
+            from neopixel import NeoPixel as NeoPixelOriginal
             self.leds = NeoPixelOriginal(
                 pin=Pin(pin_num, Pin.OUT),
                 n=self.strip_length,
@@ -172,3 +172,9 @@ class NeoPixel:
             direction = 'down'
 
         return brightness, direction
+
+    def color(self, r, g, b):
+        for i in range(self.strip_length):
+            i = self.get_led(i)
+            self.leds[i] = (r, g, b)
+        self.write()
