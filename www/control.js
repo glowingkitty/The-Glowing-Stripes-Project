@@ -146,10 +146,12 @@ let Control = class {
                 var num_of_custom_animations = led_animations['led_animations']['custom'].length
                 var i;
                 for (i = 0; i < num_of_custom_animations; i++) {
-                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id']
-                    //TODO mark mode as selected if thats the case in "current mix"
-                    control_object.main_window_new_html += '">'
-                    control_object.main_window_new_html += '">'
+                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id'] + '"'
+                    // mark mode as selected if thats the case in "current mix"
+                    if (current_mix['selected_led_animation'] == led_animations['led_animations']['custom'][i]['id']) {
+                        control_object.main_window_new_html += ' selected'
+                    }
+                    control_object.main_window_new_html += '>'
                     control_object.main_window_new_html += led_animations['led_animations']['custom'][i]['name'] + '</option>'
                 }
                 control_object.main_window_new_html += '</optgroup>'
@@ -159,7 +161,12 @@ let Control = class {
                 var num_of_default_animations = led_animations['led_animations']['default'].length
                 var i;
                 for (i = 0; i < num_of_default_animations; i++) {
-                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '">'
+                    control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
+                    // mark mode as selected if thats the case in "current mix"
+                    if (current_mix['selected_led_animation'] == led_animations['led_animations']['default'][i]['id']) {
+                        control_object.main_window_new_html += ' selected'
+                    }
+                    control_object.main_window_new_html += '>'
                     control_object.main_window_new_html += led_animations['led_animations']['default'][i]['name'] + '</option>'
                 }
                 control_object.main_window_new_html += '</optgroup>'
@@ -170,10 +177,32 @@ let Control = class {
                 control_object.main_window_new_html += '<a class="button_customize_animation customize right_positioned"></a>'
 
                 //// show "sync all" and "multi select" from current mix
+                control_object.main_window_new_html += '<div>'
 
-                //// show "undo" if changes have been made and not applied yet
+                control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all'
+                control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"'
+                if (current_mix['sync_all']) {
+                    control_object.main_window_new_html += ' checked="checked"'
+                }
+                control_object.main_window_new_html += '><span class="checkmark"></span></label>'
 
-                //// show "apply" if changes have been made and not applied yet
+                control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select'
+                control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"'
+                if (current_mix['multi_select']) {
+                    control_object.main_window_new_html += ' checked="checked"'
+                }
+                control_object.main_window_new_html += '><span class="checkmark"></span></label>'
+
+                control_object.main_window_new_html += '</div>'
+
+
+                control_object.main_window_new_html += '<div>'
+
+                //// show "save mix" button
+                control_object.main_window_new_html += '<div class="fixed_bottom_left"><a class="cta darkmode with_icon save">Save mix</a></div>'
+
+
+                control_object.main_window_new_html += '</div>'
 
                 control_object.main_window_content.innerHTML = control_object.main_window_new_html
 
