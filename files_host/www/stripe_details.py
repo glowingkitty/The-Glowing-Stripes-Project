@@ -4,9 +4,6 @@ import random
 
 class StripeDetails():
 
-    def ip(self, esp):
-        return esp.wlan.ifconfig()[0]
-
     @property
     def name(self):
         # read name from config.json

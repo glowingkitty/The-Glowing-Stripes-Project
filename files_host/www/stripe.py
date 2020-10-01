@@ -1,7 +1,6 @@
 import urequests
 from hardware import ESP
 from machine import Pin
-from MicroWebSrv2 import *
 
 from neopixel_plus import NeoPixel
 from stripe_details import StripeDetails
@@ -28,6 +27,7 @@ class Stripe():
 
     def start_server(self):
         print('Starting strip server...')
+        from MicroWebSrv2 import MicroWebSrv2
 
         # Define web routes
         @WebRoute(POST, '/change', name='Change LED strip mode')
@@ -57,7 +57,7 @@ class Stripe():
         led_strip_data = {
             "id": self.details.id,
             "name": self.details.name,
-            "ip_address": self.details.ip(self.esp)
+            "ip_address": self.esp.networking.ip
         }
         print(led_strip_data)
         response = urequests.post(
@@ -74,6 +74,6 @@ class Stripe():
 
     def on(self):
         self.esp.device_info()
-        self.esp.connect_to_host()
+        self.esp.networking.connect_to_host()
 
         self.start_server()

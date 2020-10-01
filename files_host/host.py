@@ -122,6 +122,6 @@ class Host():
 
     def on(self):
         self.esp.device_info()
-        self.esp.start_host_wifi()
-        self.esp.activate_webrepl()
+        self.esp.networking.start_host_wifi()
+        self.esp.networking.activate_webrepl()
         self.start_server()
