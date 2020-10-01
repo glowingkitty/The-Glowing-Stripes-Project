@@ -11,7 +11,7 @@ class Setup():
                  target_device='stripe',
                  ):
         self.target_device = target_device
-        self.firmware_version = '1.10'
+        self.firmware_version = '1.13'
         self.dev_usb_port = '/dev/tty.usbserial-0001'
 
         self.folders = [
@@ -52,6 +52,11 @@ class Setup():
                         folder,
                         folder
                     ))
+
+        os.system(
+            'rshell --port {} cp files_{}/boot.py /pyboard/boot.py'.format(
+                self.dev_usb_port,
+                self.target_device))
 
     def start(self):
         started_correct = input(
