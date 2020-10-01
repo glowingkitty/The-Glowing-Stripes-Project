@@ -35,7 +35,7 @@ class Setup():
         # copy firmware
         print('Copy firmware...')
         os.system(
-            'esptool.py --chip esp32 --port {} write_flash -z 0x1000 {}'.format(self.dev_usb_port, firmware))
+            'esptool.py --chip esp32 --port {} --baud 460800 write_flash -z 0x1000 {}'.format(self.dev_usb_port, firmware))
 
     def install_rshell(self):
         print('Install rshell for copying files to ESP...')
@@ -53,10 +53,6 @@ class Setup():
                         folder
                     ))
 
-        print('Add move_files.py')
-        os.system(
-            'rshell --port {} cp move_files.py /pyboard/boot.py'.format(self.dev_usb_port))
-
     def start(self):
         started_correct = input(
             'Did you start this script from an Python3 virtual environment?')
@@ -73,9 +69,6 @@ class Setup():
                 if dev_usb_port != '':
                     self.dev_usb_port = dev_usb_port
                 self.install_micropython()
-                print(
-                    'Please press the hard reset button on your ESP32 to continue.')
-                done = input('Done? Press Enter to continue')
 
             self.install_rshell()
             print('Collecting and uploading files...')
