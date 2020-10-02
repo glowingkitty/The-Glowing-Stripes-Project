@@ -10,19 +10,16 @@ class Stripe():
     def __init__(self,
                  led_strip_data_pin_num=4,
                  num_of_leds=60,
-                 test=False
                  ):
-        self.current_mode = None
 
         # setting up the LEDs
-        self.test = test
         self.led_strip_data_pin_num = led_strip_data_pin_num
         self.led_strip_data_pin = Pin(self.led_strip_data_pin_num, Pin.OUT)
         self.num_of_leds = num_of_leds
         self.leds = NeoPixel(pin_num=self.led_strip_data_pin_num,
-                             n=self.num_of_leds, start_point=0, brightness=1, bpp=3, test=self.test)
+                             n=self.num_of_leds, start_point=0, brightness=1, bpp=3)
 
-        self.esp = ESP(host_wifi_name='LED_strip')
+        self.esp = ESP()
         self.details = StripeDetails()
 
     def start_server(self):

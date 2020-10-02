@@ -1,11 +1,9 @@
-import json
 import os
-import time
 from time import sleep
 
+from hardware import ESP
 from MicroWebSrv2 import *
 
-from hardware import ESP
 from www.error import save_error
 
 connected_led_strips = []

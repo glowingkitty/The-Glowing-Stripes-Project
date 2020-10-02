@@ -88,6 +88,8 @@ class Setup():
             print('Collecting and uploading files...')
             self.sync_files()
             print('Synced all files to ESP.')
+            # self.copy_file('files_stripe/neopixel_plus.py', 'neopixel_plus.py')
+            # self.copy_file('simple_rainbow.py', 'boot.py')
             os.system('screen {} 115200'.format(self.dev_usb_port))
         else:
             print(
