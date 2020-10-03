@@ -1,16 +1,25 @@
 
-# Create all folders for stripe device
-
-import json
-# move all files to the correct folders
+import argparse
 import os
 
 
-class Setup():
+class Deploy():
     def __init__(self):
-        self.target_device = 'stripe'
-        self.firmware_version = '1.13'
-        self.dev_usb_port = '/dev/tty.usbserial-0001'
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-t", "--target", required=False)
+        parser.add_argument("-f", "--firmware", required=False)
+        parser.add_argument("-p", "--port", required=False)
+
+        parser.add_argument("-fsh", "--flashfirmware", required=False)
+        parser.add_argument("-us", "--uploadserver", required=False)
+        args = parser.parse_args()
+
+        self.target_device = args.target if args.target else 'stripe'
+        self.firmware_version = args.target if args.target else '1.13'
+        self.dev_usb_port = args.target if args.target else '/dev/tty.usbserial-0001'
+
+        self.flash_firmware = args.target if args.target else 'True'
+        self.deploy_server = args.target if args.target else 'True'
 
         self.folders = [
             'files_all_devices',
@@ -65,36 +74,19 @@ class Setup():
             'files_{}/boot.py'.format(self.target_device), 'boot.py')
 
     def start(self):
-        started_correct = input(
-            'Did you start this script from an Python3 virtual environment?')
-        if started_correct.lower() == 'y':
-            target = input('Enter target device. Default "stripe"')
-            if target != '':
-                self.target_device = target
-            print('Want to reinstall MicroPython on your ESP32?')
-            install_micropython = input('Enter "y" if yes, else "n".')
-            if install_micropython.lower() == 'y':
-                firmware_version = input(
-                    'What firmware version do you want to install? Press Enter for 1.10')
-                if firmware_version != '':
-                    self.firmware_version = firmware_version
-                dev_usb_port = input(
-                    'Connect your ESP to your computer. Once done: What is the /dev port? Press enter for /dev/tty.usbserial-0001')
-                if dev_usb_port != '':
-                    self.dev_usb_port = dev_usb_port
-                self.install_micropython()
+        if self.flash_firmware == 'True':
+            self.install_micropython()
 
-            self.install_rshell()
+        self.install_rshell()
+        if self.deploy_server == 'True':
             print('Collecting and uploading files...')
             self.sync_files()
             print('Synced all files to ESP.')
-            # self.copy_file('files_stripe/neopixel_plus.py', 'neopixel_plus.py')
-            # self.copy_file('simple_rainbow.py', 'boot.py')
-            os.system('screen {} 115200'.format(self.dev_usb_port))
-        else:
-            print(
-                'Please create a virtual python environment based on Python3 first and start the script from there.')
+        if self.deploy_server == 'False':
+            self.copy_file('files_stripe/neopixel_plus.py', 'neopixel_plus.py')
+            self.copy_file('simple_rainbow.py', 'boot.py')
+        os.system('screen {} 115200'.format(self.dev_usb_port))
 
 
 if __name__ == '__main__':
-    Setup().start()
+    Deploy().start()
