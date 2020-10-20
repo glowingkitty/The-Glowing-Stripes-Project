@@ -19,7 +19,7 @@ class Deploy():
         self.dev_usb_port = args.target if args.target else '/dev/tty.usbserial-0001'
 
         self.flash_firmware = args.target if args.target else 'True'
-        self.deploy_server = args.target if args.target else 'True'
+        self.deploy_server = args.target if args.target else 'False'
 
         self.folders = [
             'files_all_devices',
@@ -83,8 +83,8 @@ class Deploy():
             self.sync_files()
             print('Synced all files to ESP.')
         if self.deploy_server == 'False':
-            self.copy_file('files_stripe/neopixel_plus.py', 'neopixel_plus.py')
-            self.copy_file('simple_rainbow.py', 'boot.py')
+            self.sync_folder('neopixel_plus')
+            self.copy_file('led_test.py', 'boot.py')
         os.system('screen {} 115200'.format(self.dev_usb_port))
 
 

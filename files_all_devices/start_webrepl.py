@@ -1,4 +1,4 @@
 
 from hardware import ESP
 
-ESP('webrepl').networking.activate_webrepl()
+ESP('webrepl').activate_webrepl()

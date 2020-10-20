@@ -3,7 +3,6 @@ from time import sleep
 
 from hardware import ESP
 from MicroWebSrv2 import *
-
 from www.error import save_error
 
 connected_led_strips = []
@@ -120,6 +119,6 @@ class Host():
 
     def on(self):
         self.esp.device_info()
-        self.esp.networking.start_host_wifi()
-        self.esp.networking.activate_webrepl()
+        self.esp.start_host_wifi()
+        self.esp.activate_webrepl()
         self.start_server()
