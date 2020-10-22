@@ -91,10 +91,10 @@ class Stripe():
                 if request.status_code == 200:
                     success = True
                 else:
-                    time.sleep(1)
+                    time.sleep(2)
             except:
                 print('signup failed...')
-                time.sleep(1)
+                time.sleep(2)
                 pass
 
     def glow(self):
