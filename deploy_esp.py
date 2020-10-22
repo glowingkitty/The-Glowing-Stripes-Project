@@ -19,15 +19,6 @@ class Deploy():
         self.dev_usb_port = args.target if args.target else '/dev/tty.usbserial-0001'
 
         self.flash_firmware = args.target if args.target else 'True'
-        self.deploy_server = args.target if args.target else 'False'
-
-        self.folders = [
-            'files_all_devices',
-            'files_host',
-            'files_stripe',
-            'MicroWebSrv2',
-            'www'
-        ]
 
     def install_micropython(self):
         # search for firmware
@@ -63,28 +54,13 @@ class Deploy():
             to_path
         ))
 
-    def sync_files(self):
-        for folder in self.folders:
-            ignore_folder = {"stripe": "host", "host": "stripe"}
-            if folder != 'files_'+ignore_folder[self.target_device]:
-                print('Sync folder ... ', folder)
-                self.sync_folder(folder)
-
-        self.copy_file(
-            'files_{}/boot.py'.format(self.target_device), 'boot.py')
-
     def start(self):
         if self.flash_firmware == 'True':
             self.install_micropython()
 
         self.install_rshell()
-        if self.deploy_server == 'True':
-            print('Collecting and uploading files...')
-            self.sync_files()
-            print('Synced all files to ESP.')
-        if self.deploy_server == 'False':
-            self.sync_folder('neopixel_plus')
-            self.copy_file('led_test.py', 'boot.py')
+        self.sync_folder('neopixel_plus')
+        self.copy_file('led_test.py', 'boot.py')
         os.system('screen {} 115200'.format(self.dev_usb_port))
 
 

@@ -1,3 +1,4 @@
 .DS_store
 pyvenv/
 __pycache__
+stripe_ID.txt

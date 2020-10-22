@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>The Glowing Stripes Project - Control Interface</title>
+        
+        <link rel="stylesheet" href="{% static "styles.css" %}" />
+        <link rel="stylesheet" href="{% static "buttons.css" %}" />
+        <link rel="stylesheet" href="{% static "icons.css" %}" />
+        <link rel="stylesheet" href="{% static "leds.css" %}" />
+
+        <script src="{% static "axios.min.js" %}"></script>
+        <script src="{% static "leds.js" %}"></script>
+        <script src="{% static "control.js" %}"></script>
+    </head>
+
+    <body class="background darkmode" onload="boot()">
+
+        <div class="header_overlay">
+            <a class="cta darkmode with_icon move">Edit layout</a>
+        </div>
+
+        <div class="leds_preview_block">
+        </div>
+
+        <div class="main_window">
+
+            <div class="main_window_content">
+                
+                <div class="left_aligned_maincontent">
+
+
+                    <div>
+                        <div class="fixed_bottom_left">
+                            <a class="cta darkmode with_icon save">Save mix</a>
+                        </div>
+                        <div class="fixed_bottom_right">
+                            <a class="cta darkmode with_icon undo">Undo</a>
+                            <a class="cta primary with_icon true">Apply</a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    
+        <div class="shadow"></div>
+
+        <div class="mixes">
+        
+            <div class="mix_entry" id="s22swdd">
+                Glow mix
+                <div class="right_positioned">
+                    <a class="cta darkmode with_icon delete">Delete</a>
+                    <a class="cta darkmode with_icon share">Share</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="sub_menu">
+
+            <a class="cta darkmode with_icon share">Export settings</a>
+        
+        </div>
+
+    </body>
+
+</html>
