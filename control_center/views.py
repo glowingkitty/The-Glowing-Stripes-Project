@@ -22,15 +22,15 @@ class Helper:
 
 class Settings:
     def current_mix(request):
-        with open('control_center/current_mix.json') as json_file:
+        with open('current_mix.json') as json_file:
             return JsonResponse(data=json.load(json_file))
 
     def led_animations(request):
-        with open('control_center/led_animations.json') as json_file:
+        with open('led_animations.json') as json_file:
             return JsonResponse(data=json.load(json_file))
 
     def saved_mixes(request):
-        with open('control_center/saved_mixes.json') as json_file:
+        with open('saved_mixes.json') as json_file:
             return JsonResponse(data=json.load(json_file))
 
 
