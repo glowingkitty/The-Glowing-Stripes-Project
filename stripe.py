@@ -6,6 +6,7 @@ import time
 import requests
 from neopixel_plus import NeoPixel
 
+from led_animations import LEDanimations
 from pi_hardware import PiZeroWH
 
 dirname = os.path.dirname(__file__)
@@ -86,7 +87,7 @@ class Stripe():
                     "name": self.name,
                     "ip_address": self.ip_address}
                 request = requests.post(
-                    'http://'+self.host_address+':8000/signup', json=led_strip_data)
+                    'http://'+self.host_address+'/signup', json=led_strip_data)
                 print(request.status_code)
                 if request.status_code == 200:
                     success = True
@@ -98,8 +99,28 @@ class Stripe():
                 pass
 
     def glow(self):
-        # TODO take current mode from json and glow in infinite loop
-        self.leds.rainbow_animation()
+        # take current mode from json and glow in infinite loop
+        last_animation = LEDanimations().last_used
+        last_animation_id = last_animation['id'] if last_animation else 'b943uee3y7'
+
+        default_animations = {
+            'b943uee3y7': self.leds.rainbow_animation,
+            '8hsylal9v7': self.leds.beats,
+            'leta9ed5fc': self.leds.moving_dot,
+            'kack2555kd': self.leds.light_up,
+            '7u9tjpd0gi': self.leds.transition,
+        }
+
+        if last_animation_id in default_animations:
+            # play default animation
+            print('Play default animation...')
+            default_animations[last_animation_id]()
+        else:
+            # get custom animation from led_animations
+            print('Play custom animation...')
+            based_on_animation_id = last_animation['based_on']['id']
+            default_animations[based_on_animation_id](
+                customization_json=last_animation['customization'])
 
     def on(self):
         self.signup()

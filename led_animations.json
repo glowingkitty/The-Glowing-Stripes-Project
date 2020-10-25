@@ -1,24 +1,31 @@
 {
     "led_animations": {
-        "custom": [{
-                "id": "9s9j2js",
-                "name": "Fast rainbow",
-                "based_on": "Rainbow",
-                "direction": "down",
-                "brightness": 100,
-                "speed": 200
+        "custom": [],
+        "default": [
+            {
+                "id": "000000",
+                "name": "Setup mode"
+            },
+            {
+                "id": "b943uee3y7",
+                "name": "Rainbow"
+            },
+            {
+                "id": "8hsylal9v7",
+                "name": "Beats"
+            },
+            {
+                "id": "leta9ed5fc",
+                "name": "Moving dot"
+            },
+            {
+                "id": "kack2555kd",
+                "name": "Light Up"
+            },
+            {
+                "id": "7u9tjpd0gi",
+                "name": "Transition"
             }
-
-        ],
-        "default": [{
-            "id": "8sj9d09",
-            "name": "Rainbow"
-        }, {
-            "id": "9j9dj21",
-            "name": "Up & down"
-        }, {
-            "id": "000000",
-            "name": "Setup mode"
-        }]
+        ]
     }
 }
