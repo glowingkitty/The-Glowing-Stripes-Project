@@ -108,25 +108,25 @@ class Stripe():
         # try to sign up and only stop when successfull
         success = False
         while not success:
-            # try:
-            led_strip_data = {
-                "id": self.id,
-                "name": self.name,
-                "ip_address": self.ip_address,
-                "last_animation": self.last_animation,
-                "num_of_leds": self.num_of_leds
-            }
-            request = requests.post(
-                'http://'+self.host_address+'/signup', json=led_strip_data)
-            print(request.status_code)
-            if request.status_code == 200:
-                success = True
-            else:
+            try:
+                led_strip_data = {
+                    "id": self.id,
+                    "name": self.name,
+                    "ip_address": self.ip_address,
+                    "last_animation": self.last_animation,
+                    "num_of_leds": self.num_of_leds
+                }
+                request = requests.post(
+                    'http://'+self.host_address+'/signup', json=led_strip_data)
+                print(request.status_code)
+                if request.status_code == 200:
+                    success = True
+                else:
+                    time.sleep(2)
+            except requests.exceptions.ConnectionError:
+                print('Server not online yet. Try again in 2 seconds...')
                 time.sleep(2)
-            # except:
-            #     print('signup failed...')
-            #     time.sleep(2)
-            #     pass
+                pass
 
     def glow(self,
              id=None,

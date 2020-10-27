@@ -101,6 +101,7 @@ class Host:
                 if request.status_code == 200:
                     print('Restored previous mode for {}'.format(
                         led_strip['id']))
+            return HttpResponse(status=200)
 
 
 class Stripe:
