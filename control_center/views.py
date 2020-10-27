@@ -123,5 +123,5 @@ class Stripe:
     @csrf_exempt
     def restore_previous_mode(request):
         # POST request
-        led_strip.restore_previous_mode()
+        led_strip.glow()
         return HttpResponse("Process a new LED mode")
