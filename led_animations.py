@@ -23,7 +23,7 @@ class LEDanimations():
     @property
     def last_used(self):
         # return last used LED animation ID
-        with open(os.path.join(dirname, 'config.json')) as json_file:
+        with open(os.path.join(dirname, 'stripe_config.json')) as json_file:
             last_animation = json.load(json_file)['last_animation']
             if not last_animation:
                 return None

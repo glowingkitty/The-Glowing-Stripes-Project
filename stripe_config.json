@@ -1,0 +1,8 @@
+{
+    "id": null, 
+    "name": "LED strip", 
+    "led_strip_data_pin_num":4,
+    "num_of_leds": 60,
+    "host_address":"raspberrypi.local",
+    "last_animation": {}
+}

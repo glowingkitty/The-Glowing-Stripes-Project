@@ -17,8 +17,8 @@ let used_setup_colors = []
 let LEDstrip = class {
     constructor(id,
         name,
-        mode,
-        num_of_parts,
+        last_animation,
+        num_of_leds,
         setup_color = null,
         brightness = 0.97,
         start_point = 0,
@@ -28,8 +28,8 @@ let LEDstrip = class {
     ) {
         this.id = id
         this.name = name
-        this.mode = mode
-        this.num_of_parts = num_of_parts
+        this.last_animation = last_animation
+        this.num_of_leds = num_of_leds
         this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">'
 
         // to generate animation preview
@@ -49,8 +49,8 @@ let LEDstrip = class {
         this.debug = debug
     }
     // Getter
-    get num_of_leds() {
-        return this.num_of_parts * 15;
+    get num_of_parts() {
+        return this.num_of_leds/15;
     }
 
     get_setup_color() {
@@ -116,9 +116,15 @@ let LEDstrip = class {
             "changes": [{
                 "led_strip_ids": [this.id],
                 "new_animation": {
-                    "id": "000000",
+                    "id": "0",
                     "name": "Setup mode",
-                    "color": [r, g, b]
+                    "based_on":{
+                        "name":"color",
+                        "id":"0000000000"
+                    },
+                    "customization":{
+                        "rgb_color": [r, g, b]
+                    }
                 }
             }]
         }, {
