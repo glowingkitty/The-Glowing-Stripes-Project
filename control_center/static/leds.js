@@ -24,7 +24,7 @@ let LEDstrip = class {
         start_point = 0,
         animation_up_and_down = true,
         animation_direction = 'up',
-        debug = false
+        debug = true
     ) {
         this.id = id
         this.name = name
@@ -186,35 +186,20 @@ let LEDstrip = class {
         // move LED stip position left
     }
 
-    write(wait_after_wait = (1.0 / 36.0) * 1000) {
-        if (this.debug) {
-            console.log('LEDstrip().write()')
-        }
-        // color each led in div block correctly
-        let selected_led, r_write, g_write, b_write
-
-        // setTimeout(function () {
-        for (const led_write_counter in [...Array(this.num_of_leds).keys()]) {
+    write_led(number,rgb){
+        var selected_led = document.getElementById(this.id + '-' + number)
+        if (selected_led) {
             if (this.debug) {
-                console.log('... for (const led_write_counter in [...Array(this.num_of_leds).keys()]) {}...')
+                console.log('... selected_led found ...')
             }
-            selected_led = document.getElementById(this.id + '-' + led_write_counter)
-            if (selected_led) {
-                if (this.debug) {
-                    console.log('... selected_led found ...')
-                }
-                r_write = this.leds[led_write_counter][0]
-                g_write = this.leds[led_write_counter][1]
-                b_write = this.leds[led_write_counter][2]
-                selected_led.style.background = 'rgb(' + r_write + ',' + g_write + ',' + b_write + ')'
-                selected_led.style.boxShadow = '0 0px 35px 0 rgb(' + r_write + ',' + g_write + ',' + b_write + ')'
-                if (this.debug) {
-                    console.log('... selected_led style changed ...')
-                }
+            selected_led.style.background = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')'
+            selected_led.style.boxShadow = '0 0px 35px 0 rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')'
+            if (this.debug) {
+                console.log('... selected_led style changed ...')
             }
         }
-        // }, wait_after_wait)
     }
+
 
     get_led(led_number) {
         if (this.debug) {
@@ -233,9 +218,8 @@ let LEDstrip = class {
             console.log('LEDstrip().off()')
         }
         for (const led_number_off_counter in [...Array(this.num_of_leds).keys()]) {
-            this.leds[led_number_off_counter] = (0, 0, 0)
+            this.write_led(led_number_off_counter,[0,0,0])
         }
-        this.write()
     }
 
     on(num = null) {
@@ -244,11 +228,11 @@ let LEDstrip = class {
         }
         if (isNaN(num)) {
             for (const led_number_on_counter in [...Array(this.num_of_leds).keys()]) {
-                this.leds[led_number_on_counter] = (255, 255, 255)
+                this.write_led(led_number_on_counter,[255, 255, 255])
             }
         } else {
             num = this.get_led(num)
-            this.leds[num] = (255, 255, 255)
+            this.write_led(num,[255, 255, 255])
         }
 
         this.write()
@@ -265,20 +249,20 @@ let LEDstrip = class {
 
         this.time_passed += 0.06
         for (var rainbow_led_counter in [...Array(this.num_of_leds).keys()]) {
-            rainbow_led_counter = this.get_led(rainbow_led_counter)
+            // rainbow_led_counter = this.get_led(rainbow_led_counter)
+            console.log('rainbow_led_counter')
+            console.log(rainbow_led_counter)
             rainbow_color = this.rainbow_color(this.time_passed, rainbow_led_counter,
                 this.brightness)
-            this.leds[rainbow_led_counter] = rainbow_color
+            this.write_led(rainbow_led_counter,rainbow_color)
         }
 
-        if (this.animation_up_and_down) {
-            this.brightness, this.animation_direction = this.change_brightness(
-                this.brightness, this.animation_direction)
-        }
+        // if (this.animation_up_and_down) {
+        //     this.brightness, this.animation_direction = this.change_brightness(
+        //         this.brightness, this.animation_direction)
+        // }
 
-        this.write()
-
-        counter += 1
+        // counter += 1
         // if (limit && counter == limit) {
         //     break
         // }
@@ -289,22 +273,25 @@ let LEDstrip = class {
         if (this.debug) {
             console.log('LEDstrip().rainbow_color()')
         }
-        let a = (0.5, 0.5, 0.5)
-        let b = (0.5, 0.5, 0.5)
-        let c = (1.0, 1.0, 1.0)
-        let d = (0.00, 0.33, 0.67)
+        var a = (0.5, 0.5, 0.5)
+        var b = (0.5, 0.5, 0.5)
+        var c = (1.0, 1.0, 1.0)
+        var d = (0.00, 0.33, 0.67)
 
-        let k = t + 0.05 * rainbow_color_num
+        var k = t + 0.05 * rainbow_color_num
 
-        let r = a[0] + b[0] * Math.cos(6.28318 * (c[0] * k + d[0]))
-        let g = a[1] + b[1] * Math.cos(6.28318 * (c[1] * k + d[1]))
+        var r = a[0] + b[0] * Math.cos(6.28318 * (c[0] * k + d[0]))
+        var g = a[1] + b[1] * Math.cos(6.28318 * (c[1] * k + d[1]))
         b = a[2] + b[2] * Math.cos(6.28318 * (c[2] * k + d[2]))
+        console.log(r)
+        console.log(g)
+        console.log(b)
 
         r = Math.round(255.0 * r * brightness)
         g = Math.round(255.0 * g * brightness)
         b = Math.round(255.0 * b * brightness)
 
-        return ((r < 255) ? r : 255, (g < 255) ? g : 255, (b < 255) ? b : 255)
+        return [(r < 255) ? r : 255, (g < 255) ? g : 255, (b < 255) ? b : 255]
     }
 
     change_brightness(brightness, direction) {

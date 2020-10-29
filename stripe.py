@@ -5,6 +5,7 @@ import time
 
 import requests
 from neopixel_plus import NeoPixel
+from neopixel_plus.helper import RunningAnimation
 
 from led_animations import LEDanimations
 from pi_hardware import PiZeroWH
@@ -35,7 +36,7 @@ class Stripe():
                              target='adafruit' if self.host_address == 'raspberrypi.local' else 'micropython',
                              test=False if self.host_address == 'raspberrypi.local' else True)
 
-        self.machine = PiZeroWH()
+        self.machine = PiZeroWH
 
     @property
     def ip_address(self):
@@ -153,15 +154,22 @@ class Stripe():
         if id in default_animations:
             # play default animation
             print('Play default animation...')
-            default_animations[id](
-                stop_ongoing_animation=True
-            )
+            try:
+                default_animations[id](
+                    stop_ongoing_animation=True
+                )
+            except:
+                RunningAnimation.stop_ongoing_animation()
+
         else:
             # get custom animation from led_animations
             print('Play custom animation...')
-            default_animations[based_on['id']](
-                stop_ongoing_animation=True,
-                customization_json=customization)
+            try:
+                default_animations[based_on['id']](
+                    stop_ongoing_animation=True,
+                    customization_json=customization)
+            except:
+                RunningAnimation.stop_ongoing_animation()
 
     def on(self):
         self.signup()
@@ -169,4 +177,5 @@ class Stripe():
 
     def off(self):
         # shutdown via linux command
+        self.leds.off()
         self.machine.off()

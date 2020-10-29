@@ -13,9 +13,12 @@ let Control = class {
         this.main_window_new_html = ''
     }
 
-    // Getter
     get main_window_content() {
         return document.getElementsByClassName('main_window_content')[0];
+    }
+
+    get first_led_strip(){
+        return led_strips[0]
     }
 
     fadeout_main_window() {
@@ -108,6 +111,13 @@ let Control = class {
 
         // switch back to previous LED mode
         axios.post("http://raspberrypi.local/restore_all_led_strips")
+        // TODO switch back preview to previous LED mode
+        num_of_led_strips = led_strips.length
+        var i;
+        for (i = 0; i < num_of_led_strips; i++) {
+            led_strips[i].rainbow_animation()
+
+        }
 
         // show main control interface
         var control_object = this
@@ -124,7 +134,7 @@ let Control = class {
 
                         //// show "all x LED strips" or name of single LED strip, depending on current mix
                         control_object.main_window_new_html += '<div>'
-                        if (web_control_config['current_mix']) {
+                        if ('name' in web_control_config['current_mix']) {
                             //// show name of mix
                             control_object.main_window_new_html += '<span class="icon mix">' + web_control_config['current_mix']['name'] + '</span>'
 
@@ -132,7 +142,7 @@ let Control = class {
                             control_object.main_window_new_html += '<span onclick="editname(\'mix\',\'' + web_control_config['current_mix']['id'] + '\')" '
                             control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
-                        } else if (web_control_config['sync_all']) {
+                        } else if (led_strips.length > 1 && web_control_config['sync_all']==true) {
                             control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds darkmode">'
                             control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips">'
                             if (num_of_led_strips == 1) {
@@ -161,7 +171,7 @@ let Control = class {
                         for (i = 0; i < num_of_custom_animations; i++) {
                             control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id'] + '"'
                             // mark mode as selected if thats the case in "current mix"
-                            if (web_control_config['selected_led_animation'] == led_animations['led_animations']['custom'][i]['id']) {
+                            if (led_strips[0]['last_animation']['id'] == led_animations['led_animations']['custom'][i]['id']) {
                                 control_object.main_window_new_html += ' selected'
                             }
                             control_object.main_window_new_html += '>'
@@ -174,13 +184,16 @@ let Control = class {
                         var num_of_default_animations = led_animations['led_animations']['default'].length
                         var i;
                         for (i = 0; i < num_of_default_animations; i++) {
-                            control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
-                            // mark mode as selected if thats the case in "current mix"
-                            if (web_control_config['selected_led_animation'] == led_animations['led_animations']['default'][i]['id']) {
-                                control_object.main_window_new_html += ' selected'
+                            // exclude Setup mode
+                            if (led_animations['led_animations']['default'][i]['id']!="000000"){
+                                control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
+                                // mark mode as selected if thats the case in "current mix"
+                                if (led_strips[0]['last_animation']['id'] == led_animations['led_animations']['default'][i]['id']) {
+                                    control_object.main_window_new_html += ' selected'
+                                }
+                                control_object.main_window_new_html += '>'
+                                control_object.main_window_new_html += led_animations['led_animations']['default'][i]['name'] + '</option>'
                             }
-                            control_object.main_window_new_html += '>'
-                            control_object.main_window_new_html += led_animations['led_animations']['default'][i]['name'] + '</option>'
                         }
                         control_object.main_window_new_html += '</optgroup>'
 
@@ -190,30 +203,33 @@ let Control = class {
                         control_object.main_window_new_html += '<a class="button_customize_animation customize right_positioned"></a>'
 
                         //// show "sync all" and "multi select" from current mix
-                        control_object.main_window_new_html += '<div>'
+                        if (led_strips.length > 1){
+                            control_object.main_window_new_html += '<div>'
 
-                        control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all'
-                        control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"'
-                        if (web_control_config['sync_all']) {
-                            control_object.main_window_new_html += ' checked="checked"'
+                            control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all'
+                            control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"'
+                            if (web_control_config['sync_all']) {
+                                control_object.main_window_new_html += ' checked="checked"'
+                            }
+                            control_object.main_window_new_html += '><span class="checkmark"></span></label>'
+
+                            control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select'
+                            control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"'
+                            if (web_control_config['multi_select']) {
+                                control_object.main_window_new_html += ' checked="checked"'
+                            }
+                            control_object.main_window_new_html += '><span class="checkmark"></span></label>'
+
+                            control_object.main_window_new_html += '</div>'
                         }
-                        control_object.main_window_new_html += '><span class="checkmark"></span></label>'
-
-                        control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select'
-                        control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"'
-                        if (web_control_config['multi_select']) {
-                            control_object.main_window_new_html += ' checked="checked"'
-                        }
-                        control_object.main_window_new_html += '><span class="checkmark"></span></label>'
-
-                        control_object.main_window_new_html += '</div>'
 
 
                         control_object.main_window_new_html += '<div>'
 
                         //// show "save mix" button
-                        control_object.main_window_new_html += '<div class="fixed_bottom_left"><a class="cta darkmode with_icon save">Save mix</a></div>'
-
+                        if (led_strips.length > 1){
+                            control_object.main_window_new_html += '<div class="fixed_bottom_left"><a class="cta darkmode with_icon save">Save mix</a></div>'
+                        }
 
                         control_object.main_window_new_html += '</div>'
 

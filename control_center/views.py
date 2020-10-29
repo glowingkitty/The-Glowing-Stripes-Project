@@ -95,12 +95,26 @@ class Host:
     def restore_all_led_strips(request):
         # make post request to all led strips to restore previous LED mode
         if request.method == 'POST':
-            for led_strip in connected_led_strips:
+            for stripe in connected_led_strips:
                 request = requests.post(
-                    'http://'+led_strip['ip_address']+'/restore_previous_mode')
+                    'http://'+stripe['ip_address']+'/restore_previous_mode')
                 if request.status_code == 200:
                     print('Restored previous mode for {}'.format(
-                        led_strip['id']))
+                        stripe['id']))
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def shutdown_all_led_strips(request):
+        # make post request to all led strips to shutdown
+        if request.method == 'POST':
+            # shutdown all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/shutdown')
+
+            request = requests.post('http://'+led_strip.ip_address+'/shutdown')
+
             return HttpResponse(status=200)
 
 
@@ -119,10 +133,18 @@ class Stripe:
             based_on=new_animation['based_on'],
             customization=new_animation['customization'] if 'customization' in new_animation else None
         )
-        return HttpResponse("Process a new LED mode")
+        return HttpResponse(status=200)
 
     @csrf_exempt
     def restore_previous_mode(request):
         # POST request
         led_strip.glow()
-        return HttpResponse("Process a new LED mode")
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def shutdown(request):
+        # POST request
+        # shutdown server and boot.py
+        led_strip.off()
+        os.system("shutdown now -h")
+        return HttpResponse(status=200)

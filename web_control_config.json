@@ -2,6 +2,5 @@
     "sync_all": true,
     "multi_select": false,
     "current_mix": {},
-    "selected_led_strips": [],
-    "selected_led_animation": null
+    "selected_led_strips": []
 }

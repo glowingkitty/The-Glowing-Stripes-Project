@@ -23,12 +23,16 @@ urlpatterns = [
     path('mode', views.Host.mode, name='mode'),
     path('restore_all_led_strips', views.Host.restore_all_led_strips,
          name='restore_all_led_strips'),
+    path('shutdown_all_led_strips', views.Host.shutdown_all_led_strips,
+         name='shutdown_all_led_strips'),
 
 
     # stripe related urls
     path('get_mode', views.Stripe.get_mode, name='get_mode'),
     path('restore_previous_mode', views.Stripe.restore_previous_mode,
          name='restore_previous_mode'),
+    path('shutdown', views.Stripe.shutdown,
+         name='shutdown'),
 
     # access json files
     path('web_control_config', views.Settings.web_control_config,

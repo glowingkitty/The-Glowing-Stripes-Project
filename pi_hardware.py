@@ -1,7 +1,7 @@
 import os
 
 
-class PiZeroWH():
+class PiZeroWH:
     def off():
         # shutdown raspberry pi
         os.system("shutdown now -h")
