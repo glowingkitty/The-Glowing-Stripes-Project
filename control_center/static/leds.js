@@ -273,10 +273,10 @@ let LEDstrip = class {
         if (this.debug) {
             console.log('LEDstrip().rainbow_color()')
         }
-        var a = (0.5, 0.5, 0.5)
-        var b = (0.5, 0.5, 0.5)
-        var c = (1.0, 1.0, 1.0)
-        var d = (0.00, 0.33, 0.67)
+        var a = [0.5, 0.5, 0.5]
+        var b = [0.5, 0.5, 0.5]
+        var c = [1.0, 1.0, 1.0]
+        var d = [0.00, 0.33, 0.67]
 
         var k = t + 0.05 * rainbow_color_num
 
