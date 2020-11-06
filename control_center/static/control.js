@@ -56,7 +56,7 @@ let Control = class {
         intr = setInterval(function () {
             console.log('Searching for LED strips...')
 
-            axios.get("http://raspberrypi.local/connected_led_strips")
+            axios.get("http://theglowingstripes.local/connected_led_strips")
                 .then(function (response) {
                     connected_led_strips = response.data['connected_led_strips']
                     num_of_led_strips = connected_led_strips.length
@@ -110,7 +110,7 @@ let Control = class {
         this.clear_main_window()
 
         // switch back to previous LED mode
-        axios.post("http://raspberrypi.local/restore_all_led_strips")
+        axios.post("http://theglowingstripes.local/restore_all_led_strips")
         // TODO switch back preview to previous LED mode
         num_of_led_strips = led_strips.length
         var i;
@@ -121,11 +121,11 @@ let Control = class {
 
         // show main control interface
         var control_object = this
-        axios.get("http://raspberrypi.local/led_animations")
+        axios.get("http://theglowingstripes.local/led_animations")
             .then(function (response) {
                 led_animations = response.data
                 
-                axios.get("http://raspberrypi.local/web_control_config")
+                axios.get("http://theglowingstripes.local/web_control_config")
                     .then(function (response) {
 
                         web_control_config = response.data

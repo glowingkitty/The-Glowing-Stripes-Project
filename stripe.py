@@ -33,8 +33,8 @@ class Stripe():
         self.led_strip_data_pin_num = led_strip_data_pin_num
         self.num_of_leds = num_of_leds
         self.leds = NeoPixel(n=self.num_of_leds,
-                             target='adafruit' if self.host_address == 'raspberrypi.local' else 'micropython',
-                             test=False if self.host_address == 'raspberrypi.local' else True)
+                             target='adafruit' if self.host_address == 'theglowingstripes.local' else 'micropython',
+                             test=False if self.host_address == 'theglowingstripes.local' else True)
 
         self.machine = PiZeroWH
 

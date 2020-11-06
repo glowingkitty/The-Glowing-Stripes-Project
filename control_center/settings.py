@@ -28,7 +28,7 @@ SECRET_KEY = 'ak4tx7h-w+l8r&wzaqnmh13be2q31q0j)p!@^h8=j8a31h%b%b'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "raspberrypi.local", get_ip()]
+ALLOWED_HOSTS = ["localhost", "theglowingstripes.local", get_ip()]
 
 
 # Application definition

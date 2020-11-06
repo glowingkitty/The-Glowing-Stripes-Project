@@ -9,7 +9,7 @@ GPIO.wait_for_edge(3, GPIO.FALLING)
 
 # shutdown all led strips via POST request to server
 try:
-    requests.post("http://raspberrypi.local/shutdown_all_led_strips")
+    requests.post("http://theglowingstripes.local/shutdown_all_led_strips")
 except:
     import os
 
