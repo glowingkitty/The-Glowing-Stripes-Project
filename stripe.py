@@ -171,10 +171,6 @@ class Stripe():
             except:
                 RunningAnimation.stop_ongoing_animation()
 
-    def on(self):
-        self.signup()
-        self.glow()
-
     def off(self):
         # shutdown via linux command
         self.leds.off()

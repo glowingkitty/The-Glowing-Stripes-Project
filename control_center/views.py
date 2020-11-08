@@ -1,6 +1,7 @@
 import json
 import os
 
+import git
 import requests
 from django.http import HttpResponse, JsonResponse, request
 from django.shortcuts import render
@@ -16,11 +17,16 @@ led_strip = LEDstripe()
 class Helper:
     def add_update_led_strip(json_data):
         print('add_update_led_strip...')
-        for entry in connected_led_strips:
-            if entry['id'] == json_data['id']:
-                entry = json_data
+        if json_data in connected_led_strips:
+            print('LED strip already connected')
+
         else:
-            connected_led_strips.append(json_data)
+            for entry in connected_led_strips:
+                if entry['id'] == json_data['id']:
+                    entry = json_data
+
+            else:
+                connected_led_strips.append(json_data)
 
         print('Connected LED strips: '+str(connected_led_strips))
 
@@ -117,6 +123,45 @@ class Host:
 
             return HttpResponse(status=200)
 
+    @csrf_exempt
+    def restart_all_led_strips(request):
+        # make post request to all led strips to restart
+        if request.method == 'POST':
+            # restart all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/restart')
+
+            request = requests.post('http://'+led_strip.ip_address+'/restart')
+
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def update_all_led_strips(request):
+        # make post request to all led strips to update
+        if request.method == 'POST':
+            # update all led strips except host
+            full_response = {"led_strips": []}
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    response = requests.post(
+                        'http://'+led_strip['ip_address']+'/update').json()
+                    # collect response messages and return to web interface
+                    full_response['led_strips'].append({
+                        "id": response['id'],
+                        "message": response['message'],
+                    })
+
+            response = requests.post(
+                'http://'+led_strip.ip_address+'/update').json()
+            full_response['led_strips'].append({
+                "id": response['id'],
+                "message": response['message'],
+            })
+
+            return JsonResponse(data=full_response)
+
 
 class Stripe:
     @csrf_exempt
@@ -148,3 +193,19 @@ class Stripe:
         led_strip.off()
         os.system("shutdown now -h")
         return HttpResponse(status=200)
+
+    @csrf_exempt
+    def restart(request):
+        # POST request
+        # restart device
+        led_strip.off()
+        os.system("reboot now")
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def update(request):
+        # POST request
+        # update via git pull
+        g = git.cmd.Git(dirname)
+        message = g.pull()
+        return JsonResponse(data={"id": led_strip.id, "message": message})

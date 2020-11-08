@@ -17,7 +17,7 @@ let Control = class {
         return document.getElementsByClassName('main_window_content')[0];
     }
 
-    get first_led_strip(){
+    get first_led_strip() {
         return led_strips[0]
     }
 
@@ -47,8 +47,29 @@ let Control = class {
         this.fadein_main_window()
     }
 
-    load_web_control_config() {
+    show_popup(message) {
+        console.log(message)
+    }
 
+    update_software() {
+        console.log('Control().update_software()')
+        axios.post('http://theglowingstripes.local/update_all_led_strips')
+            .then(function (response) {
+                var message = ''
+
+                var i;
+                for (i = 0; i < response.data['led_strips'].length; i++) {
+                    message += '<div>'
+                    message += 'ID '
+                    message += response.data['led_strips'][i]['id']
+                    message += ' => '
+                    message += response.data['led_strips'][i]['message']
+                    message += '</div>'
+
+                }
+                this.show_popup(message)
+            }
+            )
     }
 
     load_led_strips() {
@@ -124,7 +145,7 @@ let Control = class {
         axios.get("http://theglowingstripes.local/led_animations")
             .then(function (response) {
                 led_animations = response.data
-                
+
                 axios.get("http://theglowingstripes.local/web_control_config")
                     .then(function (response) {
 
@@ -142,7 +163,7 @@ let Control = class {
                             control_object.main_window_new_html += '<span onclick="editname(\'mix\',\'' + web_control_config['current_mix']['id'] + '\')" '
                             control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
-                        } else if (led_strips.length > 1 && web_control_config['sync_all']==true) {
+                        } else if (led_strips.length > 1 && web_control_config['sync_all'] == true) {
                             control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds darkmode">'
                             control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips">'
                             if (num_of_led_strips == 1) {
@@ -185,7 +206,7 @@ let Control = class {
                         var i;
                         for (i = 0; i < num_of_default_animations; i++) {
                             // exclude Setup mode
-                            if (led_animations['led_animations']['default'][i]['id']!="000000"){
+                            if (led_animations['led_animations']['default'][i]['id'] != "000000") {
                                 control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
                                 // mark mode as selected if thats the case in "current mix"
                                 if (led_strips[0]['last_animation']['id'] == led_animations['led_animations']['default'][i]['id']) {
@@ -203,7 +224,7 @@ let Control = class {
                         control_object.main_window_new_html += '<a class="button_customize_animation customize right_positioned"></a>'
 
                         //// show "sync all" and "multi select" from current mix
-                        if (led_strips.length > 1){
+                        if (led_strips.length > 1) {
                             control_object.main_window_new_html += '<div>'
 
                             control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all'
@@ -227,7 +248,7 @@ let Control = class {
                         control_object.main_window_new_html += '<div>'
 
                         //// show "save mix" button
-                        if (led_strips.length > 1){
+                        if (led_strips.length > 1) {
                             control_object.main_window_new_html += '<div class="fixed_bottom_left"><a class="cta darkmode with_icon save">Save mix</a></div>'
                         }
 
@@ -236,7 +257,7 @@ let Control = class {
                         control_object.main_window_content.innerHTML = control_object.main_window_new_html
 
                         control_object.fadein_main_window()
-                })
+                    })
                     .catch(function (error) {
                         console.log(error);
                     })
@@ -254,6 +275,5 @@ let Control = class {
 function boot() {
     control = new Control()
     control.load_buildup()
-    control.load_web_control_config()
     control.load_led_strips()
 }

@@ -65,8 +65,17 @@
 
         <div class="sub_menu">
 
-            <a class="cta darkmode with_icon share">Export settings</a>
+            <a onclick="control.update_software()" class="cta darkmode with_icon sync">Update software</a>
+            <a onclick="axios.post('http://theglowingstripes.local/restart_all_led_strips')" class="cta darkmode with_icon sync">Restart</a>
+            <a onclick="axios.post('http://theglowingstripes.local/shutdown_all_led_strips')" class="cta darkmode with_icon sync">Shutdown</a>
+            <a onclick="" class="cta darkmode with_icon sync">Connect to Wi-Fi</a>
         
+        </div>
+
+        <div id="notifications">
+        </div>
+
+        <div id="popup">
         </div>
 
     </body>
