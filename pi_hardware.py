@@ -4,7 +4,6 @@ import requests
 
 
 class PiZeroWH:
-    @property
     def connected_to_internet():
         try:
             if requests.get('https://github.com').status_code == 200:

@@ -229,7 +229,7 @@ class Host:
 class Stripe:
     def is_online(request):
         # check if connected with internet
-        if led_strip.machine.connected_to_internet == True:
+        if led_strip.machine.connected_to_internet() == True:
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=503)

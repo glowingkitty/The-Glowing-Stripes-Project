@@ -155,6 +155,12 @@ let Popup = class {
         this.show()
         axios
             .post("http://theglowingstripes.local/shutdown_all_led_strips")
+            .then(function(respone){
+                console.log('Shutdown success')
+            })
+            .catch(function(error){
+                console.log(error)
+            })
         
         // TODO auto check in frontend if host accessible, if not, show popup "Disconnected"
     }
