@@ -276,28 +276,28 @@ class Stripe:
     def start_services(request):
         # POST request
         # start systemd services
-        Services.start_all()
+        Services().start_all()
         return HttpResponse(status=200)
 
     @csrf_exempt
     def restart_services(request):
         # POST request
         # restart systemd services
-        Services.restart_all()
+        Services().restart_all()
         return HttpResponse(status=200)
 
     @csrf_exempt
     def enable_services(request):
         # POST request
         # enable systemd services
-        Services.enable_all()
+        Services().enable_all()
         return HttpResponse(status=200)
 
     @csrf_exempt
     def disable_services(request):
         # POST request
         # disable systemd services
-        Services.disable_all()
+        Services().disable_all()
         return HttpResponse(status=200)
 
     @csrf_exempt
