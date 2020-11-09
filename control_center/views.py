@@ -234,6 +234,10 @@ class Stripe:
         else:
             return HttpResponse(status=503)
 
+    def wifi_networks_nearby(request):
+        networks = led_strip.machine.wifi_networks()
+        return JsonResponse(data={'networks': networks})
+
     @csrf_exempt
     def get_mode(request):
         # POST request
