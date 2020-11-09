@@ -5,10 +5,12 @@ from shutil import copyfile
 class Services():
     def __init__(self,
                  systemd_folder='/etc/systemd/system/',
-                 glowingstripes_systemd_folder='/home/host/the-glowing-stripes-project/services/'
+                 glowingstripes_systemd_folder='/home/host/the-glowing-stripes-project/services/',
+                 exclude_from_restart=['autohotspot.service']
                  ):
         self.systemd_folder = systemd_folder
         self.glowingstripes_systemd_folder = glowingstripes_systemd_folder
+        self.exclude_from_restart = exclude_from_restart
 
     @property
     def all(self):
@@ -133,7 +135,8 @@ class Services():
 
     def restart_all(self):
         for service_file in self.all:
-            self.restart(service_file)
+            if service_file not in self.exclude_from_restart:
+                self.restart(service_file)
 
     def remove_all(self):
         for service_file in self.all:
