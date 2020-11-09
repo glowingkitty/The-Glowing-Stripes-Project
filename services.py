@@ -12,7 +12,10 @@ class Services():
 
     @property
     def all(self):
-        return [x for x in os.listdir(self.glowingstripes_systemd_folder) if x.endswith('.service')]
+        services = [x for x in os.listdir(self.glowingstripes_systemd_folder) if x.endswith(
+            '.service') and x != 'server.service']
+        services += 'server.service'
+        return services
 
     @property
     def systemd_files(self):
