@@ -7,6 +7,7 @@ from django.http import HttpResponse, JsonResponse, request
 from django.shortcuts import render
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
+from services import Services
 from stripe import Stripe as LEDstripe
 
 connected_led_strips = []
@@ -60,7 +61,9 @@ class Host:
 
     def index(request):
         # /
-        return render(request, 'index.html', {})
+        return render(request, 'index.html', {
+            "connected_to_internet": True if led_strip.machine.connected_to_internet == True else False
+        })
 
     @csrf_exempt
     def signup_led_strip(request):
@@ -162,8 +165,75 @@ class Host:
 
             return JsonResponse(data=full_response)
 
+    @csrf_exempt
+    def start_services_all_led_strips(request):
+        # make post request to all led strips to restart services
+        if request.method == 'POST':
+            # restart all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/start_services')
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/start_services')
+
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def restart_services_all_led_strips(request):
+        # make post request to all led strips to restart services
+        if request.method == 'POST':
+            # restart all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/restart_services')
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/restart_services')
+
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def enable_services_all_led_strips(request):
+        # make post request to all led strips to restart services
+        if request.method == 'POST':
+            # restart all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/enable_services')
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/enable_services')
+
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def disable_services_all_led_strips(request):
+        # make post request to all led strips to restart services
+        if request.method == 'POST':
+            # restart all led strips except host
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/disable_services')
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/disable_services')
+
+            return HttpResponse(status=200)
+
 
 class Stripe:
+    def is_online(request):
+        # check if connected with internet
+        if led_strip.machine.connected_to_internet == True:
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=503)
+
     @csrf_exempt
     def get_mode(request):
         # POST request
@@ -203,8 +273,41 @@ class Stripe:
         return HttpResponse(status=200)
 
     @csrf_exempt
+    def start_services(request):
+        # POST request
+        # start systemd services
+        Services.start_all()
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def restart_services(request):
+        # POST request
+        # restart systemd services
+        Services.restart_all()
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def enable_services(request):
+        # POST request
+        # enable systemd services
+        Services.enable_all()
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def disable_services(request):
+        # POST request
+        # disable systemd services
+        Services.disable_all()
+        return HttpResponse(status=200)
+
+    @csrf_exempt
     def update(request):
         # POST request
+
+        # check if connected with internet
+        if led_strip.machine.connected_to_internet == False:
+            return HttpResponse(status=503)
+
         # update via git pull
         g = git.cmd.Git(dirname)
         message = g.pull()

@@ -1,0 +1,10 @@
+[Unit]
+Description=Connect to host
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/connect_to_host.py
+
+[Install]
+WantedBy=multi-user.target

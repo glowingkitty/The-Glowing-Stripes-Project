@@ -47,37 +47,58 @@ let Control = class {
         this.fadein_main_window()
     }
 
-    show_popup(message) {
-        console.log(message)
-    }
+    
 
     update_software() {
         console.log('Control().update_software()')
-        axios.post('http://theglowingstripes.local/update_all_led_strips')
-            .then(function (response) {
-                var message = ''
+        // check if host is connected to internet
+        axios
+            .get('http://theglowingstripes.local/is_online').then(
+                function(response){
+                    new Popup().updating_software()
 
-                var i;
-                for (i = 0; i < response.data['led_strips'].length; i++) {
-                    message += '<div>'
-                    message += 'ID '
-                    message += response.data['led_strips'][i]['id']
-                    message += ' => '
-                    message += response.data['led_strips'][i]['message']
-                    message += '</div>'
+                    axios
+                        .post('http://theglowingstripes.local/update_all_led_strips',{timeout:120})
+                        .then(function (response) {
+                            new Popup().restartig_services()
 
+                            axios
+                                .post('http://theglowingstripes.local/restart_services_all_led_strips',{timeout:120})
+                                .then(function (response) {
+                                    console.log('Update complete')
+                                    console.log(response.data)
+                                    new Popup().update_complete()
+                                }
+                                ).catch(
+                                    function (error) {
+                                        console.log(error);
+                                        new Popup('An error occured',error).show()
+                                    }
+                                )
+                        }
+                        ).catch(
+                            function (error) {
+                                console.log(error);
+                                new Popup('An error occured',error).show()
+                            }
+                        )
                 }
-                this.show_popup(message)
-            }
-            )
+            ).catch(
+                function (error) {
+                    console.log(error);
+                    new Popup().no_internet_connection()
+                }
+        )
     }
+
 
     load_led_strips() {
         // load json of connected_led_strips and create objects
         intr = setInterval(function () {
             console.log('Searching for LED strips...')
 
-            axios.get("http://theglowingstripes.local/connected_led_strips")
+            axios
+                .get("http://theglowingstripes.local/connected_led_strips")
                 .then(function (response) {
                     connected_led_strips = response.data['connected_led_strips']
                     num_of_led_strips = connected_led_strips.length
@@ -131,7 +152,9 @@ let Control = class {
         this.clear_main_window()
 
         // switch back to previous LED mode
-        axios.post("http://theglowingstripes.local/restore_all_led_strips")
+        axios
+            .post("http://theglowingstripes.local/restore_all_led_strips")
+
         // TODO switch back preview to previous LED mode
         num_of_led_strips = led_strips.length
         var i;
@@ -142,11 +165,13 @@ let Control = class {
 
         // show main control interface
         var control_object = this
-        axios.get("http://theglowingstripes.local/led_animations")
+        axios
+            .get("http://theglowingstripes.local/led_animations")
             .then(function (response) {
                 led_animations = response.data
 
-                axios.get("http://theglowingstripes.local/web_control_config")
+                axios
+                    .get("http://theglowingstripes.local/web_control_config")
                     .then(function (response) {
 
                         web_control_config = response.data

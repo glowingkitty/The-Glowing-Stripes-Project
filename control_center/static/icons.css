@@ -1,3 +1,11 @@
+.close {
+    background-image: url("icons/close.svg") !important;
+}
+
+.close_dark {
+    background-image: url("icons/close_dark.svg") !important;
+}
+
 .code {
     background-image: url("icons/code.svg") !important;
 }
@@ -78,6 +86,22 @@
     background-image: url("icons/multi_select_dark.svg") !important;
 }
 
+.power {
+    background-image: url("icons/power.svg") !important;
+}
+
+.power_dark {
+    background-image: url("icons/power_dark.svg") !important;
+}
+
+.restart {
+    background-image: url("icons/restart.svg") !important;
+}
+
+.restart_dark {
+    background-image: url("icons/restart_dark.svg") !important;
+}
+
 .save {
     background-image: url("icons/save.svg") !important;
 }
@@ -92,6 +116,14 @@
 
 .share_dark {
     background-image: url("icons/share_dark.svg") !important;
+}
+
+.sleep {
+    background-image: url("icons/sleep.svg") !important;
+}
+
+.sleep_dark {
+    background-image: url("icons/sleep_dark.svg") !important;
 }
 
 .sync {
@@ -116,4 +148,20 @@
 
 .undo_dark {
     background-image: url("icons/undo_dark.svg") !important;
+}
+
+.wifi_local {
+    background-image: url("icons/wifi_local.svg") !important;
+}
+
+.wifi_local_dark {
+    background-image: url("icons/wifi_local_dark.svg") !important;
+}
+
+.wifi_online {
+    background-image: url("icons/wifi_online.svg") !important;
+}
+
+.wifi_online_dark {
+    background-image: url("icons/wifi_online_dark.svg") !important;
 }

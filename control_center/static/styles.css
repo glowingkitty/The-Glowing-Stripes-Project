@@ -46,6 +46,11 @@
     color: #FFFFFF;
 }
 
+.main_window.popup_content {
+    margin-top: 20%;
+    text-align: left;
+}
+
 
 .main_window_content {
     /* opacity: 0; */
@@ -228,4 +233,17 @@
     background-position: left 0px center !important;
     background-size: 17px 17px !important;
     padding-left: 25px;
+}
+
+.icon.large_inline {
+    background-size: 27px 27px !important;
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+    opacity: 0.5;
+}
+
+.icon.large_inline:hover {
+    opacity: 1;
+    cursor: pointer;
 }
