@@ -1,8 +1,15 @@
 import os
+import subprocess
 
 import requests
 
 import iwlist
+
+glowingstripes_wifi = {
+    'essid': 'TheGlowingStripes',
+    'psk': 'letsglow',
+    'key_mgmt': 'WPA-PSK'
+}
 
 
 class PiZeroWH:
@@ -15,6 +22,15 @@ class PiZeroWH:
         except:
             return False
 
+    def current_wifi_network():
+        try:
+            essid = str(subprocess.run(["iwgetid"], capture_output=True).stdout).split(
+                'ESSID:"')[1].split('"')[0]
+        except:
+            essid = None
+
+        return essid
+
     def wifi_networks(details='basic'):
         # get wifi networks
         content = iwlist.scan(interface='wlan0')
@@ -25,14 +41,127 @@ class PiZeroWH:
             cells, key=lambda wifi: wifi['signal_quality'], reverse=True)
 
         # return basics or all details
+        current_wifi = PiZeroWH.current_wifi_network()
         if details == 'basic':
             return [{
                 'essid': x['essid'],
+                'current_wifi':True if current_wifi == x['essid'] else False,
+                'mac': x['mac'],
                 'encryption':x['encryption'],
                 'signal_strength':x['signal_quality']
             } for x in cells]
         else:
             return cells
+
+    def saved_wifis():
+        # open wpa_supplicant.conf
+        wpa_supplicant = open(
+            "/etc/wpa_supplicant/wpa_supplicant.conf", "r").read()
+
+        # parse networks
+        networks_string = 'network='+wpa_supplicant.split('network=', 1)[1]
+        networks = [{
+            'essid': x.split('ssid="')[1].split('"')[0],
+            'psk':x.split('psk="')[1].split('"')[0] if 'psk' in x else None,
+            'key_mgmt':x.split('key_mgmt=')[1].split('\n')[0] if 'key_mgmt' in x else None,
+        } for x in networks_string.split('network=') if x != '']
+
+        return networks
+
+    def wpa_supplicant_header():
+        wpa_supplicant = open(
+            "/etc/wpa_supplicant/wpa_supplicant.conf", "r").read()
+        header = wpa_supplicant.split('network=', 1)[0]
+        return header
+
+    def get_networks_text(networks):
+        # make sure to always have glowingstripes_wifi added as well
+        if glowingstripes_wifi not in networks:
+            networks += [glowingstripes_wifi]
+
+        networks_text = ''
+        for network in networks:
+            networks_text += '\n'
+            networks_text += 'network={\n'
+            networks_text += '        ssid="{}"\n'.format(
+                network['essid'])
+            networks_text += '        psk="{}"\n'.format(network['psk'])
+            networks_text += '        key_mgmt={}\n'.format(
+                network['key_mgmt'])
+            networks_text += '}\n'
+        return networks_text
+
+    def add_wifi(essid, password, encryption='WPA-PSK', position='start'):
+        # add wifi to wpa_supplicant.conf, if it doesn't exist yet
+        networks = PiZeroWH.saved_wifis()
+
+        # check if wifi already in list
+        new_wifi = {'essid': essid, 'psk': password, 'key_mgmt': encryption}
+        if new_wifi in networks:
+            if position == 'start' and new_wifi == networks[0]:
+                print(
+                    '"{}" already saved as No. 1 wifi in wpa_supplicant.conf'.format(essid))
+            elif position != 'start' and new_wifi != networks[0]:
+                print('"{}" already saved in wpa_supplicant.conf'.format(essid))
+            else:
+                print('Update order of wifi networks...')
+                if position == 'start':
+                    networks = [new_wifi] + \
+                        [x for x in networks if x != new_wifi]
+                else:
+                    networks = [x for x in networks if x !=
+                                new_wifi]+[new_wifi]
+
+                wpa_supplicant = PiZeroWH.wpa_supplicant_header()+PiZeroWH.get_networks_text(networks)
+                f = open("/etc/wpa_supplicant/wpa_supplicant.conf", "w")
+                f.write(wpa_supplicant)
+                f.close()
+                print('Updated order of wifi networks')
+
+        else:
+            print('Adding {} to wpa_supplicant.conf...'.format(essid))
+            if position == 'start':
+                networks.insert(0, new_wifi)
+            else:
+                networks += [new_wifi]
+
+            # build new wpa_supplicant.conf
+            wpa_supplicant = PiZeroWH.wpa_supplicant_header()+PiZeroWH.get_networks_text(networks)
+            f = open("/etc/wpa_supplicant/wpa_supplicant.conf", "w")
+            f.write(wpa_supplicant)
+            f.close()
+            print('Added {} to wpa_supplicant.conf'.format(essid))
+
+    def remove_wifi(essid):
+        if essid == glowingstripes_wifi['essid']:
+            print('Cannot remove {}, its the default wifi network TheGlowingStripesProject will create in case there is no other wifi accessible'.format(
+                glowingstripes_wifi['essid']))
+        else:
+            print('Remove {} from wpa_supplicant.conf...'.format(essid))
+            networks = [x for x in PiZeroWH.saved_wifis()
+                        if x['essid'] != essid]
+            wpa_supplicant = PiZeroWH.wpa_supplicant_header()+PiZeroWH.get_networks_text(networks)
+            f = open("/etc/wpa_supplicant/wpa_supplicant.conf", "w")
+            f.write(wpa_supplicant)
+            f.close()
+            print('Updated wpa_supplicant.conf')
+
+    def restart_wifi():
+        # restart wifi related services
+        print('Restarting wifi (autohotspot.service)...')
+        os.system('sudo systemctl restart autohotspot')
+        print('Wifi restarted')
+
+    def connect_to_wifi(essid, password, encryption):
+        # add wifi if it doesn't exist yet
+        PiZeroWH.add_wifi(essid, password, encryption)
+        PiZeroWH.restart_wifi()
+
+    def disconnect_from_wifi():
+        # disconnect from wifi by moving "TheGlowingStripes" default network to top and restart wifi (authotspot.service)
+        PiZeroWH.add_wifi(
+            glowingstripes_wifi['essid'], glowingstripes_wifi['psk'], glowingstripes_wifi['key_mgmt'])
+        PiZeroWH.restart_wifi()
 
     def off():
         # shutdown raspberry pi

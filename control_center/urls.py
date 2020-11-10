@@ -61,6 +61,10 @@ urlpatterns = [
          name='update'),
     path('wifi_networks_nearby', views.Stripe.wifi_networks_nearby,
          name='wifi_networks_nearby'),
+    path('connect_to_wifi', views.Stripe.connect_to_wifi,
+         name='connect_to_wifi'),
+    path('disconnect_from_wifi', views.Stripe.disconnect_from_wifi,
+         name='disconnect_from_wifi'),
 
     # access json files
     path('web_control_config', views.Settings.web_control_config,

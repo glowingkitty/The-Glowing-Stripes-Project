@@ -239,6 +239,23 @@ class Stripe:
         return JsonResponse(data={'networks': networks})
 
     @csrf_exempt
+    def connect_to_wifi(request):
+        # POST request
+        data = json.loads(request.body.decode('utf-8'))
+        # TODO improve security by encrypting wifi password when sending it to raspberry pi. Or maybe use Django forms instead of axios for this purpose?
+        led_strip.machine.connect_to_wifi(
+            essid=data['essid'],
+            password=data['password'],
+            encryption=data['encryption'])
+        return HttpResponse(status=200)
+
+    @csrf_exempt
+    def disconnect_from_wifi(request):
+        # POST request
+        led_strip.machine.disconnect_from_wifi()
+        return HttpResponse(status=200)
+
+    @csrf_exempt
     def get_mode(request):
         # POST request
         data = json.loads(request.body.decode('utf-8'))
