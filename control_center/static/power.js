@@ -28,6 +28,7 @@ let Power = class {
     shutdown(){
         popup.header = 'Shut Down'
         popup.message = 'Shutting down all connected LED strips. Please wait...'
+        popup.buttons = []
         popup.show()
         axios
             .post("http://theglowingstripes.local/shutdown_all_led_strips")
@@ -38,6 +39,7 @@ let Power = class {
                 console.log(error)
                 popup.header = 'An error occured'
                 popup.message = error
+                popup.buttons = []
                 popup.show()
             })
         
@@ -47,6 +49,7 @@ let Power = class {
     restart(){
         popup.header = 'Restart'
         popup.message = 'Restarting all connected LED strips. Please wait...'
+        popup.buttons = []
         popup.show()
         axios
             .post("http://theglowingstripes.local/restart_all_led_strips")
@@ -57,6 +60,7 @@ let Power = class {
                 console.log(error)
                 popup.header = 'An error occured'
                 popup.message = error
+                popup.buttons = []
                 popup.show()
             })
     }

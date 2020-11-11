@@ -47,8 +47,9 @@
 }
 
 .main_window.popup_content {
-    margin-top: 20%;
+    margin-top: 25vh;
     text-align: left;
+    max-height: 60vh;
 }
 
 
@@ -62,6 +63,33 @@
     text-align: left;
     padding-left: 50px;
     padding-right: 50px;
+}
+
+.inline_block {
+    display: inline-block;
+}
+
+.right_aligned {
+    float: right;
+}
+
+.left_aligned {
+    float: left;
+}
+
+.wifi_network {
+    font-size: 18px;
+    line-height: 58px;
+    display: block;
+    margin: 5px;
+}
+
+.opacity_50 {
+    opacity: 0.5;
+}
+
+.divider_line {
+    border: 1px solid #656565;
 }
 
 .num_of_connected_leds {

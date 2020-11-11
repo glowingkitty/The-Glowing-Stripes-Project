@@ -31,27 +31,28 @@ class PiZeroWH:
 
         return essid
 
-    def wifi_networks(details='basic'):
+    def wifi_networks():
         # get wifi networks
         content = iwlist.scan(interface='wlan0')
-        cells = iwlist.parse(content)
-
-        # sort them by strength
-        cells = sorted(
-            cells, key=lambda wifi: wifi['signal_quality'], reverse=True)
+        networks = iwlist.parse(content)
 
         # return basics or all details
         current_wifi = PiZeroWH.current_wifi_network()
-        if details == 'basic':
-            return [{
-                'essid': x['essid'],
-                'current_wifi':True if current_wifi == x['essid'] else False,
-                'mac': x['mac'],
-                'encryption':x['encryption'],
-                'signal_strength':x['signal_quality']
-            } for x in cells]
-        else:
-            return cells
+        networks = [{
+            'essid': x['essid'],
+            'current_wifi':True if current_wifi == x['essid'] else False,
+            'is_default_wifi':True if glowingstripes_wifi['essid'] == x['essid'] else False,
+            'encryption':x['encryption'],
+            'signal_strength':int(x['signal_quality'])
+        } for x in networks]
+
+        # sort them by strength
+        networks = sorted(
+            networks, key=lambda wifi: wifi['signal_strength'], reverse=True)
+        networks = sorted(
+            networks, key=lambda wifi: wifi['current_wifi'], reverse=True)
+
+        return networks
 
     def saved_wifis():
         # open wpa_supplicant.conf

@@ -7,6 +7,7 @@ let SoftwareUpdate = class {
                     // show popup
                     popup.header = '<span class="icon sync" style="background-size: 25px 25px !important;"></span> Updating software'
                     popup.message = 'Updating software. Please wait...'
+                    popup.buttons = []
                     popup.show()
 
                     axios
@@ -17,6 +18,7 @@ let SoftwareUpdate = class {
                                 console.log(error);
                                 popup.header = 'An error occured'
                                 popup.message = error
+                                popup.buttons = []
                                 popup.show()
                             }
                         )
@@ -46,6 +48,7 @@ let SoftwareUpdate = class {
     restart_services(){
         popup.header = 'Restarting services'
         popup.message = 'Restarting software services. Please wait...'
+        popup.buttons = []
         popup.show()
 
         axios
@@ -60,6 +63,7 @@ let SoftwareUpdate = class {
                     console.log(error);
                     popup.header = 'An error occured'
                     popup.message = error
+                    popup.buttons = []
                     popup.show()
                 }
             )
