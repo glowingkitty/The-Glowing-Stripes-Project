@@ -15,6 +15,9 @@
 
         <script src="{% static "axios.min.js" %}"></script>
         <script src="{% static "popup.js" %}"></script>
+        <script src="{% static "power.js" %}"></script>
+        <script src="{% static "software_update.js" %}"></script>
+        <script src="{% static "wifi.js" %}"></script>
         <script src="{% static "leds.js" %}"></script>
         <script src="{% static "control.js" %}"></script>
     </head>
@@ -67,9 +70,9 @@
 
         <div class="sub_menu">
 
-            <a onclick="control.update_software()" class="icon large_inline sync"></a>
-            <a onclick="new Popup().power_options()" class="icon large_inline power"></a>
-            <a onclick="new Popup().wifi_options()" class="icon large_inline wifi_{% if connected_to_internet %}online{% else %}local{% endif %}"></a>
+            <a onclick="software_update.update()" class="icon large_inline sync"></a>
+            <a onclick="power.show_options()" class="icon large_inline power"></a>
+            <a onclick="wifi.show_networks()" class="icon large_inline wifi_{% if connected_to_internet %}online{% else %}local{% endif %}"></a>
         
         </div>
 
@@ -78,7 +81,7 @@
 
         <div class="popup opacity_null display_none" id="popup">
             <div class="main_window popup_content" id="popup_content">
-                <div class="popup_button close" onclick="new Popup().hide()"></div>
+                <div class="popup_button close" onclick="popup.hide()"></div>
                 <div class="popup_headline" id="popup_headline"></div>
                 <div class="popup_message" id="popup_message"></div>
                 <div class="popup_buttons" id="popup_buttons"></div>
