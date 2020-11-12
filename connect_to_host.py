@@ -8,6 +8,7 @@ import requests
 from stripe import Stripe
 
 host_ip_address = None
+wait_seconds = 10
 while True:
     # every few seconds, check ip address of "theglowingstripes.local" has changed (warning: might be outdated because socket /DNS is using a cache)
     try:
@@ -26,7 +27,8 @@ while True:
                 response = requests.get(
                     'http://theglowingstripes.local/', timeout=2)
                 if response.status_code == 200:
-                    print('Yes, still online. Test again in 5 seconds')
+                    print('Yes, still online. Test again in {} seconds'.format(
+                        wait_seconds))
                     print('')
             except:
                 # if host not accessible, restart network manager to make this led strip the new host
@@ -35,6 +37,7 @@ while True:
                 os.system('sudo systemctl restart avahi-daemon')
                 print('avahi-daemon restarted')
     except socket.gaierror:
-        print('theglowingstripes.local currently unavailable. Trying again in 5 seconds...')
+        print('theglowingstripes.local currently unavailable. Trying again in {} seconds...'.format(
+            wait_seconds))
 
-    time.sleep(5)
+    time.sleep(wait_seconds)
