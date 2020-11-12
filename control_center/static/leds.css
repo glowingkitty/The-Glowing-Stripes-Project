@@ -4,6 +4,9 @@
     width: 600px;
     height: 500px;
     text-align: center;
+    position: relative;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
 }
 
 .led_strip {

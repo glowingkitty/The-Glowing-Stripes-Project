@@ -62,7 +62,7 @@ class Host:
     def index(request):
         # /
         return render(request, 'index.html', {
-            "connected_to_internet": True if led_strip.machine.connected_to_internet == True else False
+            "connected_to_internet": led_strip.machine.connected_to_internet()
         })
 
     @csrf_exempt

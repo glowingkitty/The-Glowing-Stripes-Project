@@ -1,15 +1,15 @@
 let SoftwareUpdate = class {
     update(){
         // check if host is connected to internet
+        // show popup
+        popup.header = '<span class="icon sync" style="background-size: 25px 25px !important;"></span> Updating software'
+        popup.message = 'Updating software. Please wait...'
+        popup.buttons = []
+        popup.show()
+
         axios
             .get('http://theglowingstripes.local/is_online').then(
                 function(response){
-                    // show popup
-                    popup.header = '<span class="icon sync" style="background-size: 25px 25px !important;"></span> Updating software'
-                    popup.message = 'Updating software. Please wait...'
-                    popup.buttons = []
-                    popup.show()
-
                     axios
                         .post('http://theglowingstripes.local/update_all_led_strips',{timeout:120})
                         .then(function (response) {this.restart_services()})
@@ -39,7 +39,7 @@ let SoftwareUpdate = class {
                 'style':'primary',
                 'text':'Connect to Wi-Fi',
                 'icon':'wifi_online',
-                'onclick':'new Popup().wifi_options()'
+                'onclick':'wifi.show_networks()'
             }
         ]
         popup.show()
@@ -76,7 +76,7 @@ let SoftwareUpdate = class {
             {
                 'style':'primary',
                 'text':'Ok',
-                'onclick':'new Popup().hide()'
+                'onclick':'popup.hide()'
             }
         ]
         popup.show()
