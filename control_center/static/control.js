@@ -1,4 +1,5 @@
 var control
+var disconnect_context = null
 
 var connected_led_strips = {}
 var web_control_config = {}

@@ -31,6 +31,7 @@ let WiFi = class {
                     self.cta = 'disconnect'
                     popup.message += self.get_wifi_div()
 
+                    popup.message+= '<div id="other_wifis">'
                     popup.message+= '<div class="divider_line"></div>'
 
                     // show all remaining wifis
@@ -42,6 +43,7 @@ let WiFi = class {
                         self.cta = null
                         popup.message += self.get_wifi_div()
                     }
+                    popup.message+= '</div>'
 
                     popup.message+= '</div>'
                 }
@@ -99,15 +101,38 @@ let WiFi = class {
     }
 
     connect(essid){
-        
+        //TODO
     }
 
     disconnect(){
+        // show new popup and send disconnect request
+        popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Disconnecting from ...'
+        // hide "Disconnect" button
+        document.getElementById('popup_message').getElementsByClassName('cta primary')[0].outerHTML=''
+
+        // replace "other wifis" div with "Please wait..."
+        document.getElementById('other_wifis').outerHTML='Please wait...'
         
+        popup.message = document.getElementById('popup_message').innerHTML
+        popup.show()
+
+        // save context why connection to LED strip gets disconnected, to show correct popup
+        connection_check.disconnect_context = 'wifi_disconnect'
+
+        // send disconnect request
+        axios
+            .post('http://theglowingstripes.local/disconnect_from_wifi')
+            .catch(function(error){
+                console.log(error);
+                popup.header = 'An error occured'
+                popup.message = error
+                popup.buttons = []
+                popup.show()
+            })
     }
 
     show_reset_info(){
-
+        //TODO
     }
 }
 
