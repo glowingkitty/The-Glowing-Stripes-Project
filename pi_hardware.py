@@ -5,14 +5,21 @@ import requests
 
 import iwlist
 
-glowingstripes_wifi = {
-    'essid': 'TheGlowingStripes',
-    'psk': 'letsglow',
-    'key_mgmt': 'WPA-PSK'
-}
-
 
 class PiZeroWH:
+    def default_wifi(with_password=True):
+        details = {
+            'essid': 'TheGlowingStripes',
+            'psk': 'letsglow',
+            'key_mgmt': 'WPA-PSK'
+        } if with_password == True else {
+            'essid': 'TheGlowingStripes',
+            'current_wifi': False,
+            'encryption': 'WPA-PSK',
+            'signal_strength': 100
+        }
+        return details
+
     def connected_to_internet():
         try:
             if requests.get('https://github.com').status_code == 200:
@@ -41,7 +48,7 @@ class PiZeroWH:
         networks = [{
             'essid': x['essid'],
             'current_wifi':True if current_wifi == x['essid'] else False,
-            'is_default_wifi':True if glowingstripes_wifi['essid'] == x['essid'] else False,
+            'is_default_wifi':True if PiZeroWH.default_wifi()['essid'] == x['essid'] else False,
             'encryption':x['encryption'],
             'signal_strength':int(x['signal_quality'])
         } for x in networks]
@@ -76,9 +83,10 @@ class PiZeroWH:
         return header
 
     def get_networks_text(networks):
-        # make sure to always have glowingstripes_wifi added as well
-        if glowingstripes_wifi not in networks:
-            networks += [glowingstripes_wifi]
+        # make sure to always have PiZeroWH.default_wifi() added as well
+        default_wifi = PiZeroWH.default_wifi()
+        if default_wifi not in networks:
+            networks += [default_wifi]
 
         networks_text = ''
         for network in networks:
@@ -134,9 +142,10 @@ class PiZeroWH:
             print('Added {} to wpa_supplicant.conf'.format(essid))
 
     def remove_wifi(essid):
-        if essid == glowingstripes_wifi['essid']:
+        default_wifi = PiZeroWH.default_wifi()
+        if essid == default_wifi['essid']:
             print('Cannot remove {}, its the default wifi network TheGlowingStripesProject will create in case there is no other wifi accessible'.format(
-                glowingstripes_wifi['essid']))
+                default_wifi['essid']))
         else:
             print('Remove {} from wpa_supplicant.conf...'.format(essid))
             networks = [x for x in PiZeroWH.saved_wifis()
@@ -160,8 +169,9 @@ class PiZeroWH:
 
     def disconnect_from_wifi():
         # disconnect from wifi by moving "TheGlowingStripes" default network to top and restart wifi (authotspot.service)
+        default_wifi = PiZeroWH.default_wifi()
         PiZeroWH.add_wifi(
-            glowingstripes_wifi['essid'], glowingstripes_wifi['psk'], glowingstripes_wifi['key_mgmt'])
+            default_wifi['essid'], default_wifi['psk'], default_wifi['key_mgmt'])
         PiZeroWH.restart_wifi()
 
     def off():

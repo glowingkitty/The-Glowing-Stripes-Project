@@ -46,6 +46,13 @@ let WiFi = class {
                     popup.message+= '</div>'
 
                     popup.message+= '</div>'
+
+                    // also add hidden default wifi network (which will be visible when user disconnects from wifi)
+                    popup.message+= '<div id="default_wifi" style="display: none">'
+                    self.network = response.data['default_wifi']
+                    self.cta = null
+                    popup.message += self.get_wifi_div()
+                    popup.message+= '</div>'
                 }
 
                 popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks'
@@ -91,7 +98,7 @@ let WiFi = class {
         if (this.cta=='disconnect'){
             div += '<a onclick="wifi.disconnect()" class="cta primary">Disconnect</a>'
         } else if (this.cta=='connect'){
-            div += '<a onclick="wifi.connect(\''+this.network['essid']+'\')" class="cta primary">Connect</a>'
+            div += '<a onclick="wifi.connect(\''+this.network['essid']+'\','+this.network['encryption']!='off'?'true':'false'+')" class="cta primary">Connect</a>'
         }
         div += '</div>'
         
@@ -100,7 +107,7 @@ let WiFi = class {
         return div
     }
 
-    connect(essid){
+    connect(essid,password_required){
         //TODO
     }
 
@@ -116,24 +123,20 @@ let WiFi = class {
         popup.message = document.getElementById('popup_message').innerHTML
         popup.show()
 
-        // save context why connection to LED strip gets disconnected, to show correct popup
-        connection_check.disconnect_context = 'wifi_disconnect'
-
         // send disconnect request
         axios
             .post('http://theglowingstripes.local/disconnect_from_wifi')
             .catch(function(error){
                 console.log(error);
-                popup.header = 'An error occured'
-                popup.message = error
+                popup.header = 'Disconnected from Wi-Fi'
+                popup.message = 'You can access the LED strips now by connecting your device to:<br>'
+                popup.message+= document.getElementById('default_wifi').innerHTML
+                popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.'
                 popup.buttons = []
                 popup.show()
             })
     }
 
-    show_reset_info(){
-        //TODO
-    }
 }
 
 var wifi = new WiFi()
