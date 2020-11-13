@@ -16,9 +16,16 @@ led_strip = LEDstripe()
 
 
 class Helper:
+    def id_already_connected(id):
+        for entry in connected_led_strips:
+            if entry['id'] == id:
+                return True
+        else:
+            return False
+
     def add_update_led_strip(json_data):
         print('add_update_led_strip...')
-        if json_data in connected_led_strips:
+        if Helper.id_already_connected(json_data['id']):
             print('LED strip already connected')
 
         else:
@@ -246,13 +253,16 @@ class Stripe:
         led_strip.machine.connect_to_wifi(
             essid=data['essid'],
             password=data['password'],
-            encryption=data['encryption'])
+            encryption=data['encryption'].upper())
         return HttpResponse(status=200)
 
     @csrf_exempt
     def disconnect_from_wifi(request):
         # POST request
-        led_strip.machine.disconnect_from_wifi()
+        data = json.loads(request.body.decode('utf-8'))
+        led_strip.machine.disconnect_from_wifi(
+            data['essid']
+        )
         return HttpResponse(status=200)
 
     @csrf_exempt

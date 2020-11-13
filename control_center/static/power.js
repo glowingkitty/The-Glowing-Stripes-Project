@@ -32,18 +32,10 @@ let Power = class {
         popup.show()
         axios
             .post("http://theglowingstripes.local/shutdown_all_led_strips")
-            .then(function(respone){
-                console.log('Shut Down successfull')
-            })
             .catch(function(error){
-                console.log(error)
-                popup.header = 'An error occured'
-                popup.message = error
-                popup.buttons = []
-                popup.show()
+                console.log('Shut Down successfull')
+                connection_check.show_disconnected_warning('power_off')
             })
-        
-        // TODO auto check in frontend if host accessible, if not, show popup "Disconnected"
     }
 
     restart(){
@@ -53,15 +45,9 @@ let Power = class {
         popup.show()
         axios
             .post("http://theglowingstripes.local/restart_all_led_strips")
-            .then(function(respone){
-                console.log('Restart successfull')
-            })
             .catch(function(error){
-                console.log(error)
-                popup.header = 'An error occured'
-                popup.message = error
-                popup.buttons = []
-                popup.show()
+                console.log('Restart successfull')
+                connection_check.show_disconnected_warning('restart')
             })
     }
 

@@ -275,3 +275,16 @@
     opacity: 1;
     cursor: pointer;
 }
+
+.input_field {
+    background: #1C1C1C;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 18px;
+    color: white;
+    font-family: Lexend Deca;
+    font-style: normal;
+    font-weight: normal;
+    padding: 10px;
+    padding-left: 20px;
+    width: 60%;
+}

@@ -49,7 +49,7 @@ class PiZeroWH:
             'essid': x['essid'],
             'current_wifi':True if current_wifi == x['essid'] else False,
             'is_default_wifi':True if PiZeroWH.default_wifi()['essid'] == x['essid'] else False,
-            'encryption':x['encryption'],
+            'encryption':'WPA-PSK' if x['encryption'] == 'wpa2' else x['encryption'],
             'signal_strength':int(x['signal_quality'])
         } for x in networks]
 
@@ -167,9 +167,10 @@ class PiZeroWH:
         PiZeroWH.add_wifi(essid, password, encryption)
         PiZeroWH.restart_wifi()
 
-    def disconnect_from_wifi():
+    def disconnect_from_wifi(essid):
         # disconnect from wifi by moving "TheGlowingStripes" default network to top and restart wifi (authotspot.service)
         default_wifi = PiZeroWH.default_wifi()
+        PiZeroWH.remove_wifi(essid)
         PiZeroWH.add_wifi(
             default_wifi['essid'], default_wifi['psk'], default_wifi['key_mgmt'])
         PiZeroWH.restart_wifi()

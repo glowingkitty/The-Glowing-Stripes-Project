@@ -20,7 +20,7 @@ let ConnectionCheck = class {
     }
 
 
-    show_disconnected_warning(){
+    show_disconnected_warning(context=null){
         // fade out LED strip, hide LED strip control interface, hide all buttons and saved mixes show "Disconnected from Host" warning
         document.getElementsByClassName('leds_preview_block')[0].style.top='50px'
         document.getElementsByClassName('leds_preview_block')[0].style.opacity='0'
@@ -40,6 +40,8 @@ let ConnectionCheck = class {
         document.getElementById('show_wifi_networks_button').style.display = 'none'
 
         document.getElementById('disconnected_info').innerHTML = 'Disconnected from "The Glowing Stripes Project"<br>In case this is not supposed to happen: check the battery status of the LED strips and if you are connected to the correct Wi-Fi.'
+        
+        this.check_if_host_connected_again()
     }
 
     show_connected_again_info(){

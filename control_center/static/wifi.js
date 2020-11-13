@@ -18,12 +18,14 @@ let WiFi = class {
 
                 // if not connected to any wifi, show list of wifis with "Connect" buttons
                 if (response.data['networks'][0]['current_wifi']==false || response.data['networks'][0]['is_default_wifi']==true){
+                    popup.message+= '<div style="overflow-y: scroll;max-height: 30vh;">'
                     var i;
                     for (i = 0; i < response.data['networks'].length; i++) {
                         self.network = response.data['networks'][i]
                         self.cta = 'connect'
                         popup.message += self.get_wifi_div()
                     }
+                    popup.message+= '</div>'
                 }
                 // else show connected wifi at the top, "Disconnect" button and list other wifis WITH NO "Connect" buttons
                 else {
@@ -59,7 +61,11 @@ let WiFi = class {
                 popup.buttons = []
                 popup.show()
             })
-    }
+            .catch(function(error){
+                console.log(error)
+                connection_check.show_disconnected_warning()
+            })
+        }
 
     get_wifi_div(){
         // create the div block for a wifi network in the list
@@ -96,9 +102,13 @@ let WiFi = class {
         
         // show CTAs
         if (this.cta=='disconnect'){
-            div += '<a onclick="wifi.disconnect()" class="cta primary">Disconnect</a>'
+            div += '<a onclick="wifi.disconnect(\''+this.network['essid']+'\')" class="cta primary">Disconnect</a>'
         } else if (this.cta=='connect'){
-            div += '<a onclick="wifi.connect(\''+this.network['essid']+'\','+this.network['encryption']!='off'?'true':'false'+')" class="cta primary">Connect</a>'
+            if (this.network['encryption']=='off'){
+                div += '<a onclick="wifi.connect(\''+this.network['essid']+'\',null,null)" class="cta primary">Connect</a>'
+            } else {
+                div += '<a id="'+this.network['essid']+'_connect_button" onclick="wifi.ask_for_password(\''+this.network['essid']+'\',\''+this.network['encryption']+'\')" class="cta primary">Connect</a>'
+            }
         }
         div += '</div>'
         
@@ -107,11 +117,76 @@ let WiFi = class {
         return div
     }
 
-    connect(essid,password_required){
-        //TODO
+    connect(essid,password,encryption){
+        if (essid!=null){
+            popup.header = 'Connecting to...'
+            popup.message = document.getElementById(essid).outerHTML
+            popup.message += '<br>Please wait...'
+            popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.'
+            popup.buttons = []
+            popup.show()
+
+            axios
+                .post('http://theglowingstripes.local/connect_to_wifi',{
+                    'essid':essid,
+                    'password':password, // TODO yeah yeah, I know. Don't worry, password will be submitted only if you are on the "TheGlowingStripes" wifi. And if anyone has a better suggestion on how to safely submit the wifi password on the local wifi without ssl issues, let me know
+                    'encryption':encryption
+                })
+                .catch(function(error){
+                    console.log(error);
+                    popup.header = 'Connected to new Wi-Fi'
+                    popup.message = 'You can access the LED strips now by connecting your device to:<br>'
+                    popup.message+= document.getElementById(essid).outerHTML
+                    popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.'
+                    popup.buttons = []
+                    popup.show()
+                })
+        }
     }
 
-    disconnect(){
+    ask_for_password(essid,encryption){
+        if (essid!=null && encryption!=null){
+            popup.header = 'Enter Wi-Fi password for...'
+
+            // remove connect button
+            document.getElementById(essid+'_connect_button').outerHTML = ''
+
+            // show wifi details to 
+            popup.message = document.getElementById(essid).outerHTML
+
+            // show 
+            popup.message+='<div>'
+            popup.message+='<input oninput="wifi.show_connect_button()" class="input_field" id="wifipassword" type="password" placeholder="Enter the Wi-Fi password here">'
+
+            popup.message+='<div class="right_aligned inline_block">'
+            popup.message+='<a id="connect_to_wifi_button" style="display: none" onclick="wifi.connect(\''+essid+'\',document.getElementById(\'wifipassword\').value,\''+encryption+'\')" class="cta primary">Connect</a>'
+            popup.message+='</div>'
+            
+            popup.message+='</div>'
+
+            popup.buttons = []
+            popup.show()
+
+            setTimeout(function(){
+                var wifipasswordfield = document.getElementById('wifipassword');
+                wifipasswordfield.focus();
+                wifipasswordfield.select();
+            },200)
+            
+
+        }
+    }
+
+    show_connect_button(){
+        if (document.getElementById('wifipassword').value.length > 0){
+            document.getElementById('connect_to_wifi_button').style.removeProperty('display')
+        } else {
+            document.getElementById('connect_to_wifi_button').style.display='none'
+        }
+        
+    }
+
+    disconnect(essid){
         // show new popup and send disconnect request
         popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Disconnecting from ...'
         // hide "Disconnect" button
@@ -124,8 +199,11 @@ let WiFi = class {
         popup.show()
 
         // send disconnect request
+        // TODO testing
         axios
-            .post('http://theglowingstripes.local/disconnect_from_wifi')
+            .post('http://theglowingstripes.local/disconnect_from_wifi',{
+                'essid':essid
+            },{timeout:10})
             .catch(function(error){
                 console.log(error);
                 popup.header = 'Disconnected from Wi-Fi'
