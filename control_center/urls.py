@@ -37,6 +37,10 @@ urlpatterns = [
          name='enable_services_all_led_strips'),
     path('disable_services_all_led_strips', views.Host.disable_services_all_led_strips,
          name='disable_services_all_led_strips'),
+    path('connect_to_wifi_all_led_strips', views.Host.connect_to_wifi_all_led_strips,
+         name='connect_to_wifi_all_led_strips'),
+    path('disconnect_from_wifi_all_led_strips', views.Host.disconnect_from_wifi_all_led_strips,
+         name='disconnect_from_wifi_all_led_strips'),
 
 
     # stripe related urls

@@ -127,7 +127,7 @@ let WiFi = class {
             popup.show()
 
             axios
-                .post('http://theglowingstripes.local/connect_to_wifi',{
+                .post('http://theglowingstripes.local/connect_to_wifi_all_led_strips',{
                     'essid':essid,
                     'password':password, // TODO yeah yeah, I know. Don't worry, password will be submitted only if you are on the "TheGlowingStripes" wifi. And if anyone has a better suggestion on how to safely submit the wifi password on the local wifi without ssl issues, let me know
                     'encryption':encryption
@@ -201,7 +201,7 @@ let WiFi = class {
         // send disconnect request
         // TODO testing
         axios
-            .post('http://theglowingstripes.local/disconnect_from_wifi',{
+            .post('http://theglowingstripes.local/disconnect_from_wifi_all_led_strips',{
                 'essid':essid
             },{timeout:10})
             .catch(function(error){

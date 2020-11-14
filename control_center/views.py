@@ -230,6 +230,38 @@ class Host:
 
             return HttpResponse(status=200)
 
+    @csrf_exempt
+    def connect_to_wifi_all_led_strips(request):
+        # make post request to all led strips to connect to wifi
+        if request.method == 'POST':
+            data = json.loads(request.body.decode('utf-8'))
+
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/connect_to_wifi', data=data)
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/connect_to_wifi', data=data)
+
+            return HttpResponse(status=200)
+
+    @csrf_exempt
+    def disconnect_from_wifi_all_led_strips(request):
+        # make post request to all led strips to disconnect from wifi
+        if request.method == 'POST':
+            data = json.loads(request.body.decode('utf-8'))
+
+            for other_stripe in connected_led_strips:
+                if other_stripe['ip_address'] != led_strip.ip_address:
+                    request = requests.post(
+                        'http://'+led_strip['ip_address']+'/disconnect_from_wifi', data=data)
+
+            request = requests.post(
+                'http://'+led_strip.ip_address+'/disconnect_from_wifi', data=data)
+
+            return HttpResponse(status=200)
+
 
 class Stripe:
     def is_online(request):
