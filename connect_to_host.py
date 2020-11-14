@@ -1,5 +1,3 @@
-from stripe import Stripe
-import logging
 import os
 import socket
 import time
@@ -7,9 +5,7 @@ from socket import timeout
 
 import requests
 
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
-
+from stripe import Stripe
 
 host_ip_address = None
 wait_seconds = 10
@@ -31,16 +27,17 @@ while True:
                 response = requests.get(
                     'http://theglowingstripes.local/', timeout=2)
                 if response.status_code == 200:
-                    logger.info('Yes, still online. Test again in {} seconds\n'.format(
+                    print('Yes, still online. Test again in {} seconds'.format(
                         wait_seconds))
+                    print('')
             except:
                 # if host not accessible, restart network manager to make this led strip the new host
-                logger.warning(
+                print(
                     'Host not accessible. Probably turned off. Restart avahi-daemon to make this LED strip the new host...')
                 os.system('sudo systemctl restart avahi-daemon')
-                logger.warning('avahi-daemon restarted')
+                print('avahi-daemon restarted')
     except socket.gaierror:
-        logger.error('theglowingstripes.local currently unavailable. Trying again in {} seconds...'.format(
+        print('theglowingstripes.local currently unavailable. Trying again in {} seconds...'.format(
             wait_seconds))
 
     time.sleep(wait_seconds)

@@ -1,6 +1,5 @@
-asgiref==3.2.10
 Colr==0.9.1
 Django==3.1.2
-pytz==2020.1
-sqlparse==0.4.1
-neopixel_plus==1.3.0
+neopixel_plus>=1.3.1
+requests>=2.25.0
+systemd>=0.16.1

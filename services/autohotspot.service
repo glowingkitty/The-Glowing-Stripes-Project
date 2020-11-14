@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/bash /home/host/the-glowing-stripes-project/autohotspot.bash
+ExecStart=/bin/bash /home/host/the-glowing-stripes-project/services/autohotspot.bash
 
 [Install]
 WantedBy=multi-user.target

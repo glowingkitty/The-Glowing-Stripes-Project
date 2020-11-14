@@ -4,13 +4,14 @@ from shutil import copyfile
 
 class Services():
     def __init__(self,
-                 systemd_folder='/etc/systemd/system/',
                  glowingstripes_systemd_folder='/home/host/the-glowing-stripes-project/services/',
-                 exclude_from_restart=['autohotspot.service']
+                 exclude_from_restart=['autohotspot.service'],
+                 systemd_system_services=['autohotspot.service'],
                  ):
-        self.systemd_folder = systemd_folder
+        self.systemd_folder = '/etc/systemd/system/'
         self.glowingstripes_systemd_folder = glowingstripes_systemd_folder
         self.exclude_from_restart = exclude_from_restart
+        self.systemd_system_services = systemd_system_services
 
     @property
     def all(self):
@@ -27,10 +28,15 @@ class Services():
         if not name.endswith('.service'):
             name = name+'.service'
 
-        # copy over in systemd folder, if already exists, overwrite it
+        # remove link first,then add it
+        if os.path.isfile(self.systemd_folder+name):
+            os.unlink(self.systemd_folder+name)
+
+        # link file
         if os.path.isfile(self.glowingstripes_systemd_folder + name):
-            copyfile(self.glowingstripes_systemd_folder + name,
-                     self.systemd_folder + name)
+
+            os.symlink(self.glowingstripes_systemd_folder +
+                       name, self.systemd_folder+name)
 
             # reload the service files to include the new service
             os.system('sudo systemctl daemon-reload')
@@ -86,11 +92,15 @@ class Services():
         if not name.endswith('.service'):
             name = name+'.service'
 
-        if not os.path.isfile(self.systemd_folder + name):
-            print('service {} doesnt exist'.format(name))
+        if name in self.systemd_system_services:
+            print(
+                'Cannot stop {}, its an essential service. If you are 100 percent sure, stop it manually.')
         else:
-            os.system('sudo systemctl stop {}'.format(name))
-            print('Stopped {}'.format(name))
+            if not os.path.isfile(self.systemd_folder + name):
+                print('service {} doesnt exist'.format(name))
+            else:
+                os.system('sudo systemctl stop {}'.format(name))
+                print('Stopped {}'.format(name))
 
     def restart(self, name):
         if not name.endswith('.service'):
@@ -106,16 +116,20 @@ class Services():
         if not name.endswith('.service'):
             name = name+'.service'
 
-        if not os.path.isfile(self.systemd_folder + name):
-            print('service {} doesnt exist'.format(name))
+        if name in self.systemd_system_services:
+            print(
+                'Cannot remove {}, its an essential service. If you are 100 percent sure, remove it manually.')
         else:
-            # disable the new service
-            self.stop(name)
-            self.disable(name)
-            os.remove(self.systemd_folder + name)
-            os.system('sudo systemctl daemon-reload')
-            os.system('sudo systemctl reset-failed')
-            print('Removed {}'.format(name))
+            if not os.path.isfile(self.systemd_folder + name):
+                print('service {} doesnt exist'.format(name))
+            else:
+                # disable the new service
+                self.stop(name)
+                self.disable(name)
+                os.unlink(self.systemd_folder+name)
+                os.system('sudo systemctl daemon-reload')
+                os.system('sudo systemctl reset-failed')
+                print('Removed {}'.format(name))
 
     def add_all(self):
         for service_file in self.all:
