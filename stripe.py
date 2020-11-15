@@ -1,11 +1,11 @@
 import json
 import os
 import random
+import signal
+import subprocess
 import time
 
 import requests
-from neopixel_plus import NeoPixel
-from neopixel_plus.helper import RunningAnimation
 
 from led_animations import LEDanimations
 from pi_hardware import PiZeroWH
@@ -22,6 +22,8 @@ class StripeConfig:
 
 class Stripe():
     def __init__(self,
+                 python_location='/home/host/the-glowing-stripes-project/pyvenv/bin/python',
+                 neopixel_plus_package_path='/home/host/the-glowing-stripes-project/pyvenv/lib/python3.7/site-packages/neopixel_plus',
                  led_strip_data_pin_num=StripeConfig.config()[
                      'led_strip_data_pin_num'],
                  num_of_leds=StripeConfig.config()['num_of_leds'],
@@ -32,9 +34,9 @@ class Stripe():
         # setting up the LEDs
         self.led_strip_data_pin_num = led_strip_data_pin_num
         self.num_of_leds = num_of_leds
-        self.leds = NeoPixel(n=self.num_of_leds,
-                             target='adafruit' if self.host_address == 'theglowingstripes.local' else 'micropython',
-                             test=False if self.host_address == 'theglowingstripes.local' else True)
+        self.current_animation = None
+        self.python_location = python_location
+        self.neopixel_plus_package_path = neopixel_plus_package_path
 
         self.machine = PiZeroWH
 
@@ -132,7 +134,7 @@ class Stripe():
     def glow(self,
              id=None,
              based_on=None,
-             customization=None):
+             customization={}):
         # take current mode from json and glow in infinite loop
         if not id:
             last_animation = self.last_animation
@@ -143,35 +145,33 @@ class Stripe():
                 customization = last_animation['customization']
 
         default_animations = {
-            '0000000000': self.leds.color,
-            'b943uee3y7': self.leds.rainbow_animation,
-            '8hsylal9v7': self.leds.beats,
-            'leta9ed5fc': self.leds.moving_dot,
-            'kack2555kd': self.leds.light_up,
-            '7u9tjpd0gi': self.leds.transition,
+            '0000000000': 'color',
+            'b943uee3y7': 'rainbow_animation',
+            '8hsylal9v7': 'beats',
+            'leta9ed5fc': 'moving_dot',
+            'kack2555kd': 'light_up',
+            '7u9tjpd0gi': 'transition',
         }
 
-        if id in default_animations:
-            # play default animation
-            print('Play default animation...')
-            try:
-                default_animations[id](
-                    stop_ongoing_animation=True
-                )
-            except:
-                RunningAnimation.stop_ongoing_animation()
-
-        else:
-            # get custom animation from led_animations
-            print('Play custom animation...')
-            try:
-                default_animations[based_on['id']](
-                    stop_ongoing_animation=True,
-                    customization_json=customization)
-            except:
-                RunningAnimation.stop_ongoing_animation()
+        # play animation
+        print('Play animation...')
+        if self.current_animation:
+            self.current_animation.send_signal(signal.SIGINT)
+        command = [
+            self.python_location,
+            self.neopixel_plus_package_path+'/neopixel_plus.py',
+            '-a',
+            default_animations[id] if id in default_animations else default_animations[based_on['id']],
+            '-d',
+            'adafruit',
+            '-n',
+            str(self.num_of_leds),
+            '-c',
+            str(customization)
+        ]
+        self.current_animation = subprocess.Popen(command)
 
     def off(self):
         # shutdown via linux command
-        self.leds.off()
+        self.current_animation.send_signal(signal.SIGINT)
         self.machine.off()

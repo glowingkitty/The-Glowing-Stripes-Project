@@ -57,6 +57,7 @@
     /* opacity: 0; */
     -webkit-transition: all 200ms ease;
     transition: all 200ms ease;
+    padding-bottom: 25px;
 }
 
 .left_aligned_maincontent {

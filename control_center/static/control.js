@@ -4,7 +4,7 @@ var disconnect_context = null
 var connected_led_strips = {}
 var web_control_config = {}
 var num_of_led_strips = 0
-var led_strips = []
+var led_strips = {}
 var led_animations = {}
 
 let Control = class {
@@ -54,7 +54,7 @@ let Control = class {
             console.log('Searching for LED strips...')
 
             axios
-                .get("http://theglowingstripes.local/connected_led_strips")
+                .get("/connected_led_strips")
                 .then(function (response) {
                     connected_led_strips = response.data['connected_led_strips']
                     num_of_led_strips = connected_led_strips.length
@@ -63,13 +63,13 @@ let Control = class {
 
                         // check if LED strip already exists, only add if it doesn't exist yet
                         if (!document.getElementById(connected_led_strips[i]['id'])) {
-                            led_strips[i] = new LEDstrip(
+                            led_strips[connected_led_strips[i]['id']] = new LEDstrip(
                                 connected_led_strips[i]['id'],
                                 connected_led_strips[i]['name'],
                                 connected_led_strips[i]['last_animation'],
                                 connected_led_strips[i]['num_of_leds']
                             );
-                            led_strips[i].connect()
+                            led_strips[connected_led_strips[i]['id']].connect()
                         }
 
                     }
@@ -109,25 +109,27 @@ let Control = class {
 
         // switch back to previous LED mode
         axios
-            .post("http://theglowingstripes.local/restore_all_led_strips")
+            .post("/restore_all_led_strips")
 
         // TODO switch back preview to previous LED mode
-        num_of_led_strips = led_strips.length
+        num_of_led_strips = Object.keys(led_strips).length
         var i;
         for (i = 0; i < num_of_led_strips; i++) {
-            led_strips[i].rainbow_animation()
+            led_strips[[Object.keys(led_strips)[i]]].rainbow_animation()
 
         }
+
+        var first_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id
 
         // show main control interface
         var control_object = this
         axios
-            .get("http://theglowingstripes.local/led_animations")
+            .get("/led_animations")
             .then(function (response) {
                 led_animations = response.data
 
                 axios
-                    .get("http://theglowingstripes.local/web_control_config")
+                    .get("/web_control_config")
                     .then(function (response) {
 
                         web_control_config = response.data
@@ -144,27 +146,23 @@ let Control = class {
                             control_object.main_window_new_html += '<span onclick="editname(\'mix\',\'' + web_control_config['current_mix']['id'] + '\')" '
                             control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
-                        } else if (led_strips.length > 1 && web_control_config['sync_all'] == true) {
+                        } else if (num_of_led_strips > 1 && web_control_config['sync_all'] == true) {
                             control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds darkmode">'
-                            control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips">'
-                            if (num_of_led_strips == 1) {
-                                control_object.main_window_new_html += 'strip'
-                            } else {
-                                control_object.main_window_new_html += 'strips'
-                            }
-                            control_object.main_window_new_html += '</span>'
+                            control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips"> strips</span>'
 
                         } else {
-
-
-                            //// show "edit name" if single LED strip selected
+                            //// show name and  "edit name" if single LED strip selected
+                            
+                            control_object.main_window_new_html += led_strips[first_led_strip_id].name
+                            control_object.main_window_new_html += '<span onclick="editname(\'led_strip\',\'' + led_strips[first_led_strip_id].id + '\')" '
+                            control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
                         }
                         control_object.main_window_new_html += '</div>'
 
 
                         //// show last used mode for all LED strips or mode of last selected led strip (depending on current mix)
-                        control_object.main_window_new_html += '<select class="mode_selector">'
+                        control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips[\''+led_strips[first_led_strip_id].id+'\'].check_mode_changed()" data-current-led-strip-id="'+led_strips[first_led_strip_id].id+'" class="mode_selector">'
 
                         //// show all custom modes
                         control_object.main_window_new_html += '<optgroup label="Custom animations">'
@@ -173,7 +171,7 @@ let Control = class {
                         for (i = 0; i < num_of_custom_animations; i++) {
                             control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['custom'][i]['id'] + '"'
                             // mark mode as selected if thats the case in "current mix"
-                            if (led_strips[0]['last_animation']['id'] == led_animations['led_animations']['custom'][i]['id']) {
+                            if (led_strips[first_led_strip_id]['last_animation']['id'] == led_animations['led_animations']['custom'][i]['id']) {
                                 control_object.main_window_new_html += ' selected'
                             }
                             control_object.main_window_new_html += '>'
@@ -190,7 +188,7 @@ let Control = class {
                             if (led_animations['led_animations']['default'][i]['id'] != "000000") {
                                 control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
                                 // mark mode as selected if thats the case in "current mix"
-                                if (led_strips[0]['last_animation']['id'] == led_animations['led_animations']['default'][i]['id']) {
+                                if (led_strips[first_led_strip_id]['last_animation']['id'] == led_animations['led_animations']['default'][i]['id']) {
                                     control_object.main_window_new_html += ' selected'
                                 }
                                 control_object.main_window_new_html += '>'
@@ -205,7 +203,7 @@ let Control = class {
                         control_object.main_window_new_html += '<a class="button_customize_animation customize right_positioned"></a>'
 
                         //// show "sync all" and "multi select" from current mix
-                        if (led_strips.length > 1) {
+                        if (num_of_led_strips > 1) {
                             control_object.main_window_new_html += '<div>'
 
                             control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all'
@@ -227,11 +225,20 @@ let Control = class {
 
 
                         control_object.main_window_new_html += '<div>'
+                        control_object.main_window_new_html += '<div class="fixed_bottom_left">'
 
                         //// show "save mix" button
-                        if (led_strips.length > 1) {
-                            control_object.main_window_new_html += '<div class="fixed_bottom_left"><a class="cta darkmode with_icon save">Save mix</a></div>'
+                        if (num_of_led_strips > 1) {
+                            control_object.main_window_new_html += '<a class="cta darkmode with_icon save">Save mix</a>'
                         }
+
+                        control_object.main_window_new_html += '</div>'
+
+                        // show undo and apply button (hidden, only visible if change is made)
+                        control_object.main_window_new_html += '<div class="fixed_bottom_right">'
+                        control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips[\''+first_led_strip_id+'\'].undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>'
+                        control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips[\''+first_led_strip_id+'\'].apply_changes()"class="cta primary with_icon true display_none">Apply</a>'
+                        control_object.main_window_new_html += '</div>'
 
                         control_object.main_window_new_html += '</div>'
 

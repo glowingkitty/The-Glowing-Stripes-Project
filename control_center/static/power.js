@@ -31,7 +31,7 @@ let Power = class {
         popup.buttons = []
         popup.show()
         axios
-            .post("http://theglowingstripes.local/shutdown_all_led_strips")
+            .post("/shutdown_all_led_strips")
             .catch(function(error){
                 console.log('Shut Down successfull')
                 connection_check.show_disconnected_warning('power_off')
@@ -44,7 +44,7 @@ let Power = class {
         popup.buttons = []
         popup.show()
         axios
-            .post("http://theglowingstripes.local/restart_all_led_strips")
+            .post("/restart_all_led_strips")
             .catch(function(error){
                 console.log('Restart successfull')
                 connection_check.show_disconnected_warning('restart')

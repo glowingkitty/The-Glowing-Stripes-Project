@@ -8,10 +8,10 @@ let SoftwareUpdate = class {
         popup.show()
 
         axios
-            .get('http://theglowingstripes.local/is_online').then(
+            .get('/is_online').then(
                 function(response){
                     axios
-                        .post('http://theglowingstripes.local/update_all_led_strips',{timeout:120})
+                        .post('/update_all_led_strips',{timeout:120})
                         .then(function (response) {this.restart_services()})
                         .catch(
                             function (error) {
@@ -52,7 +52,7 @@ let SoftwareUpdate = class {
         popup.show()
 
         axios
-            .post('http://theglowingstripes.local/restart_services_all_led_strips',{timeout:120})
+            .post('/restart_services_all_led_strips',{timeout:120})
             .then(function (response) {
                 console.log('Update complete')
                 console.log(response.data)

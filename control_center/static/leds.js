@@ -29,6 +29,12 @@ let LEDstrip = class {
         this.id = id
         this.name = name
         this.last_animation = last_animation
+        this.unsubmitted_mode_change = {
+            'id':null,
+            'name':null,
+            'based_on':null,
+            'customization':null
+        }
         this.num_of_leds = num_of_leds
         this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">'
 
@@ -65,6 +71,64 @@ let LEDstrip = class {
         }
         return [255, 255, 255]
 
+    }
+
+    check_mode_changed(){
+        if (document.getElementById('mode_selector').value!=this.last_animation['id']){
+            // save values of new animation
+            this.unsubmitted_mode_change['id'] = document.getElementById('mode_selector').selectedOptions[0].value
+            this.unsubmitted_mode_change['name'] = document.getElementById('mode_selector').selectedOptions[0].text
+
+
+            // show buttons to apply or undo change 
+            document.getElementById('undo_changes_button').classList.remove('display_none')
+            document.getElementById('apply_changes_button').classList.remove('display_none')
+        } else {
+            this.unsubmitted_mode_change['id'] = null
+            this.unsubmitted_mode_change['name'] = null
+
+            document.getElementById('undo_changes_button').classList.add('display_none')
+            document.getElementById('apply_changes_button').classList.add('display_none')
+        }
+    }
+
+    apply_changes(){
+        // send request to change mode
+        if (this.unsubmitted_mode_change['id']){
+            var self = this
+            axios
+                .post('/mode',{
+                    'changes': [{
+                        'led_strip_ids': [self.id],
+                        'new_animation': self.unsubmitted_mode_change
+                    }]
+                })
+            
+            this.last_animation=this.unsubmitted_mode_change
+            this.undo_changes()
+        } else {
+            console.log('id of new mode missing. Cannot submit change.')
+        }
+    }
+
+    undo_changes(){
+        // reset selected animation to current animation
+        var sel = document.getElementById('mode_selector')
+        var opts = sel.options;
+        for (var opt, j = 0; opt = opts[j]; j++) {
+            if (opt.value == this.last_animation['id']) {
+            sel.selectedIndex = j;
+            break;
+            }
+        }
+
+
+        this.unsubmitted_mode_change = {
+            'id':null,
+            'name':null,
+            'based_on':null,
+            'customization':null
+        }
     }
 
     connect() {
@@ -112,28 +176,23 @@ let LEDstrip = class {
         }
 
         // send new color to strip
-        axios.post("/mode", {
-            "changes": [{
-                "led_strip_ids": [this.id],
-                "new_animation": {
-                    "id": "0",
-                    "name": "Setup mode",
-                    "based_on":{
-                        "name":"color",
-                        "id":"0000000000"
-                    },
-                    "customization":{
-                        "rgb_color": [r, g, b]
+        axios
+            .post('/mode', {
+                'changes': [{
+                    'led_strip_ids': [this.id],
+                    'new_animation': {
+                        'id': '0',
+                        'name': 'Setup mode',
+                        'based_on':{
+                            'name':'color',
+                            'id':'0000000000'
+                        },
+                        'customization':{
+                            'rgb_color': [r, g, b]
+                        }
                     }
-                }
-            }]
-        }, {
-            headers: {
-              // Overwrite Axios's automatically set Content-Type
-              'Content-Type': 'application/json'
-            }
-        }
-        )
+                }]
+            })
     }
 
 

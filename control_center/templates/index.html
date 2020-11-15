@@ -35,22 +35,6 @@
         <div class="main_window">
 
             <div class="main_window_content">
-                
-                <div class="left_aligned_maincontent">
-
-
-                    <div>
-                        <div class="fixed_bottom_left">
-                            <a class="cta darkmode with_icon save">Save mix</a>
-                        </div>
-                        <div class="fixed_bottom_right">
-                            <a class="cta darkmode with_icon undo">Undo</a>
-                            <a class="cta primary with_icon true">Apply</a>
-                        </div>
-                    </div>
-
-                </div>
-
             </div>
 
             <div id="disconnected_info"></div>
@@ -59,7 +43,10 @@
     
         <div class="shadow"></div>
 
-        <div class="mixes">
+        
+        {% comment %}
+        TODO save/manage mixes
+         <div class="mixes">
         
             <div class="mix_entry" id="s22swdd">
                 Glow mix
@@ -69,7 +56,7 @@
                 </div>
             </div>
 
-        </div>
+        </div> {% endcomment %}
 
         <div class="sub_menu">
             <a id="software_update_button" onclick="software_update.update()" class="icon large_inline sync"></a>
