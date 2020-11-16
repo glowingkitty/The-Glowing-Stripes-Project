@@ -106,6 +106,20 @@ class Host:
             changes = json.loads(request.body.decode('utf-8'))['changes']
             for change in changes:
                 for id in change['led_strip_ids']:
+                    # update current_animation of signed up LED strips
+                    # save new animation to currently connected LED strips
+                    for strip in connected_led_strips:
+                        if strip['id'] == id:
+                            if change['new_animation']['id'] == '1111111111':
+                                print('Skipped saving "off"')
+                            elif change['new_animation']['id'] == '0' or change['new_animation']['id'] == '0000000000':
+                                print('Skipped saving "Setup mode"')
+                            else:
+                                strip['last_animation'] = change['new_animation']
+                                print('Strip {} ({}) has a new animation: {}'.format(
+                                    strip['name'], strip['id'], change['new_animation']['name']))
+                            break
+
                     # replace IDs in request with current IPs & send requests
                     ip_address = Helper.get_strip_ip_address(id)
                     if ip_address:

@@ -185,7 +185,7 @@ let Control = class {
                         var i;
                         for (i = 0; i < num_of_default_animations; i++) {
                             // exclude Setup mode
-                            if (led_animations['led_animations']['default'][i]['id'] != "000000") {
+                            if (led_animations['led_animations']['default'][i]['id'] != "0000000000") {
                                 control_object.main_window_new_html += '<option value="' + led_animations['led_animations']['default'][i]['id'] + '"'
                                 // mark mode as selected if thats the case in "current mix"
                                 if (led_strips[first_led_strip_id]['last_animation']['id'] == led_animations['led_animations']['default'][i]['id']) {

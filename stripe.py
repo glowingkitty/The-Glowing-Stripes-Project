@@ -75,7 +75,9 @@ class Stripe():
         return ''.join([random.choice(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) for n in range(10)])
 
     def update_last_animation(self, animation):
-        if animation['id'] == '0' or animation['id'] == '0000000000':
+        if animation['id'] == '1111111111':
+            print('Skipped saving "off"')
+        elif animation['id'] == '0' or animation['id'] == '0000000000':
             print('Skipped saving "Setup mode"')
         else:
             # save name to config.json
@@ -148,6 +150,7 @@ class Stripe():
 
         default_animations = {
             '0000000000': 'color',
+            '1111111111': 'off',
             'b943uee3y7': 'rainbow_animation',
             '8hsylal9v7': 'beats',
             'leta9ed5fc': 'moving_dot',
@@ -156,22 +159,26 @@ class Stripe():
         }
 
         # play animation
-        print('Play animation...')
         if self.current_animation:
+            print('Stopping previous animation...')
             self.current_animation.send_signal(signal.SIGINT)
-        command = [
-            self.python_location,
-            self.neopixel_plus_package_path+'/neopixel_plus.py',
-            '-a',
-            default_animations[id] if id in default_animations else default_animations[based_on['id']],
-            '-d',
-            'adafruit',
-            '-n',
-            str(self.num_of_leds),
-            '-c',
-            str(customization)
-        ]
-        self.current_animation = subprocess.Popen(command)
+        if id == '1111111111':
+            print('/off requested. LEDs are turned off (Pi stays awake)')
+        else:
+            print('Play animation...')
+            command = [
+                self.python_location,
+                self.neopixel_plus_package_path+'/neopixel_plus.py',
+                '-a',
+                default_animations[id] if id in default_animations else default_animations[based_on['id']],
+                '-d',
+                'adafruit',
+                '-n',
+                str(self.num_of_leds),
+                '-c',
+                str(customization)
+            ]
+            self.current_animation = subprocess.Popen(command)
 
     def off(self):
         # shutdown via linux command

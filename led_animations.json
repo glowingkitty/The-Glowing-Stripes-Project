@@ -3,8 +3,12 @@
         "custom": [],
         "default": [
             {
-                "id": "000000",
+                "id": "0000000000",
                 "name": "Setup mode"
+            },
+            {
+                "id": "1111111111",
+                "name": "off"
             },
             {
                 "id": "b943uee3y7",
