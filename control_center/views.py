@@ -23,6 +23,11 @@ connect_to_host = subprocess.Popen(
     [led_strip.python_location,
      led_strip.project_path+'/connect_to_host.py'])
 
+# start listening for shutdown
+listen_for_shutdown = subprocess.Popen(
+    [led_strip.python_location,
+     led_strip.project_path+'/listen_for_shutdown.py'])
+
 
 class Helper:
     def id_already_connected(id):

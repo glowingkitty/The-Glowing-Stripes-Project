@@ -1,9 +1,0 @@
-[Unit]
-Description=Listen for shutdown
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/listen_for_shutdown.py
-
-[Install]
-WantedBy=multi-user.target
