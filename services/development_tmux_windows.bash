@@ -2,9 +2,7 @@
 
 session_name=developmentwindows
 cmds=("htop"
-"sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/start_animation.py"
 "sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/manage.py runserver 0.0.0.0:80"
-"sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/connect_to_host.py"
 )
 
 if [ "`tmux ls | grep $session_name`" ]; then

@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 import git
 import requests
@@ -12,7 +13,15 @@ from stripe import Stripe as LEDstripe
 
 connected_led_strips = []
 dirname = os.path.dirname(__file__)
+
+# led LED strip glow
 led_strip = LEDstripe()
+led_strip.glow()
+
+# connect to Host device
+connect_to_host = subprocess.Popen(
+    [led_strip.python_location,
+     led_strip.project_path+'/connect_to_host.py'])
 
 
 class Helper:

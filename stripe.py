@@ -23,6 +23,7 @@ class StripeConfig:
 class Stripe():
     def __init__(self,
                  python_location='/home/host/the-glowing-stripes-project/pyvenv/bin/python',
+                 project_path='/home/host/the-glowing-stripes-project',
                  neopixel_plus_package_path='/home/host/the-glowing-stripes-project/pyvenv/lib/python3.7/site-packages/neopixel_plus',
                  led_strip_data_pin_num=StripeConfig.config()[
                      'led_strip_data_pin_num'],
@@ -36,6 +37,7 @@ class Stripe():
         self.num_of_leds = num_of_leds
         self.current_animation = None
         self.python_location = python_location
+        self.project_path = project_path
         self.neopixel_plus_package_path = neopixel_plus_package_path
 
         self.machine = PiZeroWH
