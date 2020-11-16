@@ -12,7 +12,7 @@ let SoftwareUpdate = class {
                 function(response){
                     axios
                         .post('/update_all_led_strips',{timeout:120})
-                        .then(function (response) {this.restart_services()})
+                        .then(function (response) {software_update.restart_services()})
                         .catch(
                             function (error) {
                                 console.log(error);
@@ -26,7 +26,7 @@ let SoftwareUpdate = class {
             ).catch(
                 function (error) {
                     console.log(error);
-                    this.no_internet_connection()
+                    software_update.no_internet_connection()
                 }
         )
     }
@@ -56,7 +56,7 @@ let SoftwareUpdate = class {
             .then(function (response) {
                 console.log('Update complete')
                 console.log(response.data)
-                this.update_complete()
+                software_update.update_complete()
             }
             ).catch(
                 function (error) {
