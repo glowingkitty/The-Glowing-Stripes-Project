@@ -15,6 +15,54 @@
     text-decoration: none;
 }
 
+@media only screen and (max-width: 740px) {
+    a[data-button-type="wifi_disconnect_button"] {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    a[data-button-type="wifi_connect_button"] {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .cta#shutdown_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    .cta#restart_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    .cta#sleep_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 413px) {
+    .cta#save_mix_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 374px) {
+    .cta#undo_changes_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    #edit_name_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
 .cta:hover {
     top: -5px;
     cursor: pointer;
@@ -84,11 +132,11 @@
 .fixed_bottom_left {
     position: absolute;
     bottom: -25px;
-    left: 65px;
+    left: 15px;
 }
 
 .fixed_bottom_right {
     position: absolute;
     bottom: -25px;
-    right: 65px;
+    right: 15px;
 }

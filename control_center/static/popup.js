@@ -44,6 +44,11 @@ let Popup = class {
                 } else {
                     var icon = null
                 }
+                if ('id' in self.buttons[i] && self.buttons[i]['id']){
+                    var id = self.buttons[i]['id']
+                } else {
+                    var id = null
+                }
                 var text = self.buttons[i]['text']
                 var onclick = self.buttons[i]['onclick']
 
@@ -57,13 +62,15 @@ let Popup = class {
                 }
 
                 if (icon){
-                    buttons+=' with_icon '
-                    buttons+=icon
+                    buttons+=' with_icon '+icon
+                }
+                buttons+='"'
+                
+                if (id){
+                    buttons+=' id="'+id+'"'
                 }
 
-                buttons+='" onclick="'
-                buttons+=onclick
-                buttons+='">'
+                buttons+=' onclick="'+onclick+'">'
 
                 buttons+=text
                 buttons+='</a>'
@@ -74,10 +81,14 @@ let Popup = class {
             document.getElementById('popup').classList.remove('display_none')
             document.getElementById('popup').classList.remove('opacity_null')
 
+            // prevent scrolling of background (body)
+            document.getElementsByTagName('body')[0].style.overflow='hidden'
+
         },200)
     }
 
     hide(){
+        document.getElementsByTagName('body')[0].style.removeProperty('overflow')
         document.getElementById('popup').classList.add('opacity_null')
         setTimeout(function(){
             document.getElementById('popup').classList.add('display_none')

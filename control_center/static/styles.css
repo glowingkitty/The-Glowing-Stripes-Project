@@ -15,6 +15,7 @@
     font-family: Lexend Deca;
     font-style: normal;
     font-weight: normal;
+    margin: 0px;
 }
 
 .background.darkmode {
@@ -23,7 +24,8 @@
 
 .header_overlay {
     margin: auto;
-    width: 600px;
+    margin-top: 20px;
+    max-width: 600px;
     text-align: center;
     position: relative;
     z-index: 10;
@@ -34,7 +36,9 @@
     z-index: 10;
     margin: auto;
     margin-top: -80px;
-    width: 600px;
+    max-width: 600px;
+    min-height: 145px;
+    width: 90%;
     box-sizing: border-box;
     border-radius: 10px;
     padding: 26px;
@@ -46,6 +50,24 @@
     color: #FFFFFF;
 }
 
+@media only screen and (max-width: 740px) {
+    .header_overlay {
+        margin-top: 0px;
+        margin-bottom: -120px;
+        text-align: right;
+    }
+
+    .main_window {
+        margin-top: -115px;
+    }
+
+    #edit_layout_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+
 .main_window.popup_content {
     margin-top: 25vh;
     text-align: left;
@@ -53,21 +75,40 @@
 }
 
 
+@media only screen and (max-width: 415px) {
+    .main_window.popup_content {
+        margin-top: 15vh;
+    }
+}
+
+
+@media only screen and (max-width: 374px) {
+    .main_window.popup_content {
+        padding: 10px;
+        padding-top: 26px;
+    }
+}
+
+
 .main_window_content {
     /* opacity: 0; */
     -webkit-transition: all 200ms ease;
     transition: all 200ms ease;
-    padding-bottom: 25px;
 }
 
 .left_aligned_maincontent {
     text-align: left;
-    padding-left: 50px;
-    padding-right: 50px;
 }
 
 .inline_block {
     display: inline-block;
+}
+
+.text_max_width_40_percent {
+    width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .right_aligned {
@@ -83,6 +124,12 @@
     line-height: 58px;
     display: block;
     margin: 5px;
+}
+
+@media only screen and (max-width: 740px) {
+    .wifi_network {
+        font-size: 16px;
+    }
 }
 
 .opacity_50 {
@@ -112,7 +159,7 @@
 }
 
 .shadow {
-    width: 1195px;
+    max-width: 1195px;
     height: 200px;
     margin: auto;
     margin-top: -100px;
@@ -124,9 +171,10 @@
 }
 
 .sub_menu {
-    width: 700px;
+    max-width: 700px;
     margin: auto;
     text-align: center;
+    padding-bottom: 50px;
 }
 
 .right_positioned {
@@ -134,14 +182,14 @@
 }
 
 .mode_selector {
-    width: 200px;
-    transform: scale(2);
-    top: 20px;
-    position: relative;
-    left: 100px;
+    position: absolute;
     margin-bottom: 30px;
     background: black;
     color: white;
+    font-size: 22px;
+    right: 80px;
+    left: 25px;
+    margin-top: 15px;
 }
 
 .mode_selector:hover {
@@ -288,4 +336,12 @@
     padding: 10px;
     padding-left: 20px;
     width: 60%;
+}
+
+.led_strip_name {
+    max-width: 50vw;
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }

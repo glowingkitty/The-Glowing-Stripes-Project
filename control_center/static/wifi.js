@@ -78,7 +78,7 @@ let WiFi = class {
 
         
         // show if connected to wifi
-        div += '<div class="inline_block">'
+        div += '<div class="inline_block text_max_width_40_percent">'
         if (this.network['current_wifi']==true){
             div += '<span class="icon true" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span>'
         }else{
@@ -102,12 +102,12 @@ let WiFi = class {
         
         // show CTAs
         if (this.cta=='disconnect'){
-            div += '<a onclick="wifi.disconnect(\''+this.network['essid']+'\')" class="cta primary">Disconnect</a>'
+            div += '<a data-button-type="wifi_disconnect_button" onclick="wifi.disconnect(\''+this.network['essid']+'\')" class="cta primary with_icon close">Disconnect</a>'
         } else if (this.cta=='connect'){
             if (this.network['encryption']=='off'){
-                div += '<a onclick="wifi.connect(\''+this.network['essid']+'\',null,null)" class="cta primary">Connect</a>'
+                div += '<a data-button-type="wifi_connect_button" id="'+this.network['essid']+'_connect_button" onclick="wifi.connect(\''+this.network['essid']+'\',null,null)" class="cta primary with_icon true">Connect</a>'
             } else {
-                div += '<a id="'+this.network['essid']+'_connect_button" onclick="wifi.ask_for_password(\''+this.network['essid']+'\',\''+this.network['encryption']+'\')" class="cta primary">Connect</a>'
+                div += '<a data-button-type="wifi_connect_button" id="'+this.network['essid']+'_connect_button" onclick="wifi.ask_for_password(\''+this.network['essid']+'\',\''+this.network['encryption']+'\')" class="cta primary with_icon true">Connect</a>'
             }
         }
         div += '</div>'

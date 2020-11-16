@@ -143,7 +143,7 @@ let Control = class {
                             control_object.main_window_new_html += '<span class="icon mix">' + web_control_config['current_mix']['name'] + '</span>'
 
                             //// show "edit name" -> edit mix name
-                            control_object.main_window_new_html += '<span onclick="editname(\'mix\',\'' + web_control_config['current_mix']['id'] + '\')" '
+                            control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'mix\',\'' + web_control_config['current_mix']['id'] + '\')" '
                             control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
                         } else if (num_of_led_strips > 1 && web_control_config['sync_all'] == true) {
@@ -153,8 +153,8 @@ let Control = class {
                         } else {
                             //// show name and  "edit name" if single LED strip selected
                             
-                            control_object.main_window_new_html += led_strips[first_led_strip_id].name
-                            control_object.main_window_new_html += '<span onclick="editname(\'led_strip\',\'' + led_strips[first_led_strip_id].id + '\')" '
+                            control_object.main_window_new_html += '<spam class="led_strip_name">'+led_strips[first_led_strip_id].name+'</spam>'
+                            control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'led_strip\',\'' + led_strips[first_led_strip_id].id + '\')" '
                             control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>'
 
                         }
@@ -229,7 +229,7 @@ let Control = class {
 
                         //// show "save mix" button
                         if (num_of_led_strips > 1) {
-                            control_object.main_window_new_html += '<a class="cta darkmode with_icon save">Save mix</a>'
+                            control_object.main_window_new_html += '<a id="save_mix_button" class="cta darkmode with_icon save">Save mix</a>'
                         }
 
                         control_object.main_window_new_html += '</div>'

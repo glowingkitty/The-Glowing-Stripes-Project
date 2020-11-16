@@ -5,18 +5,21 @@ let Power = class {
         popup.buttons = [
             {
                 'style':'secondary',
+                'id':'shutdown_button',
                 'icon':'power',
                 'text':'Shutdown',
                 'onclick':'power.shutdown()'
             },
             {
                 'style':'secondary',
+                'id':'restart_button',
                 'icon':'restart',
                 'text':'Restart',
                 'onclick':'power.restart()'
             },
             {
                 'style':'primary',
+                'id':'sleep_button',
                 'icon':'sleep',
                 'text':'Sleep',
                 'onclick':'power.sleep()'

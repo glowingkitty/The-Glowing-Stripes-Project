@@ -6,6 +6,10 @@
     <head>
         <meta charset="utf-8" />
         <title>The Glowing Stripes Project - Control Interface</title>
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static "favicons/apple-touch-icon.png" %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicons/favicon-32x32.png" %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicons/favicon-16x16.png" %}">
+        <link rel="shortcut icon" href="{% static "favicons/favicon.ico" %}" type="image/x-icon">
         
         <link rel="stylesheet" href="{% static "styles.css" %}" />
         <link rel="stylesheet" href="{% static "popup.css" %}" />
@@ -21,12 +25,15 @@
         <script src="{% static "leds.js" %}"></script>
         <script src="{% static "control.js" %}"></script>
         <script src="{% static "connection_check.js" %}"></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
     </head>
 
     <body class="background darkmode" onload="boot()">
 
         <div class="header_overlay">
-            <a class="cta darkmode with_icon move">Edit layout</a>
+            <a id="edit_layout_button" class="cta darkmode with_icon move">Edit layout</a>
         </div>
 
         <div class="leds_preview_block">
@@ -68,8 +75,8 @@
         <div id="notifications">
         </div>
 
-        <div class="popup opacity_null display_none" id="popup">
-            <div class="main_window popup_content" id="popup_content">
+        <div class="popup opacity_null display_none" onclick="popup.hide()" id="popup">
+            <div class="main_window popup_content" onclick="event.stopPropagation()" id="popup_content">
                 <div class="popup_button close" onclick="popup.hide()"></div>
                 <div class="popup_headline" id="popup_headline"></div>
                 <div class="popup_message" id="popup_message"></div>

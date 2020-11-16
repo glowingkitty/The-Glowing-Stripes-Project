@@ -1,12 +1,18 @@
 .leds_preview_block {
     margin: auto;
     margin-top: 40px;
-    width: 600px;
+    max-width: 600px;
     height: 500px;
     text-align: center;
     position: relative;
     -webkit-transition: all 200ms ease;
     transition: all 200ms ease;
+}
+
+@media only screen and (max-width: 740px) {
+    .leds_preview_block {
+        transform: scale(0.8);
+    }
 }
 
 .led_strip {
