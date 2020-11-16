@@ -122,13 +122,15 @@ let LEDstrip = class {
             }
         }
 
-
         this.unsubmitted_mode_change = {
             'id':null,
             'name':null,
             'based_on':null,
             'customization':null
         }
+
+        document.getElementById('undo_changes_button').classList.add('display_none')
+        document.getElementById('apply_changes_button').classList.add('display_none')
     }
 
     connect() {
