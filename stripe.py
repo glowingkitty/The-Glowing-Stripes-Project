@@ -149,8 +149,9 @@ class Stripe():
                 customization = last_animation['customization']
 
         default_animations = {
-            '0000000000': 'color',
+            '0000000000': 'color',  # setup mode
             '1111111111': 'off',
+            '9jwnqn8v3i': 'color',
             'b943uee3y7': 'rainbow_animation',
             '8hsylal9v7': 'beats',
             'leta9ed5fc': 'moving_dot',
