@@ -12,6 +12,7 @@
 @media only screen and (max-width: 740px) {
     .leds_preview_block {
         transform: scale(0.8);
+        margin-top: -20px;
     }
 }
 

@@ -32,10 +32,6 @@
 
     <body class="background darkmode" onload="boot()">
 
-        <div class="header_overlay">
-            <a id="edit_layout_button" class="cta darkmode with_icon move">Edit layout</a>
-        </div>
-
         <div class="leds_preview_block">
         </div>
 
@@ -66,6 +62,7 @@
         </div> {% endcomment %}
 
         <div class="sub_menu">
+            <a id="edit_layout_button" onclick="" class="icon large_inline move"></a>
             <a id="software_update_button" onclick="software_update.update()" class="icon large_inline sync"></a>
             <a id="power_button" onclick="power.show_options()" class="icon large_inline power"></a>
             <a id="show_wifi_networks_button" onclick="wifi.show_networks()" class="icon large_inline wifi_three_bars"></a>
