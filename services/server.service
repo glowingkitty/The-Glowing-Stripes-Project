@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=bash the-glowing-stripes-project/services/development_tmux_windows.bash
+ExecStart=bash /home/host/the-glowing-stripes-project/services/development_tmux_windows.bash
 
 [Install]
 WantedBy=multi-user.target
