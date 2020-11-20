@@ -25,6 +25,7 @@
         <script src="{% static "leds.js" %}"></script>
         <script src="{% static "control.js" %}"></script>
         <script src="{% static "connection_check.js" %}"></script>
+        <script src="{% static "animation_customizer.js" %}"></script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -32,19 +33,21 @@
 
     <body class="background darkmode" onload="boot()">
 
-        <div class="leds_preview_block">
-        </div>
-
-        <div class="main_window">
-
-            <div class="main_window_content">
+        <div>
+            <div class="leds_preview_block">
             </div>
 
-            <div id="disconnected_info"></div>
+            <div class="main_window">
 
+                <div class="main_window_content">
+                </div>
+
+                <div id="disconnected_info"></div>
+
+            </div>
+        
+            <div class="shadow"></div>
         </div>
-    
-        <div class="shadow"></div>
 
         
         {% comment %}
@@ -73,6 +76,10 @@
         </div>
 
         <div class="popup opacity_null display_none" onclick="popup.hide()" id="popup">
+            <div id="customized_led_animation_preview" class="display_none">
+                <div id="customized_led_animation_preview_stripes"></div>
+                <div class="led_strip_base wide_base"></div>
+            </div>
             <div class="main_window popup_content" onclick="event.stopPropagation()" id="popup_content">
                 <div class="popup_button close" onclick="popup.hide()"></div>
                 <div class="popup_headline" id="popup_headline"></div>

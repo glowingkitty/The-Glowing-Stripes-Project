@@ -6,6 +6,7 @@ var web_control_config = {}
 var num_of_led_strips = 0
 var led_strips = {}
 var led_animations = {}
+var selected_led_strip_id = null
 
 let Control = class {
     constructor(sync_all) {
@@ -113,6 +114,7 @@ let Control = class {
 
         // TODO switch back preview to previous LED mode
         num_of_led_strips = Object.keys(led_strips).length
+        selected_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id
         var i;
         for (i = 0; i < num_of_led_strips; i++) {
             led_strips[[Object.keys(led_strips)[i]]].rainbow_animation()
@@ -200,7 +202,7 @@ let Control = class {
                         control_object.main_window_new_html += '</select>'
 
                         //// add "customize animation" button
-                        control_object.main_window_new_html += '<a class="button_customize_animation customize right_positioned"></a>'
+                        control_object.main_window_new_html += '<a id="open_animation_customizer_button" onclick="animation_customizer.open()" class="button_customize_animation customize right_positioned"></a>'
 
                         //// show "sync all" and "multi select" from current mix
                         if (num_of_led_strips > 1) {

@@ -16,6 +16,9 @@ let Popup = class {
     }
 
     show() {
+        // make sure animation customizer is hidden
+        animation_customizer.close()
+
         // if another popup is open: hide that popup, then continue with showing new popup
         if (this.popup_active){
             this.hide()

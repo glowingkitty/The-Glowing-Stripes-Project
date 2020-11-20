@@ -63,3 +63,8 @@
     margin-top: -2px;
     background: rgba(57, 57, 57, 0.69);
 }
+
+.led_strip_base.wide_base {
+    width: 100px;
+    height: 26px;
+}
