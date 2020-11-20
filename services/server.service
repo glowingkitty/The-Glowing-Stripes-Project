@@ -1,10 +1,10 @@
 [Unit]
-Description=Start The Glowing Stripes Project
+Description=Start Django server
 After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/sudo /bin/bash /home/host/the-glowing-stripes-project/services/development_tmux_windows.bash
+ExecStart=/usr/bin/sudo /home/host/the-glowing-stripes-project/pyvenv/bin/python /home/host/the-glowing-stripes-project/manage.py runserver 0.0.0.0:80
 
 [Install]
 WantedBy=multi-user.target
