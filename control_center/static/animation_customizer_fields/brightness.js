@@ -7,3 +7,5 @@ let BrightnessCustomizer = class {
 
     }
 }
+
+brightness_customizer = new BrightnessCustomizer()

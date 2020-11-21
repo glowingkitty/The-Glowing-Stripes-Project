@@ -35,3 +35,5 @@ let ColorsCustomizer = class {
 
     }
 }
+
+colors_customizer = new ColorsCustomizer()

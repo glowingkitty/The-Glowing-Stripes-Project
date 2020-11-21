@@ -1,6 +1,7 @@
 let AnimationCustomizer = class {
     constructor() {
         this.animation_id = null
+        this.animation_custom = false
         this.animation_fields = null
         this.customizable_fields = {
             '9jwnqn8v3i':{
@@ -64,6 +65,7 @@ let AnimationCustomizer = class {
         // show customizing fields, based on animation type 
         this.animation_id = led_strips[selected_led_strip_id].last_animation['id']
         this.animation_name = led_strips[selected_led_strip_id].last_animation['name']
+        this.animation_custom = led_strips[selected_led_strip_id].last_animation['based_on']?true:false
         this.animation_fields= this.customizable_fields[animation_id]['fields']
 
         // update popup headline
@@ -72,26 +74,56 @@ let AnimationCustomizer = class {
 
         // add fields
         if ('colors' in this.animation_fields){
-            popup.message += this.get_colors_field()
+            popup.message += colors_customizer.get_colors_field()
         }
         if ('timing' in this.animation_fields){
-            popup.message += this.get_timing_field()
+            popup.message += timing_customizer.get_timing_field()
         }
         if ('direction' in this.animation_fields){
-            popup.message += this.get_direction_field()
+            popup.message += direction_customizer.get_direction_field()
         }
         if ('brightness' in this.animation_fields){
-            popup.message += this.get_brightness_field()
+            popup.message += brightness_customizer.get_brightness_field()
         }
         if ('sections' in this.animation_fields){
-            popup.message += this.get_sections_field()
+            popup.message += sections_customizer.get_sections_field()
         }
         if ('height' in this.animation_fields){
-            popup.message += this.get_height_field()
+            popup.message += height_customizer.get_height_field()
         }
             
 
         // show "Save new", "Update" and "Apply" button, depending on if edited mode is a default or custom mode (default modes cannot be updated)
+        popup.buttons = [
+            {
+                'style':'secondary',
+                'id':'save_mode_button',
+                'icon':'save',
+                'text':'Save new',
+                'onclick':'animation_customizer.open_save_field()'
+            }]
+
+
+        // if a custom mode is beeing updated, add update button
+        if (this.animation_custom==true){
+            popup.buttons.push({
+                'style':'secondary',
+                'id':'update_mode_button',
+                'icon':'sync',
+                'text':'Update',
+                'onclick':'animation_customizer.update_mode()'
+            })
+        }
+
+        popup.buttons.push(
+            {
+                'style':'primary',
+                'id':'apply_changed_mode_button',
+                'icon':'true',
+                'text':'Apply',
+                'onclick':'animation_customizer.apply()'
+            }
+        )
 
         // make popup background non transparent
         document.getElementById('popup').style.background = 'rgba(0,0,0,1)'
@@ -102,10 +134,9 @@ let AnimationCustomizer = class {
         // get first led strip preview and place it in popup placeholder on the left
         document.getElementById('customized_led_animation_preview').classList.remove('display_none')
         document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id).getElementsByClassName('led_strip_parts')[0].innerHTML
-        
 
         // show popup
-
+        popup.show()
         
     }
 
@@ -133,72 +164,11 @@ let AnimationCustomizer = class {
 
     }
 
+    update_mode(){
+
+    }
+
     back_to_edit(){
-
-    }
-
-
-
-
-    // change Timing
-    get_timing_field(){
-
-    }
-
-    change_timing_select(){
-
-    }
-
-    show_timing_manual(){
-
-    }
-
-    show_timing_tap_to_bpm(){
-
-    }
-
-    show_timing_microphone_input(){
-
-    }
-
-    change_duration(){
-
-    }
-
-    change_pause(){
-
-    }
-
-    start_timing_tap_to_bpm(){
-
-    }
-
-    
-    // change Direction
-    get_direction_field(){
-
-    }
-
-    change_direction_select(){
-
-    }
-
-    // change Max Height
-    get_height_field(){
-
-    }
-
-    change_height_select(){
-
-    }
-
-
-    // change Sections
-    get_sections_field(){
-
-    }
-
-    change_section_select(){
 
     }
 }
