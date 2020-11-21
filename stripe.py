@@ -54,13 +54,7 @@ class Stripe():
 
     @property
     def last_animation(self):
-        last_animation = LEDanimations().last_used
-        if not last_animation:
-            last_animation = {
-                "id": "b943uee3y7",
-                "name": "Rainbow"
-            }
-        return last_animation
+        return LEDanimations().last_used
 
     @property
     def id(self):

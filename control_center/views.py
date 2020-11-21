@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from random import randint
 
 import git
 import requests
@@ -115,6 +116,16 @@ class Host:
                             elif change['new_animation']['id'] == '0' or change['new_animation']['id'] == '0000000000':
                                 print('Skipped saving "Setup mode"')
                             else:
+                                # replace "random" in "customization" field "rgb_color(s)" with random R,G,B values
+                                if 'rgb_color' in change['new_animation']['customization'] and change['new_animation']['customization']['rgb_color'] == 'random':
+                                    change['new_animation']['customization']['rgb_color'] = [
+                                        randint(0, 255), randint(0, 255), randint(0, 255)]
+                                elif 'rgb_colors' in change['new_animation']['customization'] and change['new_animation']['customization']['rgb_colors'] == 'random':
+                                    change['new_animation']['customization']['rgb_colors'] = [[randint(0, 255), randint(0, 255), randint(
+                                        0, 255)] for x in range(0, change['new_animation']['customization']['num_random_colors'])]
+
+                                # TODO make sure customization infos from led_animations are both shown in frontend and processed by customizer
+
                                 strip['last_animation'] = change['new_animation']
                                 print('Strip {} ({}) has a new animation: {}'.format(
                                     strip['name'], strip['id'], change['new_animation']['name']))

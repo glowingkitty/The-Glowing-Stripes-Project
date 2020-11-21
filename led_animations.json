@@ -12,27 +12,70 @@
             },
             {
                 "id": "9jwnqn8v3i",
-                "name": "Color"
+                "name": "Color",
+                "customization":{
+                    "rgb_color":"random"
+                }
             },
             {
                 "id": "b943uee3y7",
-                "name": "Rainbow"
+                "name": "Rainbow",
+                "customization":{
+                    "brightness":1.0,
+                    "duration_ms":1000,
+                    "pause_ms":null
+                }
             },
             {
                 "id": "8hsylal9v7",
-                "name": "Beats"
+                "name": "Beats",
+                "customization":{
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "brightness_fixed":false,
+                    "max_height":1,
+                    "duration_ms":200,
+                    "pause_ms":300,
+                    "start":"start"
+                }
             },
             {
                 "id": "leta9ed5fc",
-                "name": "Moving dot"
+                "name": "Moving dot",
+                "customization":{
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "duration_ms":200,
+                    "pause_a_ms":0,
+                    "pause_b_ms":300,
+                    "start":"start"
+                }
             },
             {
                 "id": "kack2555kd",
-                "name": "Light Up"
+                "name": "Light Up",
+                "customization":{
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "duration_ms":200,
+                    "pause_ms":200,
+                    "sections":"all"
+                }
             },
             {
                 "id": "7u9tjpd0gi",
-                "name": "Transition"
+                "name": "Transition",
+                "customization":{
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "duration_ms":200,
+                    "pause_ms":200,
+                    "sections":"all"
+                }
             }
         ]
     }

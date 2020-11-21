@@ -26,7 +26,14 @@ class LEDanimations():
         with open(os.path.join(dirname, 'stripe_config.json')) as json_file:
             last_animation = json.load(json_file)['last_animation']
             if not last_animation:
-                return None
+                with open(os.path.join(dirname, 'led_animations.json')) as json_file:
+                    default_animations = json.load(
+                        json_file)['led_animations']['default']
+                    for animation in default_animations:
+                        # return rainbow animation as default
+                        if animation['id'] == 'b943uee3y7':
+                            last_animation = animation
+                            return last_animation
 
             else:
                 # search for animation in full animation list

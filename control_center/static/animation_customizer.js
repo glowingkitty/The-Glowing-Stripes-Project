@@ -74,7 +74,7 @@ let AnimationCustomizer = class {
 
         // add fields
         if ('colors' in this.animation_fields){
-            popup.message += colors_customizer.get_colors_field()
+            popup.message += colors_customizer.get_colors_field(this.animation_id)
         }
         if ('timing' in this.animation_fields){
             popup.message += timing_customizer.get_timing_field()
