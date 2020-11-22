@@ -67,7 +67,7 @@ let CustomizerField = class {
     }
 
     add_subfield(){
-        this.html+='<div class="subfield">'+this.sub_field_html+'</div>'
+        this.html+='<div id="'+this.name.toLowerCase()+'_subfield" class="subfield">'+this.sub_field_html+'</div>'
     }
 
     get_select_field(){

@@ -9,6 +9,15 @@
     height: 60px;
     background-image: url("icons/add.svg");
     cursor: pointer;
+    background: #1C1C1C;
+}
+
+.remove_color_button {
+    width: 60px;
+    height: 60px;
+    background-image: url("icons/minus.svg");
+    cursor: pointer;
+    background: #1C1C1C;
 }
 
 .field_name {
