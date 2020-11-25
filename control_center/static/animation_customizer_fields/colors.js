@@ -78,21 +78,29 @@ let ColorsCustomizer = class {
 
     generate_manual_colors_subfield(){
         // generate "manual" subfield_html
-        this.subfield_html = ''
+        this.subfield_html = '<div id="all_colors">'
         // for every min_num_color, create random color field input field
         var i;
         for (i = 0; i < this.selected_colors.length; i++){
             this.subfield_html+='<input type="color" onchange="colors_customizer.change_color('+i+',this.value)" value="'+this.convert_rgb_to_hex(this.selected_colors[i])+'" class="color_selector">'
         }
+        this.subfield_html+='</div>'
+
         // "remove_color_button"
+        this.subfield_html+='<div class="remove_color_button'
         if (this.selected_colors.length>this.min_num_colors){
-            this.subfield_html+='<div class="remove_color_button" onclick="colors_customizer.remove_color()"></div>'
+            this.subfield_html+='" onclick="colors_customizer.remove_color()"></div>'
+        } else {
+            this.subfield_html+=' display_none" onclick="colors_customizer.remove_color()"></div>'
         }
 
         // "add_color_button"
+        this.subfield_html+='<div class="add_color_button'
         if (this.selected_colors.length<this.max_num_colors){
-            this.subfield_html+='<div class="add_color_button" onclick="colors_customizer.add_color()"></div>'
+            this.subfield_html+=' display_none" onclick="colors_customizer.add_color()"></div>'
         }
+
+        
     }
 
     generate_random_colors_subfield(){
@@ -107,22 +115,58 @@ let ColorsCustomizer = class {
     }
 
     add_color(){
-        // TODO
-        // show another color field with a random color
-        var new_color
-        var new_color_html
-        // TODO place new_color_html before remove and add button and after existing colors
-        document.getElementById('colors_subfield').innerHTML = document.getElementById('colors_subfield').innerHTML+
+        if (this.selected_colors.length<this.max_num_colors){
+            // add a new random color to this.selected_colors
+            var new_color = [
+                Math.round(Math.random()*255),
+                Math.round(Math.random()*255),
+                Math.round(Math.random()*255)
+            ]
+            this.selected_colors.push(new_color)
 
-        // show "remove_color_button"
+            // show another color field with a random color
+            var new_color_html = '<input type="color" onchange="colors_customizer.change_color('+(this.selected_colors.length-1)+',this.value)" value="'+this.convert_rgb_to_hex(new_color)+'" class="color_selector">'
+            // place new_color_html before remove and add button and after existing colors
+            document.getElementById('all_colors').innerHTML = document.getElementById('all_colors').innerHTML + new_color_html
 
-        // add new random color to temporary changes
+            // show "remove_color_button"
+            document.getElementsByClassName('remove_color_button')[0].classList.remove('display_none')
 
-        // update the preview animation
+            // hide "add_color" button if maximum level reached
+            if (this.selected_colors.length==this.max_num_colors){
+                document.getElementsByClassName('add_color_button')[0].classList.add('display_none')
+            }
+
+            // TODO update the preview animation
+        } else{
+            console.log('add_color failed. Cannot go higher then max_num_colors.')
+        }
     }
 
     remove_color(){
-        // TODO
+        if (this.selected_colors.length>this.min_num_colors){
+            // TODO remove last color in selected_colors
+
+
+            // TODO remove last color from 'all_colors' div block (preview list)
+
+
+            // hide "remove_color" button if minimum level reached
+            if (this.selected_colors.length==this.min_num_colors){
+                document.getElementsByClassName('remove_color_button')[0].classList.add('display_none')
+            }
+
+            // show "add_color" button again if not longer maximum level
+            if (this.selected_colors.length<this.max_num_colors){
+                document.getElementsByClassName('add_color_button')[0].classList.remove('display_none')
+            }
+
+            // TODO update the preview animation
+
+        } else{
+            console.log('remove_color failed. Cannot go lower then min_num_colors.')
+        }
+        
     }
 
     change_color(num_in_list,new_color_hex){
