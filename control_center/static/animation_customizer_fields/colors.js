@@ -1,11 +1,18 @@
 let ColorsCustomizer = class {
+    get selected_colors(){
+        return animation_customizer.updated_animation['customization']['rgb_colors']
+    }
+
+    get num_random_colors(){
+        if ('num_random_colors' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['num_random_colors']){
+            return animation_customizer.updated_animation['customization']['num_random_colors']
+        } else {
+            return null
+        }
+        
+    }
+
     get_colors_field(animation_id){
-        // get default animation colors
-        if ('rgb_color' in led_strips[selected_led_strip_id].last_animation['customization']){
-            this.selected_colors = [led_strips[selected_led_strip_id].last_animation['customization']['rgb_color']]
-        } else if ('rgb_colors' in led_strips[selected_led_strip_id].last_animation['customization']){
-            this.selected_colors = led_strips[selected_led_strip_id].last_animation['customization']['rgb_colors']
-        } 
 
         // if animation is "color" => 1 color min, 1 max
         if (animation_id=='9jwnqn8v3i'){
@@ -51,8 +58,7 @@ let ColorsCustomizer = class {
 
     get_default_selected_opton(){
         // if "num_random_colors" in "customization" and != null, then "random", else "manual"
-        if ('num_random_colors' in led_strips[selected_led_strip_id].last_animation['customization'] 
-            && led_strips[selected_led_strip_id].last_animation['customization']['num_random_colors']){
+        if (this.num_random_colors){
             return 'random'
         } else {
             return 'manual'
@@ -108,7 +114,7 @@ let ColorsCustomizer = class {
         this.sub_field = new CustomizerField(
             'How many',
             [1,2,3,4,5,6,7,8,9,10],
-            led_strips[selected_led_strip_id].last_animation['customization']['num_random_colors'],
+            this.num_random_colors,
             'colors_customizer.change_num_of_random_colors(this.value)'
         )
         this.subfield_html = this.sub_field.get_select_field()
@@ -177,7 +183,22 @@ let ColorsCustomizer = class {
     }
 
     change_num_of_random_colors(new_num){
-        // TODO
+        // if new num_rando_colors is higher then previously, use "add_color", if lower, "remove_color"
+        if (new_num > this.num_random_colors){
+            var random_colors_difference = new_num - this.num_random_colors
+            for (var i = 0; i < random_colors_difference; i++) {
+                this.add_color()
+            }
+
+        } else if (this.num_random_colors > new_num){
+            var random_colors_difference = this.num_random_colors - new_num
+            for (var i = 0; i < random_colors_difference; i++) {
+                this.remove_color()
+            }
+            
+        }
+
+        this.num_random_colors = new_num
     }
 }
 

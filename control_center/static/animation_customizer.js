@@ -68,6 +68,10 @@ let AnimationCustomizer = class {
         this.animation_custom = led_strips[selected_led_strip_id].last_animation['based_on']?true:false
         this.animation_fields= this.customizable_fields[animation_id]['fields']
 
+        // save current animation to make it easy to detect changes
+        this.original_animation = led_strips[selected_led_strip_id].last_animation
+        this.updated_animation = led_strips[selected_led_strip_id].last_animation
+
         // update popup headline
         popup.header = 'Customize "'+this.animation_name+'"'
         popup.message = ''
