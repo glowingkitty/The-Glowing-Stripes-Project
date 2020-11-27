@@ -1,4 +1,8 @@
 let ColorsCustomizer = class {
+    get default_selected(){
+        return animation_customizer.updated_animation['customization']['colors_selected']
+    }
+
     get selected_colors(){
         return animation_customizer.updated_animation['customization']['rgb_colors']
     }
@@ -30,12 +34,7 @@ let ColorsCustomizer = class {
         }
         
         // generate the field thats displayed under the select button
-        this.default_selected = this.get_default_selected_opton()
-        if (this.default_selected == 'manual'){
-            this.generate_manual_colors_subfield()
-        } else {
-            this.generate_random_colors_subfield()
-        }
+        this.update_subfield()
 
         this.field = new CustomizerField(
             'Colors',
@@ -56,15 +55,6 @@ let ColorsCustomizer = class {
         return this.field.get_select_field()
     }
 
-    get_default_selected_opton(){
-        // if "num_random_colors" in "customization" and != null, then "random", else "manual"
-        if (this.num_random_colors){
-            return 'random'
-        } else {
-            return 'manual'
-        }
-    }
-
     convert_hex_to_rgb(hex){
         // TODO
     }
@@ -73,12 +63,17 @@ let ColorsCustomizer = class {
         // TODO
     }
 
-    change_colors_select(new_selected){
-        if (new_selected == 'manual'){
+    update_subfield(){
+        if (this.default_selected == 'manual'){
             this.generate_manual_colors_subfield()
         } else {
             this.generate_random_colors_subfield()
         }
+    }
+
+    change_colors_select(new_selected){
+        this.default_selected = new_selected
+        this.update_subfield()
         document.getElementById('colors_subfield').innerHTML=this.subfield_html
     }
 
@@ -110,7 +105,6 @@ let ColorsCustomizer = class {
     }
 
     generate_random_colors_subfield(){
-        this.subfield_html = ''
         this.sub_field = new CustomizerField(
             'How many',
             [1,2,3,4,5,6,7,8,9,10],
@@ -195,7 +189,7 @@ let ColorsCustomizer = class {
             for (var i = 0; i < random_colors_difference; i++) {
                 this.remove_color()
             }
-            
+
         }
 
         this.num_random_colors = new_num

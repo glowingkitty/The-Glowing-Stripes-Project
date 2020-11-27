@@ -38,7 +38,15 @@ let CustomizerField = class {
     }
 
     process_options_list(options_list){
-        if (typeof(options_list[1]) == 'number'){
+        if (typeof(options_list)=='string' && 'ms' in options_list){
+            // process "100ms-5000ms" info
+            // TODO options_list_start toInt
+            var options_list_start = options_list.split('-')[0].replace(' ','').replace('ms','')
+            var options_list_end = options_list.split('-')[1].replace(' ','').replace('ms','')
+
+
+        }
+        else if (typeof(options_list[1]) == 'number'){
             if (options_list[1]<1 && options_list[1]>0){
                 // generate percentage list
                 var i

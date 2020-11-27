@@ -14,6 +14,7 @@
                 "id": "9jwnqn8v3i",
                 "name": "Color",
                 "customization":{
+                    "colors_selected":"random",
                     "rgb_color":"random"
                 }
             },
@@ -22,6 +23,7 @@
                 "name": "Rainbow",
                 "customization":{
                     "brightness":1.0,
+                    "timing_selected":"manual",
                     "duration_ms":1000,
                     "pause_ms":null
                 }
@@ -30,11 +32,13 @@
                 "id": "8hsylal9v7",
                 "name": "Beats",
                 "customization":{
+                    "colors_selected":"random",
                     "rgb_colors":"random",
                     "num_random_colors":5,
                     "brightness":1.0,
                     "brightness_fixed":false,
                     "max_height":1,
+                    "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_ms":300,
                     "start":"start"
@@ -44,9 +48,11 @@
                 "id": "leta9ed5fc",
                 "name": "Moving dot",
                 "customization":{
+                    "colors_selected":"random",
                     "rgb_colors":"random",
                     "num_random_colors":5,
                     "brightness":1.0,
+                    "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_a_ms":0,
                     "pause_b_ms":300,
@@ -57,9 +63,11 @@
                 "id": "kack2555kd",
                 "name": "Light Up",
                 "customization":{
+                    "colors_selected":"random",
                     "rgb_colors":"random",
                     "num_random_colors":5,
                     "brightness":1.0,
+                    "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_ms":200,
                     "sections":"all"
@@ -69,9 +77,11 @@
                 "id": "7u9tjpd0gi",
                 "name": "Transition",
                 "customization":{
+                    "colors_selected":"random",
                     "rgb_colors":"random",
                     "num_random_colors":5,
                     "brightness":1.0,
+                    "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_ms":200,
                     "sections":"all"
