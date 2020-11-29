@@ -55,12 +55,23 @@ let ColorsCustomizer = class {
         return this.field.get_select_field()
     }
 
-    convert_hex_to_rgb(hex){
-        // TODO
+    componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
     }
+    
 
     convert_rgb_to_hex(rgb){
-        // TODO
+        return "#" + this.componentToHex(rgb[0]) + this.componentToHex(rgb[1]) + this.componentToHex(rgb[2]);
+    }
+
+    convert_hex_to_rgb(hex){
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16)
+         ] : null;
     }
 
     update_subfield(){
@@ -145,11 +156,12 @@ let ColorsCustomizer = class {
 
     remove_color(){
         if (this.selected_colors.length>this.min_num_colors){
-            // TODO remove last color in selected_colors
+            // remove last color in selected_colors
+            this.selected_colors.pop()
 
-
-            // TODO remove last color from 'all_colors' div block (preview list)
-
+            // remove last "color_selector" from 'all_colors' div block (preview list)
+            var all_colors = document.getElementById('all_colors');
+            all_colors.removeChild(all_colors.lastElementChild);
 
             // hide "remove_color" button if minimum level reached
             if (this.selected_colors.length==this.min_num_colors){
