@@ -55,6 +55,7 @@ let DirectionCustomizer = class {
 
     change_direction_select(new_selected){
         this.default_selected = new_selected
+        // TODO update preview animation
     }
 }
 

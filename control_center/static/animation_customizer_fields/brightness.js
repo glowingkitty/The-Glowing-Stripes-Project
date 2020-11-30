@@ -5,7 +5,6 @@ let BrightnessCustomizer = class {
         } else {
             return null
         }
-        
     }
 
     get_brightness_field(){
@@ -20,6 +19,7 @@ let BrightnessCustomizer = class {
 
     change_brightness_select(new_selected){
         this.default_selected = new_selected
+        // TODO update preview animation
     }
 }
 
