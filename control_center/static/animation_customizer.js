@@ -17,8 +17,7 @@ let AnimationCustomizer = class {
                 'fields':[
                     'timing',
                     'direction',
-                    'brightness',
-                    'sections'
+                    'brightness'
                 ]
             },
             '8hsylal9v7':{
@@ -77,23 +76,23 @@ let AnimationCustomizer = class {
         popup.message = ''
 
         // add fields
-        if ('colors' in this.animation_fields){
+        if (this.animation_fields.indexOf('colors') >= 0){
             popup.message += colors_customizer.get_colors_field(this.animation_id)
         }
-        if ('timing' in this.animation_fields){
+        if (this.animation_fields.indexOf('timing') >= 0){
             popup.message += timing_customizer.get_timing_field()
         }
-        if ('direction' in this.animation_fields){
+        if (this.animation_fields.indexOf('direction') >= 0){
             popup.message += direction_customizer.get_direction_field()
         }
-        if ('brightness' in this.animation_fields){
+        if (this.animation_fields.indexOf('brightness') >= 0){
             popup.message += brightness_customizer.get_brightness_field()
         }
-        if ('sections' in this.animation_fields){
-            popup.message += sections_customizer.get_sections_field()
-        }
-        if ('height' in this.animation_fields){
+        if (this.animation_fields.indexOf('height') >= 0){
             popup.message += height_customizer.get_height_field()
+        }
+        if (this.animation_fields.indexOf('sections') >= 0){
+            popup.message += sections_customizer.get_sections_field()
         }
             
 

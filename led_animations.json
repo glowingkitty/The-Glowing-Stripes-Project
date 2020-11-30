@@ -26,7 +26,7 @@
                     "brightness":1.0,
                     "timing_selected":"manual",
                     "duration_ms":1000,
-                    "pause_ms":null
+                    "pause_ms":0
                 }
             },
             {

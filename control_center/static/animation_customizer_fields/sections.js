@@ -9,8 +9,8 @@ let SectionsCustomizer = class {
 
     get_sections_field(){
         this.field = new CustomizerField(
-            'Height',
-            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            'Sections',
+            ['Section 4','Section 3','Section 2','Section 1'],
             this.default_selected,
             'sections_customizer.change_section_select(this.checked)'
         )

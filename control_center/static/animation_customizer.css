@@ -31,3 +31,16 @@
     background: #343434;
     border-radius: 15px;
 }
+
+.customize_field_selector {
+    background: black;
+    color: white;
+    font-size: 24px;
+    width: 50%;
+    float: right;
+}
+
+.main_field {
+    line-height: 37px;
+    margin-bottom: 15px;
+}
