@@ -29,7 +29,12 @@ let LEDstrip = class {
         this.id = id
         this.name = name
         this.last_animation = last_animation
-        this.unsubmitted_mode_change = last_animation
+        this.unsubmitted_mode_change = {
+            'id':null,
+            'name':null,
+            'based_on':null,
+            'customization':null
+        }
         this.num_of_leds = num_of_leds
         this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">'
 
@@ -73,6 +78,8 @@ let LEDstrip = class {
             // save values of new animation
             this.unsubmitted_mode_change['id'] = document.getElementById('mode_selector').selectedOptions[0].value
             this.unsubmitted_mode_change['name'] = document.getElementById('mode_selector').selectedOptions[0].text
+            this.unsubmitted_mode_change['based_on'] = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on')
+            this.unsubmitted_mode_change['customization'] = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization')
 
 
             // show buttons to apply or undo change 
@@ -81,6 +88,8 @@ let LEDstrip = class {
         } else {
             this.unsubmitted_mode_change['id'] = null
             this.unsubmitted_mode_change['name'] = null
+            this.unsubmitted_mode_change['based_on'] = null
+            this.unsubmitted_mode_change['customization'] = null
 
             document.getElementById('undo_changes_button').classList.add('display_none')
             document.getElementById('apply_changes_button').classList.add('display_none')
