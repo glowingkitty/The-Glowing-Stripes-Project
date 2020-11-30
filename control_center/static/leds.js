@@ -29,12 +29,7 @@ let LEDstrip = class {
         this.id = id
         this.name = name
         this.last_animation = last_animation
-        this.unsubmitted_mode_change = {
-            'id':null,
-            'name':null,
-            'based_on':null,
-            'customization':null
-        }
+        this.unsubmitted_mode_change = last_animation
         this.num_of_leds = num_of_leds
         this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">'
 
@@ -94,21 +89,17 @@ let LEDstrip = class {
 
     apply_changes(){
         // send request to change mode
-        if (this.unsubmitted_mode_change['id']){
-            var self = this
-            axios
-                .post('/mode',{
-                    'changes': [{
-                        'led_strip_ids': [self.id],
-                        'new_animation': self.unsubmitted_mode_change
-                    }]
-                })
-            
-            this.last_animation=this.unsubmitted_mode_change
-            this.undo_changes()
-        } else {
-            console.log('id of new mode missing. Cannot submit change.')
-        }
+        var self = this
+        axios
+            .post('/mode',{
+                'changes': [{
+                    'led_strip_ids': [self.id],
+                    'new_animation': self.unsubmitted_mode_change
+                }]
+            })
+        
+        this.last_animation=this.unsubmitted_mode_change
+        this.undo_changes()
     }
 
     undo_changes(){
