@@ -117,7 +117,7 @@ class Host:
                                 print('Skipped saving "Setup mode"')
                             else:
                                 # replace "random" in "customization" field "rgb_color(s)" with random R,G,B values
-                                if change['new_animation']['customization']['rgb_colors'] == 'random':
+                                if 'rgb_colors' in change['new_animation']['customization'] and change['new_animation']['customization']['rgb_colors'] == 'random':
                                     change['new_animation']['customization']['rgb_colors'] = [[randint(0, 255), randint(0, 255), randint(
                                         0, 255)] for x in range(0, change['new_animation']['customization']['num_random_colors'])]
 
