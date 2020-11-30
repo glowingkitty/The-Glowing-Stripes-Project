@@ -66,7 +66,7 @@ let AnimationCustomizer = class {
         this.animation_id = led_strips[selected_led_strip_id].last_animation['id']
         this.animation_name = led_strips[selected_led_strip_id].last_animation['name']
         this.animation_custom = led_strips[selected_led_strip_id].last_animation['based_on']?true:false
-        this.animation_fields= this.customizable_fields[animation_id]['fields']
+        this.animation_fields= this.customizable_fields[this.animation_id]['fields']
 
         // save current animation to make it easy to detect changes
         this.original_animation = led_strips[selected_led_strip_id].last_animation
