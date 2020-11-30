@@ -344,7 +344,7 @@ class Stripe:
 
         led_strip.glow(
             id=new_animation['id'],
-            based_on=new_animation['based_on'],
+            based_on=new_animation['based_on'] if 'based_on' in new_animation else None,
             customization=new_animation['customization'] if 'customization' in new_animation else None
         )
         return HttpResponse(status=200)
