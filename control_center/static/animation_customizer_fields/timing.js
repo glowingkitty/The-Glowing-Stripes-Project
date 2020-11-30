@@ -95,7 +95,7 @@ let TimingCustomizer = class {
         )
         this.subfield_html += this.duration_ms_field.get_select_field()
 
-        if (this.pause_ms){
+        if (this.pause_ms!=null){
             this.pause_ms_field = new CustomizerField(
                 'Pause',
                 '100ms-5000ms',
@@ -105,7 +105,7 @@ let TimingCustomizer = class {
             this.subfield_html += this.pause_ms_field.get_select_field()
         }
 
-        if (this.pause_a_ms){
+        if (this.pause_a_ms!=null){
             this.pause_a_ms_field = new CustomizerField(
                 'Pause A',
                 '100ms-5000ms',
@@ -115,7 +115,7 @@ let TimingCustomizer = class {
             this.subfield_html += this.pause_a_ms_field.get_select_field()
         }
 
-        if (this.pause_b_ms){
+        if (this.pause_b_ms!=null){
             this.pause_b_ms_field = new CustomizerField(
                 'Pause B',
                 '100ms-5000ms',
@@ -149,17 +149,17 @@ let TimingCustomizer = class {
         this.duration_ms_counter_list = []
         this.duration_ms_counter = 0
         this.duration_s_counter = 5
-        if (this.pause_ms){
+        if (this.pause_ms!=null){
             this.pause_ms_counter_list = []
             this.pause_ms_counter = 0
         }
         
-        if (this.pause_a_ms){
+        if (this.pause_a_ms!=null){
             this.pause_a_ms_counter_list = []
             this.pause_a_ms_counter = 0
         }
 
-        if (this.pause_b_ms){
+        if (this.pause_b_ms!=null){
             this.pause_b_ms_counter_list = []
             this.pause_b_ms_counter = 0
         }
@@ -197,7 +197,7 @@ let TimingCustomizer = class {
                 this.pause_ms = this.pause_ms_total / this.pause_ms_counter_list.length
 
                 // if pause_a_ms and pause_b_ms, also set them to pause_ms
-                if (this.pause_a_ms && this.pause_b_ms){
+                if (this.pause_a_ms!=null && this.pause_b_ms!=null){
                     this.pause_a_ms = this.pause_ms
                     this.pause_b_ms = this.pause_ms
                 }
