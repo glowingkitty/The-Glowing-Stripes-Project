@@ -15,7 +15,8 @@
                 "name": "Color",
                 "customization":{
                     "colors_selected":"random",
-                    "rgb_color":"random"
+                    "rgb_colors":"random",
+                    "num_random_colors":1
                 }
             },
             {

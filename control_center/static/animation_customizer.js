@@ -155,25 +155,25 @@ let AnimationCustomizer = class {
     }
 
     apply(){
-
+        // TODO
     }
 
 
     // save new mode
     open_save_field(){
-
+        // TODO
     }
 
     save_mode(){
-
+        // TODO
     }
 
     update_mode(){
-
+        // TODO
     }
 
     back_to_edit(){
-
+        // TODO
     }
 }
 
