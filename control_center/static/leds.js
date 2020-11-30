@@ -143,7 +143,7 @@ let LEDstrip = class {
         let num_of_parts_counter = 0
         let total_num_of_leds = 0
         let r, g, b
-        this.html += '<div name="led_strip_parts">'
+        this.html += '<div id="'+this.id+'_led_strip_parts">'
         while (num_of_parts_counter < this.num_of_parts) {
             this.html += '<div class="led_strip_part">'
 

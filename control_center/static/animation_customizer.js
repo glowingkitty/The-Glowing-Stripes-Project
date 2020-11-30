@@ -137,7 +137,7 @@ let AnimationCustomizer = class {
 
         // get first led strip preview and place it in popup placeholder on the left
         document.getElementById('customized_led_animation_preview').classList.remove('display_none')
-        document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id).getElementsByClassName('led_strip_parts')[0].innerHTML
+        document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id+'_led_strip_parts').innerHTML
 
         // show popup
         popup.show()
