@@ -45,13 +45,15 @@ let CustomizerField = class {
                 var options_list_end = parseInt(options_list.split('-')[1].replace(' ','').replace('ms',''))
 
                 // generate steps in between
-                var step
+                var step = options_list_start
+                var i
                 options_list = []
-                for (step = options_list_start; step<=options_list_end; step+=100) {
+                for (i = 0; step<=options_list_end; i++) {
                     options_list[i] = {
                         'name':step.toString()+' ms',
                         'value':step
                     }
+                    step+=100
                 } 
             }
             

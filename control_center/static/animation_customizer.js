@@ -16,7 +16,6 @@ let AnimationCustomizer = class {
                 'name':'Rainbow',
                 'fields':[
                     'timing',
-                    'direction',
                     'brightness'
                 ]
             },
