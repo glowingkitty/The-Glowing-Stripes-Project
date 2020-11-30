@@ -39,7 +39,7 @@ let CustomizerField = class {
 
     process_options_list(options_list){
         if (options_list){
-            if (typeof(options_list)=='string' && options_list.indexOf('ms') >= 0){
+            if (typeof(options_list)=='string' && options_list.includes('ms')){
                 // process "100ms-5000ms" info
                 var options_list_start = parseInt(options_list.split('-')[0].replace(' ','').replace('ms',''))
                 var options_list_end = parseInt(options_list.split('-')[1].replace(' ','').replace('ms',''))
