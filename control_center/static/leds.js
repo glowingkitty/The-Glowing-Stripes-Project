@@ -79,7 +79,7 @@ let LEDstrip = class {
             this.unsubmitted_mode_change['id'] = document.getElementById('mode_selector').selectedOptions[0].value
             this.unsubmitted_mode_change['name'] = document.getElementById('mode_selector').selectedOptions[0].text
             this.unsubmitted_mode_change['based_on'] = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on')
-            this.unsubmitted_mode_change['customization'] = JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization'))
+            this.unsubmitted_mode_change['customization'] = JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'))
 
 
             // show buttons to apply or undo change 
