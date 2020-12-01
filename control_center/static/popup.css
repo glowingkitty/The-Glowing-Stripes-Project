@@ -55,6 +55,8 @@
 
 .popup_message {
     color: #AEAEAE;
+    overflow-y: scroll;
+    max-height: 395px;
 }
 
 .popup_buttons {

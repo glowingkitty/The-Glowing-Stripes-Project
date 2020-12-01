@@ -90,7 +90,7 @@ let ColorsCustomizer = class {
 
     generate_manual_colors_subfield(){
         // generate "manual" subfield_html
-        this.subfield_html = '<div id="all_colors">'
+        this.subfield_html = '<div class="all_colors" id="all_colors">'
         // if this.selected_colors == 'random', generate random colors
         var i;
         if (this.selected_colors == 'random'){
@@ -122,6 +122,8 @@ let ColorsCustomizer = class {
         // "add_color_button"
         this.subfield_html+='<div class="add_color_button'
         if (this.selected_colors.length<this.max_num_colors){
+            this.subfield_html+='" onclick="colors_customizer.add_color()"></div>'
+        } else {
             this.subfield_html+=' display_none" onclick="colors_customizer.add_color()"></div>'
         }
 
@@ -148,17 +150,19 @@ let ColorsCustomizer = class {
             ]
             animation_customizer.updated_animation['customization']['rgb_colors'].push(new_color)
 
-            // show another color field with a random color
-            var new_color_html = '<input type="color" onchange="colors_customizer.change_color('+(this.selected_colors.length-1)+',this.value)" value="'+this.convert_rgb_to_hex(new_color)+'" class="color_selector">'
-            // place new_color_html before remove and add button and after existing colors
-            document.getElementById('all_colors').innerHTML = document.getElementById('all_colors').innerHTML + new_color_html
+            if (document.getElementById('all_colors')){
+                // show another color field with a random color
+                var new_color_html = '<input type="color" onchange="colors_customizer.change_color('+(this.selected_colors.length-1)+',this.value)" value="'+this.convert_rgb_to_hex(new_color)+'" class="color_selector">'
+                // place new_color_html before remove and add button and after existing colors
+                document.getElementById('all_colors').innerHTML = document.getElementById('all_colors').innerHTML + new_color_html
 
-            // show "remove_color_button"
-            document.getElementsByClassName('remove_color_button')[0].classList.remove('display_none')
+                // show "remove_color_button"
+                document.getElementsByClassName('remove_color_button')[0].classList.remove('display_none')
 
-            // hide "add_color" button if maximum level reached
-            if (this.selected_colors.length==this.max_num_colors){
-                document.getElementsByClassName('add_color_button')[0].classList.add('display_none')
+                // hide "add_color" button if maximum level reached
+                if (this.selected_colors.length==this.max_num_colors){
+                    document.getElementsByClassName('add_color_button')[0].classList.add('display_none')
+                }
             }
 
             // TODO update the preview animation
@@ -172,18 +176,20 @@ let ColorsCustomizer = class {
             // remove last color in selected_colors
             animation_customizer.updated_animation['customization']['rgb_colors'].pop()
 
-            // remove last "color_selector" from 'all_colors' div block (preview list)
-            var all_colors = document.getElementById('all_colors');
-            all_colors.removeChild(all_colors.lastElementChild);
+            if (document.getElementById('all_colors')){
+                // remove last "color_selector" from 'all_colors' div block (preview list)
+                var all_colors = document.getElementById('all_colors');
+                all_colors.removeChild(all_colors.lastElementChild);
 
-            // hide "remove_color" button if minimum level reached
-            if (this.selected_colors.length==this.min_num_colors){
-                document.getElementsByClassName('remove_color_button')[0].classList.add('display_none')
-            }
+                // hide "remove_color" button if minimum level reached
+                if (this.selected_colors.length==this.min_num_colors){
+                    document.getElementsByClassName('remove_color_button')[0].classList.add('display_none')
+                }
 
-            // show "add_color" button again if not longer maximum level
-            if (this.selected_colors.length<this.max_num_colors){
-                document.getElementsByClassName('add_color_button')[0].classList.remove('display_none')
+                // show "add_color" button again if not longer maximum level
+                if (this.selected_colors.length<this.max_num_colors){
+                    document.getElementsByClassName('add_color_button')[0].classList.remove('display_none')
+                }
             }
 
             // TODO update the preview animation
