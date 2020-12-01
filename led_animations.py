@@ -36,8 +36,8 @@ class LEDanimations():
                             return last_animation
 
             else:
-                # search for animation in full animation list
-                return self.get_animation(last_animation['id'])
+                # return full animation, together with possible customizations
+                return last_animation
 
     @property
     def all(self):
