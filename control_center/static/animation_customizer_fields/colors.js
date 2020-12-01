@@ -91,8 +91,21 @@ let ColorsCustomizer = class {
     generate_manual_colors_subfield(){
         // generate "manual" subfield_html
         this.subfield_html = '<div id="all_colors">'
-        // for every min_num_color, create random color field input field
+        // if this.selected_colors == 'random', generate random colors
         var i;
+        if (this.selected_colors == 'random'){
+            animation_customizer.updated_animation['customization']['rgb_colors'] = []
+            for (i = 0; i < this.num_random_colors; i++) {
+                var new_color = [
+                    Math.round(Math.random()*255),
+                    Math.round(Math.random()*255),
+                    Math.round(Math.random()*255)
+                ]
+                animation_customizer.updated_animation['customization']['rgb_colors'].push(new_color)
+            }
+        }
+
+        // for every min_num_color, create random color field input field
         for (i = 0; i < this.selected_colors.length; i++){
             this.subfield_html+='<input type="color" onchange="colors_customizer.change_color('+i+',this.value)" value="'+this.convert_rgb_to_hex(this.selected_colors[i])+'" class="color_selector">'
         }
