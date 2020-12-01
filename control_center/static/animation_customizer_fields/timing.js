@@ -68,7 +68,7 @@ let TimingCustomizer = class {
     }
 
     change_timing_select(new_selected){
-        this.default_selected = new_selected
+        animation_customizer.updated_animation['customization']['timing_selected'] = new_selected
         this.update_subfield()
         document.getElementById('timing_subfield').innerHTML=this.subfield_html
     }
@@ -135,11 +135,11 @@ let TimingCustomizer = class {
 
     change_pause(new_pause,which_pause=null){
         if (which_pause=='pause_a'){
-            this.pause_a_ms = new_pause
+            animation_customizer.updated_animation['customization']['pause_a_ms'] = new_pause
         } else if (which_pause=='pause_b'){
-            this.pause_b_ms = new_pause
+            animation_customizer.updated_animation['customization']['pause_b_ms'] = new_pause
         } else {
-            this.pause_ms = new_pause
+            animation_customizer.updated_animation['customization']['pause_ms'] = new_pause
         }
 
         // TODO update preview animation
@@ -187,19 +187,19 @@ let TimingCustomizer = class {
                 for(var i = 0; i < this.duration_ms_counter_list.length; i++) {
                     this.duration_ms_total += this.duration_ms_counter_list[i];
                 }
-                this.duration_ms = this.duration_ms_total / this.duration_ms_counter_list.length
+                animation_customizer.updated_animation['customization']['duration_ms'] = this.duration_ms_total / this.duration_ms_counter_list.length
 
                 // calculate pause_ms
                 this.pause_ms_total = 0;
                 for(var i = 0; i < this.pause_ms_counter_list.length; i++) {
                     this.pause_ms_total += this.pause_ms_counter_list[i];
                 }
-                this.pause_ms = this.pause_ms_total / this.pause_ms_counter_list.length
+                animation_customizer.updated_animation['customization']['pause_ms'] = this.pause_ms_total / this.pause_ms_counter_list.length
 
                 // if pause_a_ms and pause_b_ms, also set them to pause_ms
                 if (this.pause_a_ms!=null && this.pause_b_ms!=null){
-                    this.pause_a_ms = this.pause_ms
-                    this.pause_b_ms = this.pause_ms
+                    animation_customizer.updated_animation['customization']['pause_a_ms'] = this.pause_ms
+                    animation_customizer.updated_animation['customization']['pause_b_ms'] = this.pause_ms
                 }
 
                 // show duration_ms and pause_ms and edit button
