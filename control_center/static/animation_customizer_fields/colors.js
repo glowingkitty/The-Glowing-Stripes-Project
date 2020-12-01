@@ -83,7 +83,7 @@ let ColorsCustomizer = class {
     }
 
     change_colors_select(new_selected){
-        this.default_selected = new_selected
+        animation_customizer.updated_animation['customization']['colors_selected'] = new_selected
         this.update_subfield()
         document.getElementById('colors_subfield').innerHTML=this.subfield_html
     }
@@ -133,7 +133,7 @@ let ColorsCustomizer = class {
                 Math.round(Math.random()*255),
                 Math.round(Math.random()*255)
             ]
-            this.selected_colors.push(new_color)
+            animation_customizer.updated_animation['customization']['rgb_colors'].push(new_color)
 
             // show another color field with a random color
             var new_color_html = '<input type="color" onchange="colors_customizer.change_color('+(this.selected_colors.length-1)+',this.value)" value="'+this.convert_rgb_to_hex(new_color)+'" class="color_selector">'
@@ -157,7 +157,7 @@ let ColorsCustomizer = class {
     remove_color(){
         if (this.selected_colors.length>this.min_num_colors){
             // remove last color in selected_colors
-            this.selected_colors.pop()
+            animation_customizer.updated_animation['customization']['rgb_colors'].pop()
 
             // remove last "color_selector" from 'all_colors' div block (preview list)
             var all_colors = document.getElementById('all_colors');
@@ -183,7 +183,7 @@ let ColorsCustomizer = class {
 
     change_color(num_in_list,new_color_hex){
         // convert hex into R,G,B values and save
-        this.selected_colors[num_in_list] = this.convert_hex_to_rgb(new_color_hex)
+        animation_customizer.updated_animation['customization']['rgb_colors'][num_in_list] = this.convert_hex_to_rgb(new_color_hex)
 
         // TODO update preview animation
     }
@@ -204,7 +204,7 @@ let ColorsCustomizer = class {
 
         }
 
-        this.num_random_colors = new_num
+        animation_customizer.updated_animation['customization']['num_random_colors'] = new_num
     }
 }
 

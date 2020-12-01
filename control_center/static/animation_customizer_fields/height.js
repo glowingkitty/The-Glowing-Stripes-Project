@@ -18,7 +18,7 @@ let HeightCustomizer = class {
     }
 
     change_height_select(new_selected){
-        this.default_selected = new_selected
+        animation_customizer.updated_animation['customization']['max_height'] = new_selected
 
         // TODO update preview animation
     }

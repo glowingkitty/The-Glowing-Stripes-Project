@@ -18,7 +18,7 @@ let BrightnessCustomizer = class {
     }
 
     change_brightness_select(new_selected){
-        this.default_selected = new_selected
+        animation_customizer.updated_animation['customization']['brightness'] = new_selected
         // TODO update preview animation
     }
 }
