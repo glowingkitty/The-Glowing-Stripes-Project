@@ -115,7 +115,7 @@ class Host:
                         if strip['id'] == id:
                             if change['new_animation']['id'] == '1111111111':
                                 print('Skipped saving "off"')
-                            elif change['new_animation']['id'] == '0' or change['new_animation']['id'] == '0000000000':
+                            elif change['new_animation']['id'] == '0000000000':
                                 print('Skipped saving "Setup mode"')
                             else:
                                 # replace "random" in "customization" field "rgb_color(s)" with random R,G,B values

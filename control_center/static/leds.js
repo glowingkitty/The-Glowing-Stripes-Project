@@ -188,7 +188,7 @@ let LEDstrip = class {
                         'id': '0000000000',
                         'name': 'Setup mode',
                         'customization':{
-                            'rgb_colors': [[r, g, b]]
+                            'rgb_colors': [this.setup_color]
                         }
                     }
                 }]
