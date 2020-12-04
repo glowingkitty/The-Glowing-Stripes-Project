@@ -17,7 +17,7 @@ class LEDanimations():
             for animation in animations[category]:
                 if animation['id'] == id:
                     # replace "random" string with random generated colors
-                    if 'rgb_colors' in animation['customization'] and animation['customization']['rgb_colors'] == 'random':
+                    if 'customization' in animation and 'rgb_colors' in animation['customization'] and animation['customization']['rgb_colors'] == 'random':
                         animation['customization']['rgb_colors'] = [[randint(0, 255), randint(0, 255), randint(
                             0, 255)] for x in range(0, animation['customization']['num_random_colors'])]
                     return animation
