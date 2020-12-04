@@ -9,7 +9,7 @@
     border-radius: 6px;
     box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.4);
     position: relative;
-    top: 0;
+    top: 0px;
     -webkit-transition: all 200ms ease;
     transition: all 200ms ease;
     text-decoration: none;
@@ -66,6 +66,10 @@
 .cta:hover {
     top: -5px;
     cursor: pointer;
+}
+
+.cta:active {
+    top: 0px;
 }
 
 .cta.primary {

@@ -146,105 +146,106 @@ let TimingCustomizer = class {
     }
 
     start_timing_tap_to_bpm(){
-        this.duration_ms_counter_list = []
-        this.duration_ms_counter = 0
-        this.duration_s_counter = 5
-        if (this.pause_ms!=null){
-            this.pause_ms_counter_list = []
-            this.pause_ms_counter = 0
-        }
-        
-        if (this.pause_a_ms!=null){
-            this.pause_a_ms_counter_list = []
-            this.pause_a_ms_counter = 0
-        }
+        // prevent triggering multiple times
+        var tap_to_bpm_button = document.getElementById("tap_to_bpm_button");
+        tap_to_bpm_button.onclick = ''
 
-        if (this.pause_b_ms!=null){
-            this.pause_b_ms_counter_list = []
-            this.pause_b_ms_counter = 0
-        }
-
-        this.tap_to_bpm_button = document.getElementById("tap_to_bpm_button");
+        var duration_ms_counter_list = []
+        var duration_ms_counter = 0
+        var duration_s_counter = 5
+        var pause_ms_counter_list = []
+        var pause_ms_counter = 0
 
         // count every 100ms
-        this.duration_ms_counter_interval = setInterval(function(){
-            this.duration_ms_counter += 100;
+        var duration_ms_counter_interval = setInterval(function(){
+            duration_ms_counter += 100;
         }, 100);
 
         // show update every second
-        this.tap_to_bpm_interval = setInterval(function(){
-            this.duration_s_counter -= 1;
-            if (this.duration_s_counter>0){
+        var duration_ms = this.duration_ms
+        var pause_ms = this.pause_ms
+        var pause_a_ms = this.pause_a_ms
+        var pause_b_ms = this.pause_b_ms
+
+        var duration_ms_counter_interval
+        var pause_ms_counter_interval
+        var tap_to_bpm_interval = setInterval(function(){
+            duration_s_counter -= 1;
+            if (duration_s_counter>0){
                 // replace message text every second, to show remaining time
-                document.getElementById("subfield_message").innerText = this.duration_s_counter+' second'+(this.duration_s_counter!=1 ? 's': '')+' remaining';
+                document.getElementById("subfield_message").innerText = duration_s_counter+' second'+(duration_s_counter!=1 ? 's': '')+' remaining';
             } else {
-                clearInterval(this.tap_to_bpm_interval);
-                clearInterval(this.duration_ms_counter_interval);
-                clearInterval(this.pause_ms_counter_interval);
+                clearInterval(tap_to_bpm_interval);
+                clearInterval(duration_ms_counter_interval);
+                clearInterval(pause_ms_counter_interval);
 
                 // calculate duration_ms
-                this.duration_ms_total = 0;
-                for(var i = 0; i < this.duration_ms_counter_list.length; i++) {
-                    this.duration_ms_total += this.duration_ms_counter_list[i];
+                var duration_ms_total = 0;
+                for(var i = 0; i < duration_ms_counter_list.length; i++) {
+                    duration_ms_total += duration_ms_counter_list[i];
                 }
-                animation_customizer.updated_animation['customization']['duration_ms'] = this.duration_ms_total / this.duration_ms_counter_list.length
+                duration_ms = duration_ms_total / duration_ms_counter_list.length
+                animation_customizer.updated_animation['customization']['duration_ms'] = duration_ms
 
                 // calculate pause_ms
-                this.pause_ms_total = 0;
-                for(var i = 0; i < this.pause_ms_counter_list.length; i++) {
-                    this.pause_ms_total += this.pause_ms_counter_list[i];
+                var pause_ms_total = 0;
+                for(var i = 0; i < pause_ms_counter_list.length; i++) {
+                    pause_ms_total += pause_ms_counter_list[i];
                 }
-                animation_customizer.updated_animation['customization']['pause_ms'] = this.pause_ms_total / this.pause_ms_counter_list.length
+                pause_ms = pause_ms_total / pause_ms_counter_list.length
+                animation_customizer.updated_animation['customization']['pause_ms'] = pause_ms
 
                 // if pause_a_ms and pause_b_ms, also set them to pause_ms
-                if (this.pause_a_ms!=null && this.pause_b_ms!=null){
-                    animation_customizer.updated_animation['customization']['pause_a_ms'] = this.pause_ms
-                    animation_customizer.updated_animation['customization']['pause_b_ms'] = this.pause_ms
+                if (pause_a_ms!=null && pause_b_ms!=null){
+                    pause_a_ms = pause_ms
+                    pause_b_ms = pause_ms
+                    animation_customizer.updated_animation['customization']['pause_a_ms'] = pause_a_ms
+                    animation_customizer.updated_animation['customization']['pause_b_ms'] = pause_b_ms
                 }
 
                 // show duration_ms and pause_ms and edit button
-                this.subfield_html = '<div>Duration '+this.duration_ms+'ms</div>'
-                this.subfield_html += '<div>Pause '+this.pause_ms+'ms</div>'
-                this.subfield_html += '<div class="cta secondary with_icon edit" onclick="timing_customizer.change_timing_select(\'bpm\')">Edit</div>'
-
+                var subfield_html = '<div>Duration '+duration_ms+'ms</div>'
+                subfield_html += '<div>Pause '+pause_ms+'ms</div>'
+                subfield_html += '<div class="cta secondary with_icon edit" onclick="timing_customizer.change_timing_select(\'bpm\')">Edit</div>'
+                document.getElementById('timing_subfield').innerHTML = subfield_html
             }
             
         }, 1000);
 
 
         // count pause when not pressed
-        this.mouseup_hander = function() {
+        var mouseup_hander = function() {
             // stop counting and add duration to list
-            this.duration_ms_counter_list.push(this.duration_ms_counter)
-            clearInterval(this.duration_ms_counter_interval);
-            this.duration_ms_counter = 0
+            duration_ms_counter_list.push(duration_ms_counter)
+            clearInterval(duration_ms_counter_interval);
+            duration_ms_counter = 0
 
-            this.pause_ms_counter_interval = setInterval(function(){
-                this.pause_ms_counter_interval += 100;
+            pause_ms_counter_interval = setInterval(function(){
+                pause_ms_counter += 100;
             }, 100);
         }
-        this.mousedown_hander = function() {
+        var mousedown_hander = function() {
             // stop counting and add pause to list
-            this.pause_ms_counter_list.push(this.pause_ms_counter)
-            clearInterval(this.pause_ms_counter_interval);
-            this.pause_ms_counter = 0
+            pause_ms_counter_list.push(pause_ms_counter)
+            clearInterval(pause_ms_counter_interval);
+            pause_ms_counter = 0
 
-            this.duration_ms_counter_interval = setInterval(function(){
-                this.duration_ms_counter += 100;
+            duration_ms_counter_interval = setInterval(function(){
+                duration_ms_counter += 100;
             }, 100);
         }
 
         // make keyboard press also trigger
-        this.tap_to_bpm_button.addEventListener("mouseup", this.mouseup_hander,false);
-        this.tap_to_bpm_button.addEventListener("keyup", event => {
+        tap_to_bpm_button.addEventListener("mouseup", mouseup_hander,false);
+        tap_to_bpm_button.addEventListener("keyup", event => {
             if (event.key = 't') {
-                this.mouseup_hander()
+                mouseup_hander()
             }
           });
-        this.tap_to_bpm_button.addEventListener("mousdown", this.mousedown_hander,false);
-        this.tap_to_bpm_button.addEventListener("keydown", event => {
+        tap_to_bpm_button.addEventListener("mousdown", mousedown_hander,false);
+        tap_to_bpm_button.addEventListener("keydown", event => {
             if (event.key = 't') {
-                this.mousedown_hander()
+                mousedown_hander()
             }
           });
     }
