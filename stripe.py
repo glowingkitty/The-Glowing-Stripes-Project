@@ -167,7 +167,7 @@ class Stripe():
                 self.python_location,
                 self.neopixel_plus_package_path+'/neopixel_plus.py',
                 '-a',
-                selected_animation['name'],
+                selected_animation['neopixel_plus_function'],
                 '-d',
                 'adafruit',
                 '-n',
