@@ -185,14 +185,10 @@ let LEDstrip = class {
                 'changes': [{
                     'led_strip_ids': [this.id],
                     'new_animation': {
-                        'id': '0',
+                        'id': '0000000000',
                         'name': 'Setup mode',
-                        'based_on':{
-                            'name':'color',
-                            'id':'0000000000'
-                        },
                         'customization':{
-                            'rgb_color': [r, g, b]
+                            'rgb_colors': [[r, g, b]]
                         }
                     }
                 }]
