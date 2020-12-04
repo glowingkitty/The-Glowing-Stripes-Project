@@ -28,7 +28,8 @@ class Stripe():
                  led_strip_data_pin_num=StripeConfig.config()[
                      'led_strip_data_pin_num'],
                  num_of_leds=StripeConfig.config()['num_of_leds'],
-                 host_address=StripeConfig.config()['host_address']
+                 host_address=StripeConfig.config()['host_address'],
+                 current_animation_rgb_colors=None
                  ):
         self.host_address = host_address
 
@@ -36,6 +37,7 @@ class Stripe():
         self.led_strip_data_pin_num = led_strip_data_pin_num
         self.num_of_leds = num_of_leds
         self.current_animation = None
+        self.current_animation_rgb_colors = current_animation_rgb_colors
         self.python_location = python_location
         self.project_path = project_path
         self.neopixel_plus_package_path = neopixel_plus_package_path
@@ -54,7 +56,11 @@ class Stripe():
 
     @property
     def last_animation(self):
-        return LEDanimations().last_used
+        # if self.current_animation_rgb_colors: overwrite rgb colors with current_animation_rgb_colors
+        animation = LEDanimations().last_used
+        if self.current_animation_rgb_colors and 'rgb_colors' in animation['customization']:
+            animation['customization']['rgb_colors'] = self.current_animation_rgb_colors
+        return animation
 
     @property
     def id(self):
@@ -142,16 +148,12 @@ class Stripe():
             if 'customization' in last_animation and last_animation['customization']:
                 customization = last_animation['customization']
 
-        default_animations = {
-            '0000000000': 'color',  # setup mode
-            '1111111111': 'off',
-            '9jwnqn8v3i': 'color',
-            'b943uee3y7': 'rainbow_animation',
-            '8hsylal9v7': 'beats',
-            'leta9ed5fc': 'moving_dot',
-            'kack2555kd': 'light_up',
-            '7u9tjpd0gi': 'transition',
-        }
+        # get animation with all the details
+        selected_animation = LEDanimations().get_animation(id)
+
+        # save random_rgb_colors, to show correct colors in frontend as well
+        self.current_animation_rgb_colors = selected_animation['customization'][
+            'rgb_colors'] if 'rgb_colors' in selected_animation['customization'] else None
 
         # play animation
         if self.current_animation:
@@ -165,7 +167,7 @@ class Stripe():
                 self.python_location,
                 self.neopixel_plus_package_path+'/neopixel_plus.py',
                 '-a',
-                default_animations[id] if id in default_animations else default_animations[based_on['id']],
+                selected_animation,
                 '-d',
                 'adafruit',
                 '-n',

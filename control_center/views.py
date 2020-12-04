@@ -19,10 +19,12 @@ dirname = os.path.dirname(__file__)
 led_strip = LEDstripe()
 led_strip.glow()
 
-# connect to Host device
+# connect to Host device (and give already generated random rgb_colors as input)
 connect_to_host = subprocess.Popen(
     [led_strip.python_location,
-     led_strip.project_path+'/connect_to_host.py'])
+     led_strip.project_path+'/connect_to_host.py',
+     '-c',
+     led_strip.current_animation_rgb_colors])
 
 # start listening for shutdown
 listen_for_shutdown = subprocess.Popen(

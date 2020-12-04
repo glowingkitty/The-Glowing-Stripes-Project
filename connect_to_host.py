@@ -7,6 +7,18 @@ import requests
 
 from stripe import Stripe
 
+current_animation_rgb_colors = None
+if __name__ == "__main__":
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hc:", ["colors="])
+    except getopt.GetoptError:
+        print('connect_to_host.py -c <colors>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ("-c", "--colors"):
+            current_animation_rgb_colors = eval(arg)
+
+
 host_ip_address = None
 wait_seconds = 10
 while True:
@@ -17,7 +29,7 @@ while True:
         if new_host_ip_address != host_ip_address:
             print('IP address of host has changed. Signing up to new host')
             # if ip address has changed, make /signup request
-            Stripe().signup()
+            Stripe(current_animation_rgb_colors=current_animation_rgb_colors).signup()
             host_ip_address = new_host_ip_address
 
         else:

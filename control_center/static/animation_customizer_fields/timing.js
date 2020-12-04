@@ -92,7 +92,7 @@ let TimingCustomizer = class {
         this.subfield_html = ''
         this.duration_ms_field = new CustomizerField(
             'Duration',
-            '100ms-5000ms',
+            '100ms-10000ms',
             this.duration_ms,
             'timing_customizer.change_duration(this.value)'
         )
@@ -101,7 +101,7 @@ let TimingCustomizer = class {
         if (this.pause_ms!=null){
             this.pause_ms_field = new CustomizerField(
                 'Pause',
-                '100ms-5000ms',
+                '0ms-10000ms',
                 this.pause_ms,
                 'timing_customizer.change_pause(this.value)'
             )
@@ -111,7 +111,7 @@ let TimingCustomizer = class {
         if (this.pause_a_ms!=null){
             this.pause_a_ms_field = new CustomizerField(
                 'Pause A',
-                '100ms-5000ms',
+                '0ms-10000ms',
                 this.pause_a_ms,
                 'timing_customizer.change_pause(this.value,\'pause_a\')'
             )
@@ -121,7 +121,7 @@ let TimingCustomizer = class {
         if (this.pause_b_ms!=null){
             this.pause_b_ms_field = new CustomizerField(
                 'Pause B',
-                '100ms-5000ms',
+                '0ms-10000ms',
                 this.pause_a_ms,
                 'timing_customizer.change_pause(this.value,\'pause_b\')'
             )

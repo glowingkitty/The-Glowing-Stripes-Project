@@ -47,8 +47,11 @@ let CustomizerField = class {
                 // generate steps in between
                 var step = options_list_start
                 var i
-                options_list = []
-                for (i = 0; step<=options_list_end; i++) {
+                options_list = [{
+                    'name':'50 ms',
+                    'value':50
+                }]
+                for (i = 1; step<=options_list_end; i++) {
                     options_list[i] = {
                         'name':step.toString()+' ms',
                         'value':step

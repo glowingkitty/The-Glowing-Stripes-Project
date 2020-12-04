@@ -188,7 +188,16 @@ let AnimationCustomizer = class {
     }
 
     apply(){
-        // TODO
+        // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
+        led_strips[selected_led_strip_id].unsubmitted_mode_change = led_strips[selected_led_strip_id].last_animation
+        led_strips[selected_led_strip_id].unsubmitted_mode_change['customization'] = this.updated_animation['customization']
+        led_strips[selected_led_strip_id].apply_changes()
+        
+        // update original_animation
+        this.original_animation['customization'] = this.updated_animation['customization']
+
+        // hide interface
+        popup.hide()
     }
 
 
