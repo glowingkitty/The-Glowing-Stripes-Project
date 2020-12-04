@@ -67,8 +67,8 @@ let AnimationCustomizer = class {
         this.animation_fields= this.customizable_fields[this.animation_id]['fields']
 
         // save current animation to make it easy to detect changes
-        this.original_animation = led_strips[selected_led_strip_id].last_animation
-        this.updated_animation = led_strips[selected_led_strip_id].last_animation
+        this.original_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation))
+        this.updated_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation))
 
         // update popup headline
         popup.header = 'Customize "'+this.animation_name+'"'
@@ -157,7 +157,7 @@ let AnimationCustomizer = class {
 
     get has_changed(){
         // see if animation settings have been changed in comparison to original
-        return this.original_animation!=this.updated_animation
+        return JSON.stringify(this.original_animation['customization'])!=JSON.stringify(this.updated_animation['customization'])
     }
 
     check_for_changes(){

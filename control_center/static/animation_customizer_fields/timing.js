@@ -71,6 +71,9 @@ let TimingCustomizer = class {
         animation_customizer.updated_animation['customization']['timing_selected'] = new_selected
         this.update_subfield()
         document.getElementById('timing_subfield').innerHTML=this.subfield_html
+
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
     }
 
     generate_bpm_timing_subfield(){
@@ -128,7 +131,8 @@ let TimingCustomizer = class {
     }
 
     change_duration(new_duration){
-        this.duration_ms = new_duration
+        new_duration = parseInt(new_duration)
+        animation_customizer.updated_animation['customization']['duration_ms'] = new_duration
 
         // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
         animation_customizer.check_for_changes()
@@ -137,6 +141,7 @@ let TimingCustomizer = class {
     }
 
     change_pause(new_pause,which_pause=null){
+        new_pause = parseInt(new_pause)
         if (which_pause=='pause_a'){
             animation_customizer.updated_animation['customization']['pause_a_ms'] = new_pause
         } else if (which_pause=='pause_b'){
@@ -144,6 +149,9 @@ let TimingCustomizer = class {
         } else {
             animation_customizer.updated_animation['customization']['pause_ms'] = new_pause
         }
+
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
 
         // TODO update preview animation
     }

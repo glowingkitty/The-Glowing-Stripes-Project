@@ -86,6 +86,9 @@ let ColorsCustomizer = class {
         animation_customizer.updated_animation['customization']['colors_selected'] = new_selected
         this.update_subfield()
         document.getElementById('colors_subfield').innerHTML=this.subfield_html
+
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
     }
 
     generate_manual_colors_subfield(){
@@ -165,6 +168,9 @@ let ColorsCustomizer = class {
                 }
             }
 
+            // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+            animation_customizer.check_for_changes()
+
             // TODO update the preview animation
         } else{
             console.log('add_color failed. Cannot go higher then max_num_colors.')
@@ -192,6 +198,9 @@ let ColorsCustomizer = class {
                 }
             }
 
+            // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+            animation_customizer.check_for_changes()
+
             // TODO update the preview animation
 
         } else{
@@ -211,6 +220,7 @@ let ColorsCustomizer = class {
     }
 
     change_num_of_random_colors(new_num){
+        new_num = parseInt(new_num)
         // if new num_rando_colors is higher then previously, use "add_color", if lower, "remove_color"
         if (new_num > this.num_random_colors){
             var random_colors_difference = new_num - this.num_random_colors
