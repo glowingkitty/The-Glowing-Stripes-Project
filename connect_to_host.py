@@ -19,7 +19,7 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt in ("-c", "--colors"):
             current_animation_rgb_colors = eval(arg)
-            if current_animation_rgb_colors == '':
+            if current_animation_rgb_colors == 'None':
                 current_animation_rgb_colors = None
             elif '[' in current_animation_rgb_colors:
                 current_animation_rgb_colors = current_animation_rgb_colors.replace(

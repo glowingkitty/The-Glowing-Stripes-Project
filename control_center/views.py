@@ -24,7 +24,7 @@ connect_to_host = subprocess.Popen(
     [led_strip.python_location,
      led_strip.project_path+'/connect_to_host.py',
      '-c',
-     led_strip.current_animation_rgb_colors if led_strip.current_animation_rgb_colors else ''])
+     led_strip.current_animation_rgb_colors if led_strip.current_animation_rgb_colors else 'None'])
 
 # start listening for shutdown
 listen_for_shutdown = subprocess.Popen(
