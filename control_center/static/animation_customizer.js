@@ -100,6 +100,7 @@ let AnimationCustomizer = class {
             {
                 'style':'secondary',
                 'id':'save_mode_button',
+                'hide':true,
                 'icon':'save',
                 'text':'Save new',
                 'onclick':'animation_customizer.open_save_field()'
@@ -111,6 +112,7 @@ let AnimationCustomizer = class {
             popup.buttons.push({
                 'style':'secondary',
                 'id':'update_mode_button',
+                'hide':true,
                 'icon':'sync',
                 'text':'Update',
                 'onclick':'animation_customizer.update_mode()'
@@ -121,6 +123,7 @@ let AnimationCustomizer = class {
             {
                 'style':'primary',
                 'id':'apply_changed_mode_button',
+                'hide':true,
                 'icon':'true',
                 'text':'Apply',
                 'onclick':'animation_customizer.apply()'
@@ -150,6 +153,38 @@ let AnimationCustomizer = class {
 
         document.getElementById('customized_led_animation_preview').classList.add('display_none')
         document.getElementById('customized_led_animation_preview_stripes').innerHTML=''
+    }
+
+    get has_changed(){
+        // see if animation settings have been changed in comparison to original
+        return this.original_animation!=this.updated_animation
+    }
+
+    check_for_changes(){
+        // if changes exist, show "apply","update","save" button
+        if (this.has_changed==true){
+            // show buttons
+            if (document.getElementById('save_mode_button')){
+                document.getElementById('save_mode_button').classList.remove('display_none')
+            }
+            if (document.getElementById('update_mode_button')){
+                document.getElementById('update_mode_button').classList.remove('display_none')
+            }
+            if (document.getElementById('apply_changed_mode_button')){
+                document.getElementById('apply_changed_mode_button').classList.remove('display_none')
+            }
+        } else {
+            // hide buttons
+            if (document.getElementById('save_mode_button')){
+                document.getElementById('save_mode_button').classList.add('display_none')
+            }
+            if (document.getElementById('update_mode_button')){
+                document.getElementById('update_mode_button').classList.add('display_none')
+            }
+            if (document.getElementById('apply_changed_mode_button')){
+                document.getElementById('apply_changed_mode_button').classList.add('display_none')
+            }
+        }
     }
 
     apply(){

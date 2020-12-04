@@ -52,6 +52,11 @@ let Popup = class {
                 } else {
                     var id = null
                 }
+                if ('hide' in self.buttons[i] && self.buttons[i]['hide']==true){
+                    var hide = true
+                } else {
+                    var hide = false
+                }
                 var text = self.buttons[i]['text']
                 var onclick = self.buttons[i]['onclick']
 
@@ -67,6 +72,12 @@ let Popup = class {
                 if (icon){
                     buttons+=' with_icon '+icon
                 }
+
+                // if button is supposed to be hidden - hide by default
+                if (hide==true){
+                    buttons+=' display_none'
+                }
+                
                 buttons+='"'
                 
                 if (id){

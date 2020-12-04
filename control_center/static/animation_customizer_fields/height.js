@@ -20,6 +20,9 @@ let HeightCustomizer = class {
     change_height_select(new_selected){
         animation_customizer.updated_animation['customization']['max_height'] = new_selected
 
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
+
         // TODO update preview animation
     }
 }

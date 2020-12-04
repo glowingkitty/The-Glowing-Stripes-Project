@@ -130,6 +130,9 @@ let TimingCustomizer = class {
     change_duration(new_duration){
         this.duration_ms = new_duration
 
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
+
         // TODO update preview animation
     }
 

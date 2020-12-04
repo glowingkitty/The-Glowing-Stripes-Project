@@ -204,6 +204,9 @@ let ColorsCustomizer = class {
         // convert hex into R,G,B values and save
         animation_customizer.updated_animation['customization']['rgb_colors'][num_in_list] = this.convert_hex_to_rgb(new_color_hex)
 
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
+
         // TODO update preview animation
     }
 
@@ -224,6 +227,9 @@ let ColorsCustomizer = class {
         }
 
         animation_customizer.updated_animation['customization']['num_random_colors'] = new_num
+
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
     }
 }
 

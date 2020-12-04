@@ -19,6 +19,9 @@ let SectionsCustomizer = class {
 
     change_section_select(){
         // TODO detect state change (checked/not checked) and save it for correct field
+
+        // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+        animation_customizer.check_for_changes()
     }
 }
 
