@@ -2,6 +2,7 @@ import json
 import os
 import random
 from os import name
+from random import randint
 
 dirname = os.path.dirname(__file__)
 
