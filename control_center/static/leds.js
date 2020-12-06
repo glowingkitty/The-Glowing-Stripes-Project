@@ -106,6 +106,16 @@ let LEDstrip = class {
                     'new_animation': self.unsubmitted_mode_change
                 }]
             })
+            .then(function (response) {
+                var processed_led_strips = response.data['processed_led_strips']
+                
+                // update led strips with the new animation
+                var i;
+                for (i = 0; i < processed_led_strips.length; i++) {
+                    var id = processed_led_strips[i]['id']
+                    led_strips[id].last_animation = processed_led_strips[i]['new_animation']
+                }
+            })
         
         this.last_animation=this.unsubmitted_mode_change
         this.undo_changes()

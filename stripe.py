@@ -152,8 +152,9 @@ class Stripe():
         selected_animation = LEDanimations().get_animation(id)
 
         # save random_rgb_colors, to show correct colors in frontend as well
-        self.current_animation_rgb_colors = selected_animation['customization'][
-            'rgb_colors'] if 'customization' in selected_animation and 'rgb_colors' in selected_animation['customization'] else None
+        if 'customization' in selected_animation and 'rgb_colors' in selected_animation['customization']:
+            self.current_animation_rgb_colors = selected_animation['customization']['rgb_colors']
+            customization['rgb_colors'] = selected_animation['customization']['rgb_colors']
 
         # play animation
         if self.current_animation:

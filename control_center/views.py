@@ -105,43 +105,50 @@ class Host:
         # /mode
         if request.method == 'POST':
             print('Updating LED strips...')
+            processed_led_strips = []
+
             # process post request
             changes = json.loads(request.body.decode('utf-8'))['changes']
             for change in changes:
                 for id in change['led_strip_ids']:
-                    # update current_animation of signed up LED strips
-                    # save new animation to currently connected LED strips
-                    for strip in connected_led_strips:
-                        if strip['id'] == id:
-                            if change['new_animation']['id'] == '1111111111':
-                                print('Skipped saving "off"')
-                            elif change['new_animation']['id'] == '0000000000':
-                                print('Skipped saving "Setup mode"')
-                            else:
-                                # replace "random" in "customization" field "rgb_color(s)" with random R,G,B values
-                                if 'rgb_colors' in change['new_animation']['customization'] and change['new_animation']['customization']['rgb_colors'] == 'random':
-                                    change['new_animation']['customization']['rgb_colors'] = [[randint(0, 255), randint(0, 255), randint(
-                                        0, 255)] for x in range(0, change['new_animation']['customization']['num_random_colors'])]
-
-                                # TODO make sure customization infos from led_animations are both shown in frontend and processed by customizer
-
-                                strip['last_animation'] = change['new_animation']
-                                print('Strip {} ({}) has a new animation: {}'.format(
-                                    strip['name'], strip['id'], change['new_animation']['name']))
-                            break
-
                     # replace IDs in request with current IPs & send requests
                     ip_address = Helper.get_strip_ip_address(id)
-                    if ip_address:
-                        # send new status to LED strips via /mode POST request
-                        request = requests.post(
-                            'http://'+ip_address+'/get_mode', json={
-                                'new_animation': change['new_animation']
-                            })
-                        if request.status_code == 200:
-                            print('Updated mode for {}'.format(id))
 
-            return HttpResponse(status=200)
+                    # send new status to LED strips via /mode POST request
+                    response = requests.post(
+                        'http://'+ip_address+'/get_mode', json={
+                            'new_animation': change['new_animation']
+                        })
+                    # collect all led strips with their new_animation
+                    if response.status_code == 200:
+                        response_json = response.json()
+                        processed_led_strips.append(
+                            {
+                                'id': id,
+                                'new_animation': response_json['new_animation']
+                            }
+                        )
+                        print('Updated mode for {}'.format(id))
+
+                        # update current_animation of signed up LED strips
+                        # save new animation to currently connected LED strips
+                        for strip in connected_led_strips:
+                            if strip['id'] == id:
+                                if change['new_animation']['id'] == '1111111111':
+                                    print('Skipped saving "off"')
+                                elif change['new_animation']['id'] == '0000000000':
+                                    print('Skipped saving "Setup mode"')
+                                else:
+                                    strip['last_animation'] = response_json[
+                                        'new_animation']
+                                    print('Strip {} ({}) has a new animation: {}'.format(
+                                        strip['name'], strip['id'], response_json['new_animation']['name']))
+                                break
+
+            # return LED strips with the new animation and details like random generated colors - to update frontend correctly
+            return JsonResponse(data={
+                'processed_led_strips': processed_led_strips
+            })
 
     @csrf_exempt
     def restore_all_led_strips(request):
@@ -341,15 +348,22 @@ class Stripe:
         data = json.loads(request.body.decode('utf-8'))
         new_animation = data['new_animation']
 
-        # save new animation to stripe config
-        led_strip.update_last_animation(new_animation)
-
         led_strip.glow(
             id=new_animation['id'],
             based_on=new_animation['based_on'] if 'based_on' in new_animation else None,
             customization=new_animation['customization'] if 'customization' in new_animation else None
         )
-        return HttpResponse(status=200)
+        # update new_animation with (random or manual) rgb_colors, if they exist
+        if 'customization' in new_animation and 'rgb_colors' in new_animation['customization']:
+            new_animation['customization']['rgb_colors'] = led_strip.current_animation_rgb_colors
+
+        # save new animation to stripe config
+        led_strip.update_last_animation(new_animation)
+
+        # return updated led strip with new_animation
+        return JsonResponse(data={
+            'new_animation': new_animation
+        })
 
     @csrf_exempt
     def restore_previous_mode(request):
