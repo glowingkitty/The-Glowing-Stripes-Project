@@ -47,10 +47,7 @@ let CustomizerField = class {
                 // generate steps in between
                 var step = options_list_start
                 var i
-                options_list = [{
-                    'name':'50 ms',
-                    'value':50
-                }]
+                options_list = []
                 for (i = 1; step<=options_list_end; i++) {
                     options_list[i] = {
                         'name':step.toString()+' ms',
@@ -96,17 +93,21 @@ let CustomizerField = class {
     get_select_field(){
         this.add_name_div()
 
+        console.log(this.name)
+        console.log(this.options_list)
         if (this.options_list){
             // generate select field
             this.html+='<select onchange="'+this.onchange_event+'" class="customize_field_selector">'
             var i;
             for (i = 0; i < this.options_list.length; i++) {
-                this.html += '<option value="' + this.options_list[i]['value'] + '"'
-                // mark as selected if thats the case 
-                if (this.options_list[i]['value'] == this.selected_option) {
-                    this.html += ' selected'
+                if (i in this.options_list){
+                    this.html += '<option value="' + this.options_list[i]['value'] + '"'
+                    // mark as selected if thats the case 
+                    if (this.options_list[i]['value'] == this.selected_option) {
+                        this.html += ' selected'
+                    }
+                    this.html += '>'+this.options_list[i]['name'] + '</option>'
                 }
-                this.html += '>'+this.options_list[i]['name'] + '</option>'
             }
             this.html+='</select>'
 

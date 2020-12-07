@@ -8,7 +8,7 @@ let TimingCustomizer = class {
     }
 
     get pause_ms(){
-        if ('pause_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_ms']){
+        if ('pause_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_ms']!=null){
             return animation_customizer.updated_animation['customization']['pause_ms']
         } else {
             return null
@@ -16,7 +16,7 @@ let TimingCustomizer = class {
     }
 
     get pause_a_ms(){
-        if ('pause_a_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_a_ms']){
+        if ('pause_a_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_a_ms']!=null){
             return animation_customizer.updated_animation['customization']['pause_a_ms']
         } else {
             return null
@@ -24,7 +24,7 @@ let TimingCustomizer = class {
     }
 
     get pause_b_ms(){
-        if ('pause_b_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_b_ms']){
+        if ('pause_b_ms' in animation_customizer.updated_animation['customization'] && animation_customizer.updated_animation['customization']['pause_b_ms']!=null){
             return animation_customizer.updated_animation['customization']['pause_b_ms']
         } else {
             return null
@@ -99,6 +99,7 @@ let TimingCustomizer = class {
         this.subfield_html += this.duration_ms_field.get_select_field()
 
         if (this.pause_ms!=null){
+            console.log('Start generating pause_ms')
             this.pause_ms_field = new CustomizerField(
                 'Pause',
                 '0ms-10000ms',
@@ -109,6 +110,7 @@ let TimingCustomizer = class {
         }
 
         if (this.pause_a_ms!=null){
+            console.log('Start generating pause_a_ms')
             this.pause_a_ms_field = new CustomizerField(
                 'Pause A',
                 '0ms-10000ms',
@@ -119,6 +121,7 @@ let TimingCustomizer = class {
         }
 
         if (this.pause_b_ms!=null){
+            console.log('Start generating pause_b_ms')
             this.pause_b_ms_field = new CustomizerField(
                 'Pause B',
                 '0ms-10000ms',
