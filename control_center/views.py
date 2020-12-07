@@ -130,6 +130,11 @@ class Host:
                         )
                         print('Updated mode for {}'.format(id))
 
+                        # update animation in connected_led_strips
+                        for entry in connected_led_strips:
+                            if entry['id'] == id:
+                                entry['last_animation'] = response_json['new_animation']
+
                         # update current_animation of signed up LED strips
                         # save new animation to currently connected LED strips
                         for strip in connected_led_strips:

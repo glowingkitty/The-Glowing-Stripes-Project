@@ -4,6 +4,7 @@ import random
 import signal
 import subprocess
 import time
+from random import randint
 
 import requests
 
@@ -151,10 +152,11 @@ class Stripe():
         # get animation with all the details
         selected_animation = LEDanimations().get_animation(id)
 
-        # save random_rgb_colors, to show correct colors in frontend as well
-        if 'customization' in selected_animation and 'rgb_colors' in selected_animation['customization']:
-            self.current_animation_rgb_colors = selected_animation['customization']['rgb_colors']
-            customization['rgb_colors'] = selected_animation['customization']['rgb_colors']
+        # replace "random" string with random generated colors
+        if 'colors_selected' in customization and customization['colors_selected'] == 'random':
+            customization['rgb_colors'] = [[randint(0, 255), randint(0, 255), randint(
+                0, 255)] for x in range(0, customization['num_random_colors'])]
+            self.current_animation_rgb_colors = customization['rgb_colors']
 
         # play animation
         if self.current_animation:
