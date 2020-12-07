@@ -63,4 +63,3 @@ let DirectionCustomizer = class {
     }
 }
 
-direction_customizer = new DirectionCustomizer()

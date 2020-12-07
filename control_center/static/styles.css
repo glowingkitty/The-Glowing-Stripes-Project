@@ -213,6 +213,12 @@
     margin-bottom: 30px;
 }
 
+.checkbox.block {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .checkbox.with_icon {
     padding-left: 54px;
     background-repeat: no-repeat !important;

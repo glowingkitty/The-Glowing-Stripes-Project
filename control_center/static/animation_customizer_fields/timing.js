@@ -265,4 +265,3 @@ let TimingCustomizer = class {
     }
 }
 
-timing_customizer = new TimingCustomizer()

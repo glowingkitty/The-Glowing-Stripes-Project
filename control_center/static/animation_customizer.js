@@ -219,4 +219,14 @@ let AnimationCustomizer = class {
     }
 }
 
-animation_customizer = new AnimationCustomizer()
+
+
+setTimeout(function(){
+    var brightness_customizer = new BrightnessCustomizer()
+    var colors_customizer = new ColorsCustomizer()
+    var height_customizer = new HeightCustomizer()
+    var direction_customizer = new DirectionCustomizer()
+    var sections_customizer = new SectionsCustomizer()
+    var timing_customizer = new TimingCustomizer()
+    var animation_customizer = new AnimationCustomizer()
+    },200)

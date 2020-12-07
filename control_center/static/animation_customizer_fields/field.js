@@ -93,8 +93,6 @@ let CustomizerField = class {
     get_select_field(){
         this.add_name_div()
 
-        console.log(this.name)
-        console.log(this.options_list)
         if (this.options_list){
             // generate select field
             this.html+='<select onchange="'+this.onchange_event+'" class="customize_field_selector">'
@@ -131,14 +129,16 @@ let CustomizerField = class {
         // generate checkboxes
         if (this.options_list){
             var i;
-            for (i = 0; i < this.options_list.length; i++) {
-                this.html += '<label class="checkbox">'+this.options_list[i]['name']
+            this.html += '<div class="sections_block">'
+            for (i = this.options_list.length-1; i >=0; i--) {
+                this.html += '<label class="checkbox block">'+this.options_list[i]
                 this.html += '<input onchange="'+this.onchange_event+'" type="checkbox"'
-                if (this.options_list[i]['checked']==true) {
+                if (this.selected_option.indexOf(this.options_list[i]) >= 0) {
                     this.html += ' checked="checked"'
                 }
                 this.html += '><span class="checkmark"></span></label>'
             }
+            this.html += '</div>'
 
             // generate field under checkbox field
             if (this.sub_field_html){

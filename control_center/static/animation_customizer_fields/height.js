@@ -28,4 +28,3 @@ let HeightCustomizer = class {
     }
 }
 
-height_customizer = new HeightCustomizer()
