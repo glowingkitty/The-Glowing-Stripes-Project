@@ -88,6 +88,7 @@
                     "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_ms":200,
+                    "sections_selected":"all",
                     "sections":"all"
                 }
             },
@@ -103,6 +104,7 @@
                     "timing_selected":"manual",
                     "duration_ms":200,
                     "pause_ms":200,
+                    "sections_selected":"all",
                     "sections":"all"
                 }
             }

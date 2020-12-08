@@ -110,7 +110,7 @@ let CustomizerField = class {
             this.html+='</div>';
 
             // generate field under select field
-            if (this.sub_field_html){
+            if (this.sub_field_html!=null){
                 this.add_subfield();
             }
 
