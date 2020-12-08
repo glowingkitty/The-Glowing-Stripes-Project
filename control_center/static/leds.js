@@ -123,15 +123,15 @@ let LEDstrip = class {
 
     undo_changes(){
         // reset selected animation to current animation
-        var sel = document.getElementById('mode_selector');
-        var opts = sel.options;
-        for (var opt, j = 0; opt == opts[j]; j++) {
-            if (opt.value == this.last_animation.id) {
-            sel.selectedIndex = j;
-            break;
+        var mode_selector = document.getElementById('mode_selector');
+        var options = mode_selector.options;
+        for (var counter = 0;true;counter++){
+            if (options[counter].value==this.last_animation.id){
+                mode_selector.selectedIndex=counter;
+                break;
             }
         }
-
+        
         this.unsubmitted_mode_change = {
             'id':null,
             'name':null,
