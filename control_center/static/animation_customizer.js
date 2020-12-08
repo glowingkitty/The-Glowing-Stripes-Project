@@ -1,8 +1,8 @@
 let AnimationCustomizer = class {
     constructor() {
-        this.animation_id = null
-        this.animation_custom = false
-        this.animation_fields = null
+        this.animation_id = null;
+        this.animation_custom = false;
+        this.animation_fields = null;
         this.customizable_fields = {
             '9jwnqn8v3i':{
                 'name':'Color',
@@ -56,42 +56,42 @@ let AnimationCustomizer = class {
                     'sections'
                 ]
             }
-        }
+        };
     }
 
     open(){
         // show customizing fields, based on animation type 
-        this.animation_id = led_strips[selected_led_strip_id].last_animation['id']
-        this.animation_name = led_strips[selected_led_strip_id].last_animation['name']
-        this.animation_custom = led_strips[selected_led_strip_id].last_animation['based_on']?true:false
-        this.animation_fields= this.customizable_fields[this.animation_id]['fields']
+        this.animation_id = led_strips[selected_led_strip_id].last_animation.id;
+        this.animation_name = led_strips[selected_led_strip_id].last_animation.name;
+        this.animation_custom = led_strips[selected_led_strip_id].last_animation.based_on?true:false;
+        this.animation_fields= this.customizable_fields[this.animation_id].fields;
 
         // save current animation to make it easy to detect changes
-        this.original_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation))
-        this.updated_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation))
+        this.original_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation));
+        this.updated_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation));
 
         // update popup headline
-        popup.header = 'Customize "'+this.animation_name+'"'
-        popup.message = ''
+        popup.header = 'Customize "'+this.animation_name+'"';
+        popup.message = '';
 
         // add fields
         if (this.animation_fields.indexOf('colors') >= 0){
-            popup.message += colors_customizer.get_colors_field(this.animation_id)
+            popup.message += colors_customizer.get_colors_field(this.animation_id);
         }
         if (this.animation_fields.indexOf('timing') >= 0){
-            popup.message += timing_customizer.get_timing_field()
+            popup.message += timing_customizer.get_timing_field();
         }
         if (this.animation_fields.indexOf('direction') >= 0){
-            popup.message += direction_customizer.get_direction_field()
+            popup.message += direction_customizer.get_direction_field();
         }
         if (this.animation_fields.indexOf('brightness') >= 0){
-            popup.message += brightness_customizer.get_brightness_field()
+            popup.message += brightness_customizer.get_brightness_field();
         }
         if (this.animation_fields.indexOf('height') >= 0){
-            popup.message += height_customizer.get_height_field()
+            popup.message += height_customizer.get_height_field();
         }
         if (this.animation_fields.indexOf('sections') >= 0){
-            popup.message += sections_customizer.get_sections_field()
+            popup.message += sections_customizer.get_sections_field();
         }
             
 
@@ -104,7 +104,7 @@ let AnimationCustomizer = class {
                 'icon':'save',
                 'text':'Save new',
                 'onclick':'animation_customizer.open_save_field()'
-            }]
+            }];
 
 
         // if a custom mode is beeing updated, add update button
@@ -116,7 +116,7 @@ let AnimationCustomizer = class {
                 'icon':'sync',
                 'text':'Update',
                 'onclick':'animation_customizer.update_mode()'
-            })
+            });
         }
 
         popup.buttons.push(
@@ -128,36 +128,36 @@ let AnimationCustomizer = class {
                 'text':'Apply',
                 'onclick':'animation_customizer.apply()'
             }
-        )
+        );
 
         // make popup background non transparent
-        document.getElementById('popup').style.background = 'rgba(0,0,0,1)'
+        document.getElementById('popup').style.background = 'rgba(0,0,0,1)';
 
         // limit max width
-        document.getElementById('popup_content').style.maxWidth ='400px'
+        document.getElementById('popup_content').style.maxWidth ='400px';
 
         // get first led strip preview and place it in popup placeholder on the left
-        document.getElementById('customized_led_animation_preview').classList.remove('display_none')
-        document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id+'_led_strip_parts').innerHTML
+        document.getElementById('customized_led_animation_preview').classList.remove('display_none');
+        document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id+'_led_strip_parts').innerHTML;
 
         // show popup
-        popup.show()
+        popup.show();
         
     }
 
     close(){
         // make popup background partial trasparent again
-        document.getElementById('popup').style.removeProperty('background')
+        document.getElementById('popup').style.removeProperty('background');
 
-        document.getElementById('popup_content').style.removeProperty('max-width')
+        document.getElementById('popup_content').style.removeProperty('max-width');
 
-        document.getElementById('customized_led_animation_preview').classList.add('display_none')
-        document.getElementById('customized_led_animation_preview_stripes').innerHTML=''
+        document.getElementById('customized_led_animation_preview').classList.add('display_none');
+        document.getElementById('customized_led_animation_preview_stripes').innerHTML='';
     }
 
     get has_changed(){
         // see if animation settings have been changed in comparison to original
-        return JSON.stringify(this.original_animation['customization'])!=JSON.stringify(this.updated_animation['customization'])
+        return JSON.stringify(this.original_animation.customization)!=JSON.stringify(this.updated_animation.customization);
     }
 
     check_for_changes(){
@@ -165,39 +165,39 @@ let AnimationCustomizer = class {
         if (this.has_changed==true){
             // show buttons
             if (document.getElementById('save_mode_button')){
-                document.getElementById('save_mode_button').classList.remove('display_none')
+                document.getElementById('save_mode_button').classList.remove('display_none');
             }
             if (document.getElementById('update_mode_button')){
-                document.getElementById('update_mode_button').classList.remove('display_none')
+                document.getElementById('update_mode_button').classList.remove('display_none');
             }
             if (document.getElementById('apply_changed_mode_button')){
-                document.getElementById('apply_changed_mode_button').classList.remove('display_none')
+                document.getElementById('apply_changed_mode_button').classList.remove('display_none');
             }
         } else {
             // hide buttons
             if (document.getElementById('save_mode_button')){
-                document.getElementById('save_mode_button').classList.add('display_none')
+                document.getElementById('save_mode_button').classList.add('display_none');
             }
             if (document.getElementById('update_mode_button')){
-                document.getElementById('update_mode_button').classList.add('display_none')
+                document.getElementById('update_mode_button').classList.add('display_none');
             }
             if (document.getElementById('apply_changed_mode_button')){
-                document.getElementById('apply_changed_mode_button').classList.add('display_none')
+                document.getElementById('apply_changed_mode_button').classList.add('display_none');
             }
         }
     }
 
     apply(){
         // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
-        led_strips[selected_led_strip_id].unsubmitted_mode_change = led_strips[selected_led_strip_id].last_animation
-        led_strips[selected_led_strip_id].unsubmitted_mode_change['customization'] = this.updated_animation['customization']
-        led_strips[selected_led_strip_id].apply_changes()
+        led_strips[selected_led_strip_id].unsubmitted_mode_change = led_strips[selected_led_strip_id].last_animation;
+        led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = this.updated_animation.customization;
+        led_strips[selected_led_strip_id].apply_changes();
         
         // update original_animation
-        this.original_animation['customization'] = this.updated_animation['customization']
+        this.original_animation.customization = this.updated_animation.customization;
 
         // hide interface
-        popup.hide()
+        popup.hide();
     }
 
 
@@ -217,16 +217,8 @@ let AnimationCustomizer = class {
     back_to_edit(){
         // TODO
     }
-}
+};
 
 
+var animation_customizer = new AnimationCustomizer();
 
-setTimeout(function(){
-    var brightness_customizer = new BrightnessCustomizer()
-    var colors_customizer = new ColorsCustomizer()
-    var height_customizer = new HeightCustomizer()
-    var direction_customizer = new DirectionCustomizer()
-    var sections_customizer = new SectionsCustomizer()
-    var timing_customizer = new TimingCustomizer()
-    var animation_customizer = new AnimationCustomizer()
-    },200)

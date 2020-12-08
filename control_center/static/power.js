@@ -1,7 +1,7 @@
 let Power = class {
     show_options(){
-        popup.header = 'Power options'
-        popup.message = 'What do you want to do?'
+        popup.header = 'Power options';
+        popup.message = 'What do you want to do?';
         popup.buttons = [
             {
                 'style':'secondary',
@@ -24,40 +24,40 @@ let Power = class {
                 'text':'Sleep',
                 'onclick':'power.sleep()'
             }
-        ]
-        popup.show()
+        ];
+        popup.show();
     }
 
     shutdown(){
-        popup.header = 'Shut Down'
-        popup.message = 'Shutting down all connected LED strips. Please wait...'
-        popup.buttons = []
-        popup.show()
+        popup.header = 'Shut Down';
+        popup.message = 'Shutting down all connected LED strips. Please wait...';
+        popup.buttons = [];
+        popup.show();
         axios
             .post("/shutdown_all_led_strips")
             .catch(function(error){
-                console.log('Shut Down successfull')
-                connection_check.show_disconnected_warning('power_off')
-            })
+                console.log('Shut Down successfull');
+                connection_check.show_disconnected_warning('power_off');
+            });
     }
 
     restart(){
-        popup.header = 'Restart'
-        popup.message = 'Restarting all connected LED strips. Please wait...'
-        popup.buttons = []
-        popup.show()
+        popup.header = 'Restart';
+        popup.message = 'Restarting all connected LED strips. Please wait...';
+        popup.buttons = [];
+        popup.show();
         axios
             .post("/restart_all_led_strips")
             .catch(function(error){
-                console.log('Restart successfull')
-                connection_check.show_disconnected_warning('restart')
-            })
+                console.log('Restart successfull');
+                connection_check.show_disconnected_warning('restart');
+            });
     }
 
     sleep(){
         // TODO
-        console.log('Turn LED strips off, without turning Raspberry Pi off')
+        console.log('Turn LED strips off, without turning Raspberry Pi off');
     }
-}
+};
 
-var power = new Power()
+var power = new Power();

@@ -3,111 +3,111 @@ let Popup = class {
         this.header = header;
         this.message = message;
         this.buttons = buttons;
+        this.i=0;
         // buttons example = [{"style":"primary","text":"Continue","icon":"sync","onclick":"control.next_page()"}]
     }
 
     get popup_active() {
         if (document.getElementById('popup').classList.contains('display_none')){
-            return false
+            return false;
         }
         else {
-            return true
+            return true;
         }
     }
 
     show() {
         // make sure animation customizer is hidden
-        animation_customizer.close()
+        animation_customizer.close();
 
         // if another popup is open: hide that popup, then continue with showing new popup
         if (this.popup_active){
-            this.hide()
+            this.hide();
         }
 
-        var self = this
+        var self = this;
         setTimeout(function(){
             // overwrite headline
-            document.getElementById('popup_headline').innerHTML = self.header
+            document.getElementById('popup_headline').innerHTML = self.header;
 
             // overwrite message
-            document.getElementById('popup_message').innerHTML = self.message
+            document.getElementById('popup_message').innerHTML = self.message;
             
             // overwrite buttons
-            var i;
-            var buttons = ''
-            for (i = 0; i < self.buttons.length; i++) {
+            var buttons = '';
+            for (this.i = 0; this.i < self.buttons.length; this.i++) {
                 // get button values
-                if ('style' in self.buttons[i] && self.buttons[i]['style']){
-                    var style = self.buttons[i]['style']
+                if ('style' in self.buttons[this.i] && self.buttons[this.i].style){
+                    this.style = self.buttons[this.i].style;
                 } else {
-                    var style = 'primary'
+                    this.style = 'primary';
                 }
-                if ('icon' in self.buttons[i] && self.buttons[i]['icon']){
-                    var icon = self.buttons[i]['icon']
+                if ('icon' in self.buttons[this.i] && self.buttons[this.i].icon){
+                    this.icon = self.buttons[this.i].icon;
                 } else {
-                    var icon = null
+                    this.icon = null;
                 }
-                if ('id' in self.buttons[i] && self.buttons[i]['id']){
-                    var id = self.buttons[i]['id']
+                if ('id' in self.buttons[this.i] && self.buttons[this.i].id){
+                    this.id = self.buttons[this.i].id;
                 } else {
-                    var id = null
+                    this.id = null;
                 }
-                if ('hide' in self.buttons[i] && self.buttons[i]['hide']==true){
-                    var hide = true
+                if ('hide' in self.buttons[this.i] && self.buttons[this.i].hide==true){
+                    this.hide = true;
                 } else {
-                    var hide = false
+                    this.hide = false;
                 }
-                var text = self.buttons[i]['text']
-                var onclick = self.buttons[i]['onclick']
+                var text = self.buttons[this.i].text;
+                var onclick = self.buttons[this.i].onclick;
 
                 // add button
-                buttons+='<a class="cta '
+                buttons+='<a class="cta ';
 
-                if (style=='primary'){
-                    buttons+='primary'
+                if (this.style=='primary'){
+                    buttons+='primary';
                 } else{
-                    buttons+='darkmode'
+                    buttons+='darkmode';
                 }
 
-                if (icon){
-                    buttons+=' with_icon '+icon
+                if (this.icon){
+                    buttons+=' with_icon '+this.icon;
                 }
 
                 // if button is supposed to be hidden - hide by default
-                if (hide==true){
-                    buttons+=' display_none'
+                if (this.hide==true){
+                    buttons+=' display_none';
                 }
                 
-                buttons+='"'
+                buttons+='"';
                 
-                if (id){
-                    buttons+=' id="'+id+'"'
+                if (this.id){
+                    buttons+=' id="'+this.id+'"';
                 }
 
-                buttons+=' onclick="'+onclick+'">'
+                buttons+=' onclick="'+onclick+'">';
 
-                buttons+=text
-                buttons+='</a>'
+                buttons+=text;
+                buttons+='</a>';
             }
-            document.getElementById('popup_buttons').innerHTML = buttons
+            document.getElementById('popup_buttons').innerHTML = buttons;
 
             // make popup visible
-            document.getElementById('popup').classList.remove('display_none')
-            document.getElementById('popup').classList.remove('opacity_null')
+            document.getElementById('popup').classList.remove('display_none');
+            document.getElementById('popup').classList.remove('opacity_null');
 
             // prevent scrolling of background (body)
-            document.getElementsByTagName('body')[0].style.overflow='hidden'
+            document.getElementsByTagName('body')[0].style.overflow='hidden';
 
-        },200)
+        },200);
     }
 
     hide(){
-        document.getElementsByTagName('body')[0].style.removeProperty('overflow')
-        document.getElementById('popup').classList.add('opacity_null')
+        document.getElementsByTagName('body')[0].style.removeProperty('overflow');
+        document.getElementById('popup').classList.add('opacity_null');
         setTimeout(function(){
-            document.getElementById('popup').classList.add('display_none')
-        },200)
+            document.getElementById('popup').classList.add('display_none');
+        },200);
     }
-}
+};
 
-var popup = new Popup()
+var popup = new Popup();
