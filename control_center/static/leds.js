@@ -74,7 +74,7 @@ let LEDstrip = class {
     }
 
     check_mode_changed(){
-        if (document.getElementById('mode_selector').value!=this.last_animation.id){
+        if (document.getElementById('mode_selector').value!=this.last_animation.id || document.getElementById('mode_selector').value=='1111111111'){
             // save values of new animation
             this.unsubmitted_mode_change.id = document.getElementById('mode_selector').selectedOptions[0].value;
             this.unsubmitted_mode_change.name = document.getElementById('mode_selector').selectedOptions[0].text;

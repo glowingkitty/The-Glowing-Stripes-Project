@@ -189,7 +189,7 @@ let Control = class {
                         for (counter = 0; counter < num_of_default_animations; counter++) {
                             // exclude Setup mode
                             if (led_animations.led_animations.default[counter].id != "0000000000") {
-                                control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'')+'" value="' + led_animations.led_animations.default[counter].id + '"';
+                                control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}')+'" value="' + led_animations.led_animations.default[counter].id + '"';
                                 // mark mode as selected if thats the case in "current mix"
                                 if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.default[counter].id) {
                                     control_object.main_window_new_html += ' selected';

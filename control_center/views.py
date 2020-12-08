@@ -139,9 +139,7 @@ class Host:
                         # save new animation to currently connected LED strips
                         for strip in connected_led_strips:
                             if strip['id'] == id:
-                                if change['new_animation']['id'] == '1111111111':
-                                    print('Skipped saving "off"')
-                                elif change['new_animation']['id'] == '0000000000':
+                                if change['new_animation']['id'] == '0000000000':
                                     print('Skipped saving "Setup mode"')
                                 else:
                                     strip['last_animation'] = response_json[
