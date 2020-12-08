@@ -164,7 +164,7 @@ let Control = class {
 
 
                         //// show last used mode for all LED strips or mode of last selected led strip (depending on current mix)
-                        control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips[\''+led_strips[first_led_strip_id].id+'\.check_mode_changed()" data-current-led-strip-id="'+led_strips[first_led_strip_id].id+'" class="mode_selector">';
+                        control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips.'+led_strips[first_led_strip_id].id+'.check_mode_changed()" data-current-led-strip-id="'+led_strips[first_led_strip_id].id+'" class="mode_selector">';
 
                         //// show all custom modes
                         control_object.main_window_new_html += '<optgroup label="Custom animations">';
@@ -239,8 +239,8 @@ let Control = class {
 
                         // show undo and apply button (hidden, only visible if change is made)
                         control_object.main_window_new_html += '<div class="fixed_bottom_right">';
-                        control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips[\''+first_led_strip_id+'\.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
-                        control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips[\''+first_led_strip_id+'\.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
+                        control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+first_led_strip_id+'.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
+                        control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips.'+first_led_strip_id+'.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
                         control_object.main_window_new_html += '</div>';
 
                         control_object.main_window_new_html += '</div>';

@@ -8,6 +8,7 @@ let SectionsCustomizer = class {
         for (this.i=1;this.i<=led_strips[selected_led_strip_id].num_of_parts;this.i++){
             this.sections_list.push(`Section ${this.i}`);
         }
+        return this.sections_list;
     }
     
     get default_selected(){
@@ -35,13 +36,12 @@ let SectionsCustomizer = class {
 
     change_section_select(checkbox){
         var section_name = checkbox.parentElement.innerText;
-        var checked = checkbox.value=='on'? true : false;
-        
-        if (checked==false){
+        // replace 'all' with real sections
+        if (animation_customizer.updated_animation.customization.sections=='all'){
+            animation_customizer.updated_animation.customization.sections = this.sections;
+        }
+        if (checkbox.checked==false){
             // remove from list if now unchecked 
-            if (animation_customizer.updated_animation.customization.sections!='all'){
-                animation_customizer.updated_animation.customization.sections = this.sections;
-            }
             animation_customizer.updated_animation.customization.sections = animation_customizer.updated_animation.customization.sections.filter(section => section!=section_name);
 
         } else {
