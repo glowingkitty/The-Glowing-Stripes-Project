@@ -76,7 +76,7 @@ class Stripe():
         return ''.join([random.choice(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) for n in range(10)])
 
     def update_last_animation(self, animation):
-        if animation['id'] == '0' or animation['id'] == '0000000000':
+        if animation['id'] == '0000000000':
             print('Skipped saving "Setup mode"')
         else:
             # save name to config.json

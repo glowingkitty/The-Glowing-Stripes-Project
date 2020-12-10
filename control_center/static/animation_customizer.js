@@ -60,15 +60,22 @@ let AnimationCustomizer = class {
     }
 
     open(){
+        // use details from select field/select options, not "last_animation" - to enable changing modes which aren't active at the moment
         // show customizing fields, based on animation type 
-        this.animation_id = led_strips[selected_led_strip_id].last_animation.id;
-        this.animation_name = led_strips[selected_led_strip_id].last_animation.name;
-        this.animation_custom = led_strips[selected_led_strip_id].last_animation.based_on?true:false;
+        this.animation_id = document.getElementById('mode_selector').selectedOptions[0].value;
+        this.animation_name = document.getElementById('mode_selector').selectedOptions[0].text;
+        this.animation_custom = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on')?true:false;
         this.animation_fields= this.customizable_fields[this.animation_id].fields;
+        this.animation = {
+            'id':this.animation_id,
+            'name':this.animation_name,
+            'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+            'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'))
+        };
 
         // save current animation to make it easy to detect changes
-        this.original_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation));
-        this.updated_animation = JSON.parse(JSON.stringify(led_strips[selected_led_strip_id].last_animation));
+        this.original_animation = JSON.parse(JSON.stringify(this.animation));
+        this.updated_animation = JSON.parse(JSON.stringify(this.animation));
 
         // update popup headline
         popup.header = 'Customize "'+this.animation_name+'"';
@@ -189,7 +196,7 @@ let AnimationCustomizer = class {
 
     apply(){
         // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
-        led_strips[selected_led_strip_id].unsubmitted_mode_change = led_strips[selected_led_strip_id].last_animation;
+        led_strips[selected_led_strip_id].unsubmitted_mode_change = this.original_animation;
         led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = this.updated_animation.customization;
         led_strips[selected_led_strip_id].apply_changes();
         

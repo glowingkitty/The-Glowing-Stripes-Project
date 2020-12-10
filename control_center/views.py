@@ -122,31 +122,31 @@ class Host:
                     # collect all led strips with their new_animation
                     if response.status_code == 200:
                         response_json = response.json()
-                        processed_led_strips.append(
-                            {
-                                'id': id,
-                                'new_animation': response_json['new_animation']
-                            }
-                        )
-                        print('Updated mode for {}'.format(id))
 
-                        # update animation in connected_led_strips
-                        for entry in connected_led_strips:
-                            if entry['id'] == id:
-                                entry['last_animation'] = response_json['new_animation']
+                        # make sure to skip setup_mode
+                        if response_json['new_animation']['id'] != '0000000000':
+                            processed_led_strips.append(
+                                {
+                                    'id': id,
+                                    'new_animation': response_json['new_animation']
+                                }
+                            )
+                            print('Updated mode for {}'.format(id))
 
-                        # update current_animation of signed up LED strips
-                        # save new animation to currently connected LED strips
-                        for strip in connected_led_strips:
-                            if strip['id'] == id:
-                                if change['new_animation']['id'] == '0000000000':
-                                    print('Skipped saving "Setup mode"')
-                                else:
+                            # update animation in connected_led_strips
+                            for entry in connected_led_strips:
+                                if entry['id'] == id:
+                                    entry['last_animation'] = response_json['new_animation']
+
+                            # update current_animation of signed up LED strips
+                            # save new animation to currently connected LED strips
+                            for strip in connected_led_strips:
+                                if strip['id'] == id:
                                     strip['last_animation'] = response_json[
                                         'new_animation']
                                     print('Strip {} ({}) has a new animation: {}'.format(
                                         strip['name'], strip['id'], response_json['new_animation']['name']))
-                                break
+                                    break
 
             # return LED strips with the new animation and details like random generated colors - to update frontend correctly
             return JsonResponse(data={
