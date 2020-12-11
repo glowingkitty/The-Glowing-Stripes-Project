@@ -74,7 +74,25 @@ class Settings:
 
     def led_animations(request):
         with open(os.path.join(os.path.dirname(dirname), 'led_animations.json')) as json_file:
-            return JsonResponse(data=json.load(json_file))
+            # add "unsaved_customization" field to animation if any led strip uses that mode with a different set of customizations
+            animations = json.load(json_file)
+            original_animations = animations
+            for x in range(len(animations['led_animations']['custom'])):
+                for entry in connected_led_strips:
+                    if 'customization' in animations['led_animations']['custom'][x]:
+                        if (entry['last_animation']['id'] == animations['led_animations']['custom'][x]['id']) and (entry['last_animation']['customization'] != animations['led_animations']['custom'][x]['customization']):
+                            animations['led_animations']['custom'][x]['unsaved_customization'] = entry['last_animation']
+                            animations['led_animations']['custom'][x]['unsaved_customization_for_led_strip_id'] = entry['id']
+
+            for x in range(len(animations['led_animations']['default'])):
+                for entry in connected_led_strips:
+                    if 'customization' in animations['led_animations']['default'][x]:
+                        if entry['last_animation']['id'] == animations['led_animations']['default'][x]['id']:
+                            if entry['last_animation']['customization'] != animations['led_animations']['default'][x]['customization']:
+                                animations['led_animations']['default'][x]['unsaved_customization'] = entry['last_animation']['customization']
+                                animations['led_animations']['default'][x]['unsaved_customization_for_led_strip_id'] = entry['id']
+
+            return JsonResponse(data=animations)
 
     def saved_mixes(request):
         with open(os.path.join(os.path.dirname(dirname), 'saved_mixes.json')) as json_file:
@@ -87,7 +105,7 @@ class Host:
         # /
         return render(request, 'index.html', {})
 
-    @csrf_exempt
+    @ csrf_exempt
     def signup_led_strip(request):
         # /signup
 
@@ -100,7 +118,7 @@ class Host:
         print(data['name']+' connected (id: '+data['id']+')')
         return HttpResponse(status=200)
 
-    @csrf_exempt
+    @ csrf_exempt
     def mode(request):
         # /mode
         if request.method == 'POST':
