@@ -107,12 +107,24 @@ let AnimationCustomizer = class {
             {
                 'style':'secondary',
                 'id':'save_mode_button',
-                'hide':true,
+                'hide':led_strips[selected_led_strip_id].unsaved_customization_id==this.animation_id?false:true,
                 'icon':'save',
                 'text':'Save new',
                 'onclick':'animation_customizer.open_save_field()'
-            }];
+            }
+        ];
 
+        // show reset animation button for animations which have unsaved changes
+        if (led_strips[selected_led_strip_id].unsaved_customization_id==this.animation_id){
+            popup.buttons.push({
+                'style':'secondary',
+                'id':'reset_mode_button',
+                'hide':false,
+                'icon':'undo',
+                'text':'Reset',
+                'onclick':'animation_customizer.reset_mode()'
+            });
+        }
 
         // if a custom mode is beeing updated, add update button
         if (this.animation_custom==true){
@@ -194,7 +206,7 @@ let AnimationCustomizer = class {
         }
     }
 
-    apply(){
+    apply(changes_saved=false){
         // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
         led_strips[selected_led_strip_id].unsubmitted_mode_change = this.original_animation;
         led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = this.updated_animation.customization;
@@ -205,6 +217,11 @@ let AnimationCustomizer = class {
 
         // hide interface
         popup.hide();
+
+        // if changes unsaved, mark this in led strip, to show "Save" and "Reset" button correctly
+        if (changes_saved==false){
+            led_strips[selected_led_strip_id].unsaved_customization_id = this.animation_id;
+        }
     }
 
 
@@ -215,6 +232,10 @@ let AnimationCustomizer = class {
 
     save_mode(){
         // TODO
+    }
+
+    reset_mode(){
+        // TODO reset back to saved animation details
     }
 
     update_mode(){

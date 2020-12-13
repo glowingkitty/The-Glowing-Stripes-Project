@@ -199,7 +199,10 @@ let Control = class {
                                 // if "led_animations.led_animations.default[counter].unsaved_customization", then show those unsaved customization and save button
                                 if (led_animations.led_animations.default[counter].unsaved_customization){
                                     control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization).replaceAll('"',"'")+'" value="' + led_animations.led_animations.default[counter].id + '"';
-                                }else{
+                                    
+                                    // also safe id of animation with unsaved changes to led strip
+                                    led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsaved_customization_id = led_animations.led_animations.default[counter].id;
+                                } else {
                                     control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}')+'" value="' + led_animations.led_animations.default[counter].id + '"';
                                 }
 
