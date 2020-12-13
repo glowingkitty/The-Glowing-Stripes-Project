@@ -194,11 +194,13 @@ let AnimationCustomizer = class {
             }
         } else {
             // hide buttons
-            if (document.getElementById('save_mode_button')){
-                document.getElementById('save_mode_button').classList.add('display_none');
-            }
-            if (document.getElementById('update_mode_button')){
-                document.getElementById('update_mode_button').classList.add('display_none');
+            if (!led_strips[selected_led_strip_id].unsaved_customization_id || led_strips[selected_led_strip_id].unsaved_customization_id!=this.animation_id){
+                if (document.getElementById('save_mode_button')){
+                    document.getElementById('save_mode_button').classList.add('display_none');
+                }
+                if (document.getElementById('update_mode_button')){
+                    document.getElementById('update_mode_button').classList.add('display_none');
+                }
             }
             if (document.getElementById('apply_changed_mode_button')){
                 document.getElementById('apply_changed_mode_button').classList.add('display_none');
