@@ -3,12 +3,20 @@ let ColorsCustomizer = class {
         this.i=0;
     }
 
-    get default_selected(){
+    get selected_options(){
         return animation_customizer.updated_animation.customization.colors_selected;
+    }
+
+    get default_options(){
+        return animation_customizer.based_on_animation.customization.colors_selected;
     }
 
     get selected_colors(){
         return animation_customizer.updated_animation.customization.rgb_colors;
+    }
+
+    get selected_colors_default(){
+        return animation_customizer.based_on_animation.customization.rgb_colors;
     }
 
     get num_random_colors(){
@@ -17,7 +25,14 @@ let ColorsCustomizer = class {
         } else {
             return null;
         }
-        
+    }
+
+    get num_random_colors_default(){
+        if ('num_random_colors' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.num_random_colors){
+            return animation_customizer.based_on_animation.customization.num_random_colors;
+        } else {
+            return null;
+        }
     }
 
     get_colors_field(animation_id){
@@ -52,7 +67,8 @@ let ColorsCustomizer = class {
                     'value':'random'
                 }
             ],
-            this.default_selected,
+            this.selected_options,
+            this.default_options,
             'colors_customizer.change_colors_select(this.value)',
             this.subfield_html
         );
@@ -79,7 +95,7 @@ let ColorsCustomizer = class {
     }
 
     update_subfield(){
-        if (this.default_selected == 'manual'){
+        if (this.selected_options == 'manual'){
             this.generate_manual_colors_subfield();
         } else {
             this.generate_random_colors_subfield();
@@ -131,6 +147,7 @@ let ColorsCustomizer = class {
             'How many',
             [1,2,3,4,5,6,7,8,9,10],
             this.num_random_colors,
+            this.num_random_colors_default,
             'colors_customizer.change_num_of_random_colors(this.value)'
         );
         this.subfield_html = this.sub_field.get_select_field();

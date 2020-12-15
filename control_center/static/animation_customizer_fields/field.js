@@ -3,6 +3,7 @@ let CustomizerField = class {
         name,
         options_list,
         selected_option,
+        default_options,
         onchange_event,
         sub_field_html=null
     ) {
@@ -31,6 +32,7 @@ let CustomizerField = class {
         this.name = name;
         this.options_list = this.process_options_list(options_list);
         this.selected_option = selected_option;
+        this.default_options = default_options;
         this.onchange_event = onchange_event;
         this.sub_field_html = sub_field_html;
         this.i=0;
@@ -93,7 +95,7 @@ let CustomizerField = class {
 
         if (this.options_list){
             // generate select field
-            this.html+='<select onchange="'+this.onchange_event+'" class="customize_field_selector">';
+            this.html+='<select onchange="'+this.onchange_event+'" name="customizer_select_fields" data-default="'+this.default_options+'" class="customize_field_selector">';
             for (this.i = 0; this.i < this.options_list.length; this.i++) {
                 if (this.i in this.options_list){
                     this.html += '<option value="' + this.options_list[this.i].value + '"';
@@ -127,8 +129,14 @@ let CustomizerField = class {
         if (this.options_list){
             this.html += '<div class="sections_block">';
             for (this.i = this.options_list.length-1; this.i >=0; this.i--) {
+                // see if checkbox is checked by default
+                var default_checked = false;
+                if (this.default_options.indexOf(this.options_list[this.i]) >= 0) {
+                    default_checked = true;
+                }
+                
                 this.html += '<label class="checkbox block">'+this.options_list[this.i];
-                this.html += '<input onchange="'+this.onchange_event+'" type="checkbox"';
+                this.html += '<input onchange="'+this.onchange_event+'" data-default="'+toString(default_checked)+'" name="customizable_checkbox_fields" type="checkbox"';
                 if (this.selected_option.indexOf(this.options_list[this.i]) >= 0) {
                     this.html += ' checked="checked"';
                 }

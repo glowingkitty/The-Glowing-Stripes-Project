@@ -1,7 +1,15 @@
 let BrightnessCustomizer = class {
-    get default_selected(){
+    get selected_options(){
         if ('brightness' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.brightness){
             return animation_customizer.updated_animation.customization.brightness;
+        } else {
+            return null;
+        }
+    }
+
+    get default_options(){
+        if ('brightness' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.brightness){
+            return animation_customizer.based_on_animation.customization.brightness;
         } else {
             return null;
         }
@@ -11,7 +19,8 @@ let BrightnessCustomizer = class {
         this.field = new CustomizerField(
             'Brightness',
             [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            this.default_selected,
+            this.selected_options,
+            this.default_options,
             'brightness_customizer.change_brightness_select(this.value)'
         );
         return this.field.get_select_field();

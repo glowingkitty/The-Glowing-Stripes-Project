@@ -168,17 +168,19 @@ let Control = class {
 
                         //// show all custom modes
                         control_object.main_window_new_html += '<optgroup label="Custom animations">';
-                        var num_of_custom_animations = led_animations.led_animations.custom.length;
                         
                         var counter;
-                        for (counter = 0; counter < num_of_custom_animations; counter++) {
+                        for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
                             control_object.main_window_new_html += '<option data-based-on="'+('based_on' in led_animations.led_animations.custom[counter] ? led_animations.led_animations.custom[counter].based_on:'');
                             // if "led_animations.led_animations.custom[counter].unsaved_customization", then show those unsaved customization and save button
                             if (led_animations.led_animations.custom[counter].unsaved_customization){
-                                control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].unsaved_customization).replaceAll('"',"'")+'" value="' + led_animations.led_animations.custom[counter].id + '"';
+                                control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].unsaved_customization).replaceAll('"',"'");
                             }else{
-                                control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'")+'" value="' + led_animations.led_animations.custom[counter].id + '"';
+                                control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
                             }
+                            // add data-default-customization
+                            control_object.main_window_new_html += '" data-default-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
+                            control_object.main_window_new_html += '" value="' + led_animations.led_animations.custom[counter].id + '"';
 
                             // mark mode as selected if thats the case in "current mix"
                             if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.custom[counter].id) {
@@ -191,20 +193,23 @@ let Control = class {
 
                         //// show all default modes
                         control_object.main_window_new_html += '<optgroup label="Default animations">';
-                        var num_of_default_animations = led_animations.led_animations.default.length;
                         
-                        for (counter = 0; counter < num_of_default_animations; counter++) {
+                        for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
                             // exclude Setup mode
                             if (led_animations.led_animations.default[counter].id != "0000000000") {
                                 // if "led_animations.led_animations.default[counter].unsaved_customization", then show those unsaved customization and save button
                                 if (led_animations.led_animations.default[counter].unsaved_customization){
-                                    control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization).replaceAll('"',"'")+'" value="' + led_animations.led_animations.default[counter].id + '"';
+                                    control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization).replaceAll('"',"'");
                                     
                                     // also safe id of animation with unsaved changes to led strip
-                                    led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsaved_customization_id = led_animations.led_animations.default[counter].id;
+                                    led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
+                                    led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization));
                                 } else {
-                                    control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}')+'" value="' + led_animations.led_animations.default[counter].id + '"';
+                                    control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
                                 }
+                                // add data-default-customization
+                                control_object.main_window_new_html += '" data-default-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
+                                control_object.main_window_new_html += '" value="' + led_animations.led_animations.default[counter].id + '"';
 
                                 // mark mode as selected if thats the case in "current mix"
                                 if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.default[counter].id) {

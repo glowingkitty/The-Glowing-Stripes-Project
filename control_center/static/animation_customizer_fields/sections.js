@@ -12,8 +12,12 @@ let SectionsCustomizer = class {
         return this.sections_list;
     }
     
-    get default_selected(){
+    get selected_options(){
         return animation_customizer.updated_animation.customization.sections_selected;
+    }
+
+    get default_options(){
+        return animation_customizer.based_on_animation.customization.sections_selected;
     }
 
     get selected_sections(){
@@ -49,7 +53,8 @@ let SectionsCustomizer = class {
                     'value':'manual'
                 }
             ],
-            this.default_selected,
+            this.selected_options,
+            this.default_options,
             'sections_customizer.change_sections_select(this.value)',
             this.subfield_html
         );
@@ -57,7 +62,7 @@ let SectionsCustomizer = class {
     }
 
     update_subfield(){
-        if (this.default_selected == 'manual'){
+        if (this.selected_options == 'manual'){
             this.generate_manual_sections_subfield();
         } else {
             this.subfield_html = '';

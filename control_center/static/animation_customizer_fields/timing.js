@@ -3,17 +3,33 @@ let TimingCustomizer = class {
         this.i=0;
     }
 
-    get default_selected(){
+    get selected_options(){
         return animation_customizer.updated_animation.customization.timing_selected;
+    }
+
+    get default_options(){
+        return animation_customizer.based_on_animation.customization.timing_selected;
     }
 
     get duration_ms(){
         return animation_customizer.updated_animation.customization.duration_ms;
     }
 
+    get duration_ms_default(){
+        return animation_customizer.based_on_animation.customization.duration_ms;
+    }
+
     get pause_ms(){
         if ('pause_ms' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.pause_ms!=null){
             return animation_customizer.updated_animation.customization.pause_ms;
+        } else {
+            return null;
+        }
+    }
+
+    get pause_ms_default(){
+        if ('pause_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_ms!=null){
+            return animation_customizer.based_on_animation.customization.pause_ms;
         } else {
             return null;
         }
@@ -27,9 +43,25 @@ let TimingCustomizer = class {
         }
     }
 
+    get pause_a_ms_default(){
+        if ('pause_a_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_a_ms!=null){
+            return animation_customizer.based_on_animation.customization.pause_a_ms;
+        } else {
+            return null;
+        }
+    }
+
     get pause_b_ms(){
         if ('pause_b_ms' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.pause_b_ms!=null){
             return animation_customizer.updated_animation.customization.pause_b_ms;
+        } else {
+            return null;
+        }
+    }
+
+    get pause_b_ms_default(){
+        if ('pause_b_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_b_ms!=null){
+            return animation_customizer.based_on_animation.customization.pause_b_ms;
         } else {
             return null;
         }
@@ -54,7 +86,8 @@ let TimingCustomizer = class {
                     'value':'microphone'
                 }
             ],
-            this.default_selected,
+            this.selected_options,
+            this.default_options,
             'timing_customizer.change_timing_select(this.value)',
             this.subfield_html
         );
@@ -62,9 +95,9 @@ let TimingCustomizer = class {
     }
 
     update_subfield(){
-        if (this.default_selected == 'bpm') {
+        if (this.selected_options == 'bpm') {
             this.generate_bpm_timing_subfield();
-        } else if (this.default_selected == 'microphone') {
+        } else if (this.selected_options == 'microphone') {
             this.generate_microphone_timing_subfield();
         } else {
             this.generate_manual_timing_subfield();
@@ -98,6 +131,7 @@ let TimingCustomizer = class {
             'Duration',
             '100ms-10000ms',
             this.duration_ms,
+            this.duration_ms_default,
             'timing_customizer.change_duration(this.value)'
         );
         this.subfield_html += this.duration_ms_field.get_select_field();
@@ -108,6 +142,7 @@ let TimingCustomizer = class {
                 'Pause',
                 '0ms-10000ms',
                 this.pause_ms,
+                this.pause_ms_default,
                 'timing_customizer.change_pause(this.value)'
             );
             this.subfield_html += this.pause_ms_field.get_select_field();
@@ -119,6 +154,7 @@ let TimingCustomizer = class {
                 'Pause A',
                 '0ms-10000ms',
                 this.pause_a_ms,
+                this.pause_a_ms_default,
                 'timing_customizer.change_pause(this.value,\'pause_a\')'
             );
             this.subfield_html += this.pause_a_ms_field.get_select_field();
@@ -130,6 +166,7 @@ let TimingCustomizer = class {
                 'Pause B',
                 '0ms-10000ms',
                 this.pause_a_ms,
+                this.pause_a_ms_default,
                 'timing_customizer.change_pause(this.value,\'pause_b\')'
             );
             this.subfield_html += this.pause_b_ms_field.get_select_field();

@@ -122,7 +122,7 @@ let LEDstrip = class {
                     if (processed_led_strips[i].new_animation.based_on){
                         document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-based-on',processed_led_strips[i].new_animation.based_on);
                     } else {
-                        document.getElementById('mode_selector').selectedOptions[0].removeAttribute('data-based-on')
+                        document.getElementById('mode_selector').selectedOptions[0].removeAttribute('data-based-on');
                     }
                     document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(processed_led_strips[i].new_animation.customization));
                 }

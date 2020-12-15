@@ -1,11 +1,18 @@
 let DirectionCustomizer = class {
-    get default_selected(){
+    get selected_options(){
         if ('start' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.start){
             return animation_customizer.updated_animation.customization.start;
         } else {
             return null;
         }
-        
+    }
+
+    get default_options(){
+        if ('start' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.start){
+            return animation_customizer.based_on_animation.customization.start;
+        } else {
+            return null;
+        }
     }
 
     get possible_directions(){
@@ -47,7 +54,8 @@ let DirectionCustomizer = class {
         this.field = new CustomizerField(
             'Direction',
             this.possible_directions,
-            this.default_selected,
+            this.selected_options,
+            this.default_options,
             'direction_customizer.change_direction_select(this.value)'
         );
         return this.field.get_select_field();

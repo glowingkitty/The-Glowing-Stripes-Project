@@ -1,3 +1,5 @@
+var reset_mode_and_not_applied_yet = false;
+
 let AnimationCustomizer = class {
     constructor() {
         this.animation_id = null;
@@ -76,6 +78,12 @@ let AnimationCustomizer = class {
         // save current animation to make it easy to detect changes
         this.original_animation = JSON.parse(JSON.stringify(this.animation));
         this.updated_animation = JSON.parse(JSON.stringify(this.animation));
+        this.based_on_animation = {
+            'id':this.animation_id,
+            'name':this.animation_name,
+            'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+            'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-default-customization').replaceAll("'",'"'))
+        };
 
         // update popup headline
         popup.header = 'Customize "'+this.animation_name+'"';
@@ -107,7 +115,7 @@ let AnimationCustomizer = class {
             {
                 'style':'secondary',
                 'id':'save_mode_button',
-                'hide':led_strips[selected_led_strip_id].unsaved_customization_id==this.animation_id?false:true,
+                'hide':((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)||reset_mode_and_not_applied_yet==true)?false:true,
                 'icon':'save',
                 'text':'Save new',
                 'onclick':'animation_customizer.open_save_field()'
@@ -115,7 +123,8 @@ let AnimationCustomizer = class {
         ];
 
         // show reset animation button for animations which have unsaved changes
-        if (led_strips[selected_led_strip_id].unsaved_customization_id==this.animation_id){
+        // TODO see if animation has customized details
+        if ((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)){
             popup.buttons.push({
                 'style':'secondary',
                 'id':'reset_mode_button',
@@ -142,7 +151,7 @@ let AnimationCustomizer = class {
             {
                 'style':'primary',
                 'id':'apply_changed_mode_button',
-                'hide':true,
+                'hide':reset_mode_and_not_applied_yet==true?false:true,
                 'icon':'true',
                 'text':'Apply',
                 'onclick':'animation_customizer.apply()'
@@ -179,6 +188,11 @@ let AnimationCustomizer = class {
         return JSON.stringify(this.original_animation.customization)!=JSON.stringify(this.updated_animation.customization);
     }
 
+    get equals_default(){
+        // see if animation settings are the same like the default setting for the animation
+        return JSON.stringify(this.based_on_animation.customization)==JSON.stringify(this.original_animation.customization);
+    }
+
     check_for_changes(){
         // if changes exist, show "apply","update","save" button
         if (this.has_changed==true){
@@ -194,7 +208,7 @@ let AnimationCustomizer = class {
             }
         } else {
             // hide buttons
-            if (!led_strips[selected_led_strip_id].unsaved_customization_id || led_strips[selected_led_strip_id].unsaved_customization_id!=this.animation_id){
+            if (!led_strips[selected_led_strip_id].unsubmitted_mode_change.id || led_strips[selected_led_strip_id].unsubmitted_mode_change.id!=this.animation_id){
                 if (document.getElementById('save_mode_button')){
                     document.getElementById('save_mode_button').classList.add('display_none');
                 }
@@ -209,9 +223,10 @@ let AnimationCustomizer = class {
     }
 
     apply(changes_saved=false){
+        reset_mode_and_not_applied_yet = false;
         // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
-        led_strips[selected_led_strip_id].unsubmitted_mode_change = this.original_animation;
-        led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = this.updated_animation.customization;
+        led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
+        led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
         led_strips[selected_led_strip_id].apply_changes();
         
         // update original_animation
@@ -222,7 +237,7 @@ let AnimationCustomizer = class {
 
         // if changes unsaved, mark this in led strip, to show "Save" and "Reset" button correctly
         if (changes_saved==false){
-            led_strips[selected_led_strip_id].unsaved_customization_id = this.animation_id;
+            led_strips[selected_led_strip_id].unsubmitted_mode_change.id = this.animation_id;
         }
     }
 
@@ -237,7 +252,46 @@ let AnimationCustomizer = class {
     }
 
     reset_mode(){
-        // TODO reset back to saved animation details
+        document.getElementById('reset_mode_button').classList.add('display_none');
+
+        var counter;
+        for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
+            if (this.animation_id == led_animations.led_animations.custom[counter].id) {
+                document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.custom[counter].customization));
+                
+                // update original_animation
+                this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.custom[counter]));
+                break;
+            }
+        }
+
+        for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
+            if (this.animation_id == led_animations.led_animations.default[counter].id) {
+                document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.default[counter].customization));
+                
+                // update original_animation
+                this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
+                break;
+            }
+        }
+
+        this.check_for_changes();
+
+        led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
+        led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+        
+        // reset shown customizations to default values
+        var select_fields = document.getElementsByName('customizer_select_fields');
+        select_fields.forEach(field => 
+            field.value = field.getAttribute('data-default')
+            );
+
+        var checkboxes = document.getElementsByName('customizable_checkbox_fields');
+        checkboxes.forEach(box => 
+            box.checked = field.getAttribute('data-default')=='true'?true:false
+            );
+
+        reset_mode_and_not_applied_yet=true;
     }
 
     update_mode(){
