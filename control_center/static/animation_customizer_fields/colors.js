@@ -115,6 +115,17 @@ let ColorsCustomizer = class {
         // generate "manual" subfield_html
         this.subfield_html = '<div class="all_colors" id="all_colors">';
         // if this.selected_colors == 'random', generate random colors
+        if (this.selected_colors=='random'){
+            animation_customizer.updated_animation.customization.rgb_colors = [];
+            var color_counter;
+            for (color_counter=0;color_counter<this.num_random_colors;color_counter+=1){
+                animation_customizer.updated_animation.customization.rgb_colors.push([
+                    Math.round(Math.random()*255),
+                    Math.round(Math.random()*255),
+                    Math.round(Math.random()*255)
+                ]);
+            }
+        }
         var i;
 
         // for every min_num_color, create random color field input field

@@ -230,7 +230,7 @@ let AnimationCustomizer = class {
         led_strips[selected_led_strip_id].apply_changes();
         
         // update original_animation
-        this.original_animation.customization = this.updated_animation.customization;
+        this.original_animation.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
 
         // hide interface
         popup.hide();
