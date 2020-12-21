@@ -30,38 +30,32 @@ string ANIMATION =  "beats";
 void start_leds(){
     pixels.begin();
     // show boot animation
-    boot();
+    boot(pixels,NUMPIXELS);
 }
 
 void glow_leds(){
     pixels.clear();
 
     if (ANIMATION == "setup_mode") {
-        setup_mode();
+        setup_mode(pixels,NUMPIXELS);
     } else if (ANIMATION == "rainbow") {
-        rainbow();
+        rainbow(pixels,NUMPIXELS);
     } else if (ANIMATION == "off") {
-        off();
+        off(pixels,NUMPIXELS);
     } else if (ANIMATION == "color") {
-        color();
+        color(pixels,NUMPIXELS);
     } else if (ANIMATION == "rainbow") {
-        rainbow();
+        rainbow(pixels,NUMPIXELS);
     } else if (ANIMATION == "beats") {
-        // beats(pixels,NUMPIXELS); // TODO doesnt work yet
-        for(int i=0; i<NUMPIXELS; i++) {
-
-            pixels.setPixelColor(i, pixels.Color(0, 150, 0));
-            pixels.show();
-            delay(50);
-        }
+        beats(pixels,NUMPIXELS);
     } else if (ANIMATION == "moving_dot") {
-        moving_dot();
+        moving_dot(pixels,NUMPIXELS);
     } else if (ANIMATION == "light_up") {
-        light_up();
+        light_up(pixels,NUMPIXELS);
     } else if (ANIMATION == "transition") {
-        transition();
+        transition(pixels,NUMPIXELS);
     } else{
         Serial.println("ERROR: Animation not found. Turning LEDs off");
-        off();
+        off(pixels,NUMPIXELS);
     }
 }

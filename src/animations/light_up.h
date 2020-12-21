@@ -1,1 +1,1 @@
-void light_up();
+void light_up(Adafruit_NeoPixel& pixels,int num_pixels);

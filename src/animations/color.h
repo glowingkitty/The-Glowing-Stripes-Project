@@ -1,1 +1,1 @@
-void color();
+void color(Adafruit_NeoPixel& pixels,int num_pixels);

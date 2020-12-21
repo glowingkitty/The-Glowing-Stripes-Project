@@ -1,1 +1,1 @@
-void setup_mode();
+void setup_mode(Adafruit_NeoPixel& pixels,int num_pixels);

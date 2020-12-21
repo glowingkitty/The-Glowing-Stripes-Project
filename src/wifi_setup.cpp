@@ -1,19 +1,25 @@
 #include <WiFi.h>
-#include <string>
-#include <iostream>
-using namespace std;
+#include "wifi_setup.hpp"  
+#include <SPI.h>
+#include <SD.h>
 
-const char*Wifi_ssid = "TheGlowingStripes";                             // SSID of your Router OR mobile hotspot
-const char*Wifi_password = "letsglow";                       //  PASSWORD of your Router or Mobile hotspot see below example
+WifiSetup::WifiSetup()
+{
+    wifi_ssid = "TheGlowingStripes";
+    wifi_password = "letsglow";
+    hotspot_ssid = "TheGlowingStripes";
+    hotspot_password = "letsglow";
+}
 
-const char *Apssid = "TheGlowingStripes";                      //give Accesspoint SSID, your esp's hotspot name 
-const char *Appassword = "letsglow";       
+WifiSetup::~WifiSetup()
+{
 
+}
 
-void start_hotspot(){
+WifiSetup::start_hotspot(){
     WiFi.mode(WIFI_AP_STA);           // changing ESP9266 wifi mode to AP + STATION
 
-    WiFi.softAP(Apssid, Appassword);         //Starting AccessPoint on given credential
+    WiFi.softAP(hotspot_ssid, hotspot_password);         //Starting AccessPoint on given credential
     IPAddress myIP = WiFi.softAPIP();        //IP Address of our Esp32 accesspoint(where we can host webpages, and see data)
     Serial.print("Access Point IP address: ");
     Serial.println(myIP);
@@ -21,12 +27,12 @@ void start_hotspot(){
     Serial.println("");
 }
 
-boolean connect_to_host(){
-    Serial.println("connecting to Wifi:");
-    Serial.println(Wifi_ssid);
+WifiSetup::connect_to_wifi(){
+    Serial.println("Connect to wifi...");
+    Serial.println(wifi_ssid);
     delay(500);
 
-    WiFi.begin(Wifi_ssid, Wifi_password);                  // to tell Esp32 Where to connect and trying to connect
+    WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
     // after 2 fails, create hotspot instead
     int failed = 0;
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
@@ -48,8 +54,8 @@ boolean connect_to_host(){
     return true;
 }
 
-void start_wifi(){
-    if (connect_to_host()==false){
+WifiSetup::start_wifi(){
+    if (!connect_to_host()){
       start_hotspot();
-    };
+    }
 }

@@ -6,7 +6,7 @@ using namespace std;
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
-#include "wifi_setup.h"
+#include "wifi_setup.hpp"
 #include "webserver.h"
 #include "neopixel.h"
 
@@ -16,7 +16,8 @@ void setup() {
 #endif
     Serial.begin(115200);               // to enable Serial Commmunication with connected Esp32 board
     start_leds();
-    start_wifi();
+    WifiSetup wifisetup;
+    wifisetup.start_wifi();
     start_server();
 }
 

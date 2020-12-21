@@ -1,1 +1,1 @@
-void beats(Adafruit_NeoPixel pixels,int NUMPIXELS);
+void beats(Adafruit_NeoPixel& pixels,int num_pixels);

@@ -1,1 +1,1 @@
-void moving_dot();
+void moving_dot(Adafruit_NeoPixel& pixels,int num_pixels);
