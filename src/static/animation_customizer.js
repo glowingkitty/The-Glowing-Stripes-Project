@@ -244,11 +244,29 @@ let AnimationCustomizer = class {
 
     // save new mode
     open_save_field(){
-        // TODO
+        // TODO replace headline
+        popup.header = 'Save customized mode';
+        popup.message = '';
+
+        // show name input field (onchange: check if name already exists, if true for custom: show "Update" and "Update & Apply" buttons, if true for default: hide "Save" and "Save & Apply")
+        var animation_name_field = new CustomizerField(
+            'Name',
+            null,
+            null,
+            null,
+            'brightness_customizer.change_brightness_select(this.value)',
+            null,
+            'Enter a new animation name'
+        );
+        return this.field.get_select_field();
+
+        // show "Back" button (.open()), "Save" (.save_mode()) and "Save & Apply" (.save_mode();.apply())
     }
 
     save_mode(){
-        // TODO
+        // TODO get name from name input field & send "save_new_mode" request to server, to save mode across all connected led strips
+
+        // show main customizer interface again via .open()
     }
 
     reset_mode(){

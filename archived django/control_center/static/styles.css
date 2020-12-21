@@ -1,0 +1,353 @@
+/* lexend-deca-regular - latin */
+@font-face {
+    font-family: 'Lexend Deca';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Lexend Deca Regular'), local('LexendDeca-Regular'),
+        url('fonts/lexend-deca-v3-latin-regular.woff2') format('woff2'),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('fonts/lexend-deca-v3-latin-regular.woff') format('woff');
+    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+.background {
+    background: #FFFFFF;
+    font-family: Lexend Deca;
+    font-style: normal;
+    font-weight: normal;
+    margin: 0px;
+}
+
+.background.darkmode {
+    background: #000000;
+}
+
+.header_overlay {
+    margin: auto;
+    margin-top: 20px;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.main_window {
+    position: relative;
+    z-index: 10;
+    margin: auto;
+    margin-top: -80px;
+    max-width: 600px;
+    min-height: 145px;
+    width: 90%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 26px;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    background: #292929;
+    border: 1px solid #505050;
+    color: #FFFFFF;
+}
+
+@media only screen and (max-width: 740px) {
+    .header_overlay {
+        margin-top: 0px;
+        margin-bottom: -120px;
+        text-align: right;
+    }
+
+    .main_window {
+        margin-top: -115px;
+    }
+
+    #edit_layout_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+
+.main_window.popup_content {
+    margin-top: 25vh;
+    text-align: left;
+    max-height: 60vh;
+}
+
+
+@media only screen and (max-width: 415px) {
+    .main_window.popup_content {
+        margin-top: 15vh;
+    }
+}
+
+
+@media only screen and (max-width: 374px) {
+    .main_window.popup_content {
+        padding: 10px;
+        padding-top: 26px;
+    }
+}
+
+
+.main_window_content {
+    /* opacity: 0; */
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.left_aligned_maincontent {
+    text-align: left;
+}
+
+.inline_block {
+    display: inline-block;
+}
+
+.text_max_width_40_percent {
+    width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right_aligned {
+    float: right;
+}
+
+.left_aligned {
+    float: left;
+}
+
+.wifi_network {
+    font-size: 18px;
+    line-height: 58px;
+    display: block;
+    margin: 5px;
+}
+
+@media only screen and (max-width: 740px) {
+    .wifi_network {
+        font-size: 16px;
+    }
+}
+
+.opacity_50 {
+    opacity: 0.5;
+}
+
+.divider_line {
+    border: 1px solid #656565;
+}
+
+.num_of_connected_leds {
+    display: inline-block;
+    text-align: center;
+    width: 19px;
+    height: 19px;
+    padding: 3px;
+    border-radius: 20px;
+    background: #FFFFFF;
+}
+
+.num_of_connected_leds.darkmode {
+    background: #000000;
+}
+
+.glow_text {
+    color: #DF0A0A;
+}
+
+.shadow {
+    max-width: 1195px;
+    height: 200px;
+    margin: auto;
+    margin-top: -100px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("images/shadow.svg");
+    margin-bottom: -30px;
+}
+
+.sub_menu {
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+.right_positioned {
+    float: right;
+}
+
+.mode_selector {
+    position: absolute;
+    margin-bottom: 30px;
+    background: black;
+    color: white;
+    font-size: 22px;
+    right: 80px;
+    left: 25px;
+    margin-top: 15px;
+}
+
+.mode_selector:hover {
+    cursor: pointer;
+}
+
+/* Customize the label (the container) */
+.checkbox {
+    display: inline-block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.checkbox.block {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.checkbox.with_icon {
+    padding-left: 54px;
+    background-repeat: no-repeat !important;
+    background-position: left 30px center !important;
+    background-size: 17px 17px !important;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox:hover input~.checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox input:checked~.checkmark {
+    background-color: #f32121;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox input:checked~.checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.mixes {
+    margin-bottom: 30px;
+}
+
+.mix_entry {
+    opacity: 0.5;
+    display: block;
+    position: relative;
+    z-index: 10;
+    margin: auto;
+    width: 600px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding-left: 26px;
+    font-size: 16px;
+    line-height: 60px;
+    text-align: left;
+    background: #292929;
+    border: 1px solid #505050;
+    color: #FFFFFF;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.mix_entry:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.icon {
+    background-repeat: no-repeat !important;
+    background-position: left 0px center !important;
+    background-size: 17px 17px !important;
+    padding-left: 25px;
+}
+
+.icon.large_inline {
+    background-size: 27px 27px !important;
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+    opacity: 0.5;
+}
+
+.icon.large_inline:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.input_field {
+    background: #1C1C1C;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 18px;
+    color: white;
+    font-family: Lexend Deca;
+    font-style: normal;
+    font-weight: normal;
+    padding: 10px;
+    padding-left: 20px;
+    width: 60%;
+}
+
+.led_strip_name {
+    max-width: 50vw;
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

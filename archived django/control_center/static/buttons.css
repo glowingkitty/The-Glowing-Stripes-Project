@@ -1,0 +1,146 @@
+.cta {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+    padding-right: 14px;
+    padding-left: 14px;
+    font-size: 16px;
+    line-height: 18px;
+    border-radius: 6px;
+    box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.4);
+    position: relative;
+    top: 0px;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+    text-decoration: none;
+}
+
+@media only screen and (max-width: 740px) {
+    a[data-button-type="wifi_disconnect_button"] {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    a[data-button-type="wifi_connect_button"] {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .cta#shutdown_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    .cta#restart_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    .cta#sleep_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 413px) {
+    .cta#save_mix_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+@media only screen and (max-width: 374px) {
+    .cta#undo_changes_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+
+    #edit_name_button {
+        font-size: 0px;
+        padding-right: 5px;
+    }
+}
+
+.cta:hover {
+    top: -5px;
+    cursor: pointer;
+}
+
+.cta:active {
+    top: 0px;
+}
+
+.cta.primary {
+    background: #FF3F3F;
+    color: #FFFFFF;
+}
+
+.cta.secondary {
+    background: #FFFFFF;
+    color: #575757;
+    border: 1px solid #DCDCDC;
+    box-sizing: border-box;
+}
+
+.cta.darkmode {
+    background: #2F2F2F;
+    color: #FFFFFF;
+    border: 1px solid #414141;
+    box-sizing: border-box;
+}
+
+.text_cta {
+    position: relative;
+    top: 0px;
+    font-size: 12px;
+    line-height: 15px;
+    color: #A9A9A9;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.text_cta:hover {
+    top: -5px;
+    cursor: pointer;
+}
+
+.with_icon {
+    padding-left: 35px;
+    background-repeat: no-repeat !important;
+    background-position: left 10px center !important;
+    background-size: 17px 17px !important;
+}
+
+.button_customize_animation {
+    width: 36px;
+    height: 36px;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 25px 25px !important;
+    background: #1C1C1C;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    margin-top: 12px;
+    top: 0px;
+    position: relative;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+}
+
+.button_customize_animation:hover {
+    top: -5px;
+    cursor: pointer;
+}
+
+.fixed_bottom_left {
+    position: absolute;
+    bottom: -25px;
+    left: 15px;
+}
+
+.fixed_bottom_right {
+    position: absolute;
+    bottom: -25px;
+    right: 15px;
+}

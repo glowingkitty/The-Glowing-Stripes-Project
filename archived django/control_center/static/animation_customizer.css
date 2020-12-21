@@ -1,0 +1,65 @@
+.all_colors {
+    margin: 6px;
+}
+
+.color_selector {
+    width: 60px;
+    height: 60px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.add_color_button {
+    width: 55px;
+    height: 55px;
+    background-image: url("icons/plus.svg") !important;
+    cursor: pointer;
+    background: #1C1C1C;
+    background-repeat: no-repeat !important;
+    background-position: left 18px center !important;
+    background-size: 25px 25px !important;
+    display: inline-block;
+    margin: 6px;
+}
+
+.remove_color_button {
+    width: 55px;
+    height: 55px;
+    background-image: url("icons/minus.svg") !important;
+    cursor: pointer;
+    background: #1C1C1C;
+    background-repeat: no-repeat !important;
+    background-position: left 18px center !important;
+    background-size: 25px 25px !important;
+    display: inline-block;
+    margin: 6px;
+}
+
+.field_name {
+    font-size: 12px;
+    line-height: 15px;
+    color: #7A7A7A;
+    display: inline-block
+}
+
+.subfield {
+    background: #343434;
+    border-radius: 15px;
+}
+
+.customize_field_selector {
+    background: black;
+    color: white;
+    font-size: 24px;
+    width: 50%;
+    float: right;
+}
+
+.main_field {
+    line-height: 37px;
+    margin-bottom: 15px;
+}
+
+.sections_block {
+    float: right;
+    width: 50%;
+}

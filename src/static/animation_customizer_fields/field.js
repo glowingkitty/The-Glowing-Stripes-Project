@@ -5,7 +5,9 @@ let CustomizerField = class {
         selected_option,
         default_options,
         onchange_event,
-        sub_field_html=null
+        sub_field_html=null,
+        input_placeholder=null,
+        default_input_value=null
     ) {
         // options_list example for select:
         // [
@@ -35,6 +37,8 @@ let CustomizerField = class {
         this.default_options = default_options;
         this.onchange_event = onchange_event;
         this.sub_field_html = sub_field_html;
+        this.input_placeholder = input_placeholder;
+        this.default_input_value=default_input_value;
         this.i=0;
 
         this.html = '<div name="field"><div class="main_field" name="main_field">';
@@ -88,6 +92,22 @@ let CustomizerField = class {
 
     add_subfield(){
         this.html+='<div id="'+this.name.toLowerCase()+'_subfield" class="subfield">'+this.sub_field_html+'</div>';
+    }
+
+    get_input_field(){
+        this.add_name_div();
+
+        this.html+='<input oninput="'+this.onchange_event+'" class="input_field" ';
+        this.html+='type="text" placeholder="'+this.input_placeholder+'"';
+        if (this.default_input_value){
+            this.html+=' value="'+this.default_input_value+'"';
+        }
+        this.html+='>';
+
+        // close field div
+        this.html+='</div>';
+
+        return this.html;
     }
 
     get_select_field(){
