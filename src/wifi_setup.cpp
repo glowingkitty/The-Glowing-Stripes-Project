@@ -10,12 +10,7 @@ const char *Apssid = "TheGlowingStripes";                      //give Accesspoin
 const char *Appassword = "letsglow";       
 
 
-void start_hotstpot(){
-  
-}
-
-void start_wifi(){
-    delay(500);
+void start_hotspot(){
     WiFi.mode(WIFI_AP_STA);           // changing ESP9266 wifi mode to AP + STATION
 
     WiFi.softAP(Apssid, Appassword);         //Starting AccessPoint on given credential
@@ -24,13 +19,21 @@ void start_wifi(){
     Serial.println(myIP);
     
     Serial.println("");
+}
 
-    delay(1500);
+boolean connect_to_host(){
     Serial.println("connecting to Wifi:");
     Serial.println(Wifi_ssid);
+    delay(500);
 
     WiFi.begin(Wifi_ssid, Wifi_password);                  // to tell Esp32 Where to connect and trying to connect
+    // after 2 fails, create hotspot instead
+    int failed = 0;
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
+      failed = failed+1;
+      if (failed==2){
+        return false;
+      }
       delay(500);
       Serial.print(".");
     }
@@ -42,4 +45,11 @@ void start_wifi(){
                                               // printing Local IP given by your Router or Mobile Hotspot,
                                             // Esp32 connect at this IP  see in advanced Ip scanner 
     Serial.println("");
+    return true;
+}
+
+void start_wifi(){
+    if (connect_to_host()==false){
+      start_hotspot();
+    };
 }
