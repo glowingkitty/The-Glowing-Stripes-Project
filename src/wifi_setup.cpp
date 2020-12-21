@@ -3,12 +3,16 @@
 #include <iostream>
 using namespace std;
 
-const char*Wifi_ssid = "maya";                             // SSID of your Router OR mobile hotspot
-const char*Wifi_password = "JODA522242200";                       //  PASSWORD of your Router or Mobile hotspot see below example
+const char*Wifi_ssid = "TheGlowingStripes";                             // SSID of your Router OR mobile hotspot
+const char*Wifi_password = "letsglow";                       //  PASSWORD of your Router or Mobile hotspot see below example
 
 const char *Apssid = "TheGlowingStripes";                      //give Accesspoint SSID, your esp's hotspot name 
 const char *Appassword = "letsglow";       
 
+
+void start_hotstpot(){
+  
+}
 
 void start_wifi(){
     delay(500);
