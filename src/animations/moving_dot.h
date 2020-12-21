@@ -1,0 +1,1 @@
+void moving_dot();

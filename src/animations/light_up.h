@@ -1,0 +1,1 @@
+void light_up();

@@ -1,0 +1,1 @@
+void beats(Adafruit_NeoPixel pixels,int NUMPIXELS);

@@ -14,14 +14,8 @@ void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
     clock_prescale_set(clock_div_1);
 #endif
-
-    start_leds();
-
-    rainbow();
-
     Serial.begin(115200);               // to enable Serial Commmunication with connected Esp32 board
-    
-
+    start_leds();
     start_wifi();
     start_server();
 }
