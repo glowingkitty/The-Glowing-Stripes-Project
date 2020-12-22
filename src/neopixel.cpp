@@ -5,6 +5,8 @@
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
+#include <vector>
+using namespace std;
 
 #include "animations/setup_mode.h"
 #include "animations/off.h"
@@ -43,7 +45,21 @@ void NeoPixel::glow(){
     } else if (current_animation == "rainbow") {
         rainbow(leds,num_leds);
     } else if (current_animation == "beats") {
-        beats(leds,num_leds);
+        int num_random_colors = 5;
+        vector<vector<int>> rgb_colors;
+        for (int i=0; i<num_random_colors; i++){
+            vector<int> color;
+            color.push_back(rand() % 255 + 1);
+            color.push_back(rand() % 255 + 1);
+            color.push_back(rand() % 255 + 1);
+            rgb_colors.push_back(color);
+        }
+        
+        beats(
+            leds,
+            num_leds,
+            rgb_colors
+            );
     } else if (current_animation == "moving_dot") {
         moving_dot(leds,num_leds);
     } else if (current_animation == "light_up") {
