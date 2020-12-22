@@ -1,6 +1,4 @@
-#include <string>
-#include <iostream>
-using namespace std;
+#include "neopixel.hpp"
 #include <Adafruit_NeoPixel.h>
 #include <SPI.h>
 #include <SD.h>
@@ -8,7 +6,6 @@ using namespace std;
   #include <avr/power.h>
 #endif
 
-// import animations
 #include "animations/boot.h"
 #include "animations/setup_mode.h"
 #include "animations/off.h"
@@ -19,43 +16,44 @@ using namespace std;
 #include "animations/light_up.h"
 #include "animations/transition.h"
 
-#define PIN        22
-#define NUMPIXELS 30
-
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
-// define default animation
-string ANIMATION =  "beats";
-
-void start_leds(){
-    pixels.begin();
-    // show boot animation
-    boot(pixels,NUMPIXELS);
+NeoPixel::NeoPixel()
+{
+    current_animation = "beats";
+    num_pin = 22;
+    num_leds = 30;
+    leds = Adafruit_NeoPixel(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
+    leds.begin();
+    boot(leds,num_leds);
 }
 
-void glow_leds(){
-    pixels.clear();
+NeoPixel::~NeoPixel()
+{
 
-    if (ANIMATION == "setup_mode") {
-        setup_mode(pixels,NUMPIXELS);
-    } else if (ANIMATION == "rainbow") {
-        rainbow(pixels,NUMPIXELS);
-    } else if (ANIMATION == "off") {
-        off(pixels,NUMPIXELS);
-    } else if (ANIMATION == "color") {
-        color(pixels,NUMPIXELS);
-    } else if (ANIMATION == "rainbow") {
-        rainbow(pixels,NUMPIXELS);
-    } else if (ANIMATION == "beats") {
-        beats(pixels,NUMPIXELS);
-    } else if (ANIMATION == "moving_dot") {
-        moving_dot(pixels,NUMPIXELS);
-    } else if (ANIMATION == "light_up") {
-        light_up(pixels,NUMPIXELS);
-    } else if (ANIMATION == "transition") {
-        transition(pixels,NUMPIXELS);
+}
+
+void NeoPixel::glow(){
+    leds.clear();
+
+    if (current_animation == "setup_mode") {
+        setup_mode(leds,num_leds);
+    } else if (current_animation == "rainbow") {
+        rainbow(leds,num_leds);
+    } else if (current_animation == "off") {
+        off(leds,num_leds);
+    } else if (current_animation == "color") {
+        color(leds,num_leds);
+    } else if (current_animation == "rainbow") {
+        rainbow(leds,num_leds);
+    } else if (current_animation == "beats") {
+        beats(leds,num_leds);
+    } else if (current_animation == "moving_dot") {
+        moving_dot(leds,num_leds);
+    } else if (current_animation == "light_up") {
+        light_up(leds,num_leds);
+    } else if (current_animation == "transition") {
+        transition(leds,num_leds);
     } else{
-        Serial.println("ERROR: Animation not found. Turning LEDs off");
-        off(pixels,NUMPIXELS);
+        Serial.println("ERROR: current_animation not found. Turning LEDs off");
+        off(leds,num_leds);
     }
 }
