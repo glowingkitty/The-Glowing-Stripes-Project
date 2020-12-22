@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <ESPmDNS.h>
 #include "wifi_setup.hpp"  
 #include <SPI.h>
 #include <SD.h>
@@ -17,9 +18,15 @@ WifiSetup::~WifiSetup()
 }
 
 void WifiSetup::start_hotspot(){
-    WiFi.mode(WIFI_AP_STA);           // changing ESP9266 wifi mode to AP + STATION
-
+    WiFi.mode(WIFI_AP);           // changing ESP9266 wifi mode to AP + STATION
     WiFi.softAP(hotspot_ssid.c_str(), hotspot_password.c_str());         //Starting AccessPoint on given credential
+
+    // make ESP accessible via "theglowingstripes.local"
+    if(!MDNS.begin("theglowingstripes")) {
+        Serial.println("Error starting mDNS");
+        return;
+    }
+
     IPAddress myIP = WiFi.softAPIP();        //IP Address of our Esp32 accesspoint(where we can host webpages, and see data)
     Serial.print("Access Point IP address: ");
     Serial.println(myIP);
@@ -33,6 +40,7 @@ boolean WifiSetup::connect_to_wifi(){
     delay(500);
 
     WiFi.begin(wifi_ssid.c_str(), wifi_password.c_str());                  // to tell Esp32 Where to connect and trying to connect
+
     // after 2 fails, create hotspot instead
     int failed = 0;
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
