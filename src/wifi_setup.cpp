@@ -16,10 +16,10 @@ WifiSetup::~WifiSetup()
 
 }
 
-WifiSetup::start_hotspot(){
+void WifiSetup::start_hotspot(){
     WiFi.mode(WIFI_AP_STA);           // changing ESP9266 wifi mode to AP + STATION
 
-    WiFi.softAP(hotspot_ssid, hotspot_password);         //Starting AccessPoint on given credential
+    WiFi.softAP(hotspot_ssid.c_str(), hotspot_password.c_str());         //Starting AccessPoint on given credential
     IPAddress myIP = WiFi.softAPIP();        //IP Address of our Esp32 accesspoint(where we can host webpages, and see data)
     Serial.print("Access Point IP address: ");
     Serial.println(myIP);
@@ -27,12 +27,12 @@ WifiSetup::start_hotspot(){
     Serial.println("");
 }
 
-WifiSetup::connect_to_wifi(){
+boolean WifiSetup::connect_to_wifi(){
     Serial.println("Connect to wifi...");
-    Serial.println(wifi_ssid);
+    Serial.println(wifi_ssid.c_str());
     delay(500);
 
-    WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
+    WiFi.begin(wifi_ssid.c_str(), wifi_password.c_str());                  // to tell Esp32 Where to connect and trying to connect
     // after 2 fails, create hotspot instead
     int failed = 0;
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
@@ -54,8 +54,8 @@ WifiSetup::connect_to_wifi(){
     return true;
 }
 
-WifiSetup::start_wifi(){
-    if (!connect_to_host()){
-      start_hotspot();
+void WifiSetup::start_wifi(){
+    if (!WifiSetup::connect_to_wifi()){
+      WifiSetup::start_hotspot();
     }
 }
