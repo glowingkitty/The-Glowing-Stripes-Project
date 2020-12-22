@@ -1,1 +1,0 @@
-void boot(Adafruit_NeoPixel& pixels,int num_pixels);

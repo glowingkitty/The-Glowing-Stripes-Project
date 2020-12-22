@@ -6,7 +6,6 @@
   #include <avr/power.h>
 #endif
 
-#include "animations/boot.h"
 #include "animations/setup_mode.h"
 #include "animations/off.h"
 #include "animations/color.h"
@@ -23,7 +22,6 @@ NeoPixel::NeoPixel()
     num_leds = 30;
     leds = Adafruit_NeoPixel(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     leds.begin();
-    boot(leds,num_leds);
 }
 
 NeoPixel::~NeoPixel()

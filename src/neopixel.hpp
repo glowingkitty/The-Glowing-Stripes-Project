@@ -15,5 +15,6 @@ class NeoPixel
 		NeoPixel();
 		~NeoPixel();
 
+		void start();
 		void glow();
 };

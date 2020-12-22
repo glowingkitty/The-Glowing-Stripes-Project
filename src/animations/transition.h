@@ -1,1 +1,1 @@
-void transition(Adafruit_NeoPixel& pixels,int num_pixels);
+void transition(Adafruit_NeoPixel& leds,int num_pixels);
