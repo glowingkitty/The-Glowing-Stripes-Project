@@ -10,6 +10,18 @@ using namespace std;
 #include "neopixel.hpp"
 #include "webserver.h"
 
+ #ifdef __cplusplus
+  extern "C" {
+ #endif
+
+  uint8_t temprature_sens_read();
+
+#ifdef __cplusplus
+}
+#endif
+
+uint8_t temprature_sens_read();
+
 NeoPixel leds;
 WifiSetup wifisetup;
 
@@ -24,5 +36,10 @@ void setup() {
 }
 
 void loop() {
+    Serial.print("ESP32 Temperature: ");
+  
+    // Give out current temperature in degrees celcius
+    Serial.print((temprature_sens_read() - 32) / 1.8);
+    Serial.println(" C");
     leds.glow();
 }
