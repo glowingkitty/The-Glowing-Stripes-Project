@@ -19,9 +19,11 @@ using namespace std;
 
 NeoPixel::NeoPixel()
 {
-    current_animation = "beats";
+    new_animation = "beats";
     num_pin = 22;
     num_leds = 30;
+    num_random_colors = 5;
+    counter_current_color = 0;
     leds = Adafruit_NeoPixel(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     leds.begin();
 }
@@ -31,43 +33,63 @@ NeoPixel::~NeoPixel()
 
 }
 
-void NeoPixel::glow(){
-    leds.clear();
+void NeoPixel::generate_random_colors(){
+    // define random rgb colors here, loop over them and create new random colors if mode is changing 
+    for (int i=0; i<num_random_colors; i++){
+        vector<int> color;
+        color.push_back(rand() % 255 + 1);
+        color.push_back(rand() % 255 + 1);
+        color.push_back(rand() % 255 + 1);
+        rgb_colors.push_back(color);
+    }
+}
 
-    if (current_animation == "setup_mode") {
+boolean NeoPixel::animation_has_changed(){
+    // see if the animation has changed
+    if (new_animation==previous_animation){
+        return false;
+    } else {
+        return true;
+    }
+}
+
+void NeoPixel::glow(){
+    // leds.clear();
+    if (rgb_colors.size()==counter_current_color){
+        counter_current_color = 0;
+    }
+
+    if (NeoPixel::animation_has_changed()==true){
+        NeoPixel::generate_random_colors();
+    }
+
+    if (new_animation == "setup_mode") {
         setup_mode(leds,num_leds);
-    } else if (current_animation == "rainbow") {
+    } else if (new_animation == "rainbow") {
         rainbow(leds,num_leds);
-    } else if (current_animation == "off") {
+    } else if (new_animation == "off") {
         off(leds,num_leds);
-    } else if (current_animation == "color") {
+    } else if (new_animation == "color") {
         color(leds,num_leds);
-    } else if (current_animation == "rainbow") {
+    } else if (new_animation == "rainbow") {
         rainbow(leds,num_leds);
-    } else if (current_animation == "beats") {
-        int num_random_colors = 5;
-        vector<vector<int>> rgb_colors;
-        for (int i=0; i<num_random_colors; i++){
-            vector<int> color;
-            color.push_back(rand() % 255 + 1);
-            color.push_back(rand() % 255 + 1);
-            color.push_back(rand() % 255 + 1);
-            rgb_colors.push_back(color);
-        }
-        
+    } else if (new_animation == "beats") {
         beats(
             leds,
             num_leds,
-            rgb_colors
+            rgb_colors[counter_current_color]
             );
-    } else if (current_animation == "moving_dot") {
+    } else if (new_animation == "moving_dot") {
         moving_dot(leds,num_leds);
-    } else if (current_animation == "light_up") {
+    } else if (new_animation == "light_up") {
         light_up(leds,num_leds);
-    } else if (current_animation == "transition") {
+    } else if (new_animation == "transition") {
         transition(leds,num_leds);
     } else{
-        Serial.println("ERROR: current_animation not found. Turning LEDs off");
+        Serial.println("ERROR: new_animation not found. Turning LEDs off");
         off(leds,num_leds);
     }
+
+    previous_animation = new_animation;
+    counter_current_color+=1;
 }
