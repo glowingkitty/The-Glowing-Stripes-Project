@@ -1,8 +1,6 @@
-#include <SPI.h>
-#include <SD.h>
 #include <vector>
+#include <iostream>
 using namespace std;
-
 #include <Adafruit_NeoPixel.h>
 
 void beats(

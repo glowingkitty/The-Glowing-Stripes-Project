@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include <AsyncTCP.h>
+#include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 
 AsyncWebServer server(80);
@@ -12,9 +13,10 @@ void notFound(AsyncWebServerRequest *request) {
 }
 
 void start_server(){
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(200, "text/plain", "Hello, world");
-    });
+    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");;
+    // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    //     request->send(200, "text/plain", "Hello, world");
+    // });
 
     // Send a GET request to <IP>/get?message=<message>
     server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {

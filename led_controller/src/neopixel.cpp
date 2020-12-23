@@ -1,10 +1,5 @@
 #include "neopixel.hpp"
 #include <Adafruit_NeoPixel.h>
-#include <SPI.h>
-#include <SD.h>
-#ifdef __AVR__
-  #include <avr/power.h>
-#endif
 #include <vector>
 using namespace std;
 
@@ -55,6 +50,7 @@ boolean NeoPixel::animation_has_changed(){
 
 void NeoPixel::glow(){
     // leds.clear();
+    
     if (rgb_colors.size()==counter_current_color){
         counter_current_color = 0;
     }
