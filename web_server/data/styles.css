@@ -4,9 +4,9 @@
     font-style: normal;
     font-weight: 400;
     src: local('Lexend Deca Regular'), local('LexendDeca-Regular'),
-        url('fonts/lexend-deca-v3-latin-regular.woff2') format('woff2'),
+        url('fonts/lexenddeca.woff2') format('woff2'),
         /* Chrome 26+, Opera 23+, Firefox 39+ */
-        url('fonts/lexend-deca-v3-latin-regular.woff') format('woff');
+        url('fonts/lexenddeca.woff') format('woff');
     /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
