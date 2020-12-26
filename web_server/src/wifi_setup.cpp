@@ -1,27 +1,25 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
-#include "wifi_setup.hpp"  
 #include <SPI.h>
 #include <SD.h>
 #include <string>
+using namespace std;
 
-WifiSetup::WifiSetup()
-{
-    wifi_ssid = "TheGlowingStripes";
-    wifi_password = "letsglow";
-    hotspot_ssid = "TheGlowingStripes";
-    hotspot_password = "letsglow";
+const char* wifi_ssid = "TheGlowingStripes";
+const char* wifi_password = "letsglow";
+const char* hotspot_ssid = "TheGlowingStripes";
+const char* hotspot_password = "letsglow";
+string role;
+
+void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
+    Serial.println("Station connected");
+    Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
 }
 
-WifiSetup::~WifiSetup()
-{
-
-}
-
-void WifiSetup::start_hotspot(){
-  Serial.print("Starting hotspot...");
+void start_hotspot(){
+    Serial.print("Starting hotspot...");
     WiFi.mode(WIFI_AP);           // changing ESP9266 wifi mode to AP + STATION
-    WiFi.softAP(hotspot_ssid.c_str(), hotspot_password.c_str());         //Starting AccessPoint on given credential
+    WiFi.softAP(hotspot_ssid, hotspot_password);         //Starting AccessPoint on given credential
 
     // make ESP accessible via "theglowingstripes.local"
     if(!MDNS.begin("theglowingstripes")) {
@@ -29,13 +27,11 @@ void WifiSetup::start_hotspot(){
         return;
     }
     role = "host";
+
+    WiFi.onEvent(signup_new_led_strip, SYSTEM_EVENT_AP_STAIPASSIGNED);
 }
 
-std::string WifiSetup::get_role(){
-  return role;
-}
-
-boolean WifiSetup::host_is_online(){
+boolean host_is_online(){
   // see if TheGlowinStripes in network nearby
   Serial.println("Check if TheGlowinStripes wifi is online...");
   int n = WiFi.scanNetworks();
@@ -55,12 +51,12 @@ boolean WifiSetup::host_is_online(){
   return false;
 }
 
-boolean WifiSetup::connect_to_wifi(){
+boolean connect_to_wifi(){
     Serial.println("Connect to wifi...");
-    Serial.println(wifi_ssid.c_str());
+    Serial.println(wifi_ssid);
     delay(500);
 
-    WiFi.begin(wifi_ssid.c_str(), wifi_password.c_str());                  // to tell Esp32 Where to connect and trying to connect
+    WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
 
     // after 2 fails, create hotspot instead
     int failed = 0;
@@ -83,14 +79,18 @@ boolean WifiSetup::connect_to_wifi(){
     return true;
 }
 
-void WifiSetup::start_wifi(){
+string get_role(){
+  return role;
+}
+
+void start_wifi(){
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
-    if (WifiSetup::host_is_online()){
+    if (host_is_online()){
       // if true, become a backup server - to enable easy switching between hosts
       role = "backup_server";
     } else {
       // else become the host by starting the hotspot
-      WifiSetup::start_hotspot();
+      start_hotspot();
     }
 }
 

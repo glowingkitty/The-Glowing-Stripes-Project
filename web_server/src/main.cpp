@@ -3,7 +3,7 @@
 using namespace std;
 #include <SPI.h>
 #include <SD.h>
-#include "wifi_setup.hpp"
+#include "wifi_setup.h"
 #include "webserver.h"
 #include "Arduino.h"
 #include "FS.h"
@@ -21,8 +21,6 @@ using namespace std;
 
 uint8_t temprature_sens_read();
 
-WifiSetup wifisetup;
-
 void setup() {
     Serial.begin(115200);               // to enable Serial Commmunication with connected Esp32 board
     
@@ -31,7 +29,7 @@ void setup() {
         return;
     }
     
-    wifisetup.start_wifi();
+    start_wifi();
     start_server();
 }
 
@@ -44,10 +42,10 @@ void loop() {
 
 
     // if this webserver is not the host currently, check every few seconds if host is still online - else make this the host
-    if (wifisetup.get_role()=="backup_server"){
-        if (!wifisetup.host_is_online()){
+    if (get_role()=="backup_server"){
+        if (!host_is_online()){
             Serial.print("Host went offline. Becoming new host by starting hotspot...");
-            wifisetup.start_hotspot();
+            start_hotspot();
         }
     }
 

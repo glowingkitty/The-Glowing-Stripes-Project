@@ -23,6 +23,13 @@ void start_server(){
         }
     });
 
+    server.on("/led_strip_info", HTTP_GET, [](AsyncWebServerRequest *request){
+        DynamicJsonDocument led_strip_info(1024);
+        led_strip_info["name"] = "LED strip";
+        led_strip_info["id"] = "9sjs82jas";
+        request->send(200, "application/json", led_strip_info.as<String>());
+    });
+
     server.onNotFound(notFound);
 
     server.begin();
