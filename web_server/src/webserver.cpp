@@ -4,14 +4,14 @@
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 #include <vector>
+#include <string>
 #include <algorithm>
 using namespace std;
 #include "ArduinoJson.h"
+#include <WiFi.h>
+#include "esp_wifi.h"
 
 AsyncWebServer server(80);
-
-DynamicJsonDocument connected_led_strips(1024);
-JsonArray led_strips = connected_led_strips["led_strips"].to<JsonArray>();
 
 void notFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
@@ -20,24 +20,26 @@ void notFound(AsyncWebServerRequest *request) {
 void start_server(){
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");;
 
-    server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
-        DynamicJsonDocument led_strip(1024);
-
-        if(request->hasParam("body", true)){
-            AsyncWebParameter* p = request->getParam("body", true);
-            // DynamicJsonBuffer buffer;
-            // deserializeJson(led_strip, buffer.parseObject(p->value()));
-            deserializeJson(led_strip, p->value());
-            
-            if (led_strip["ip_address"]){
-                led_strips.add(led_strip);
-
-                request->send(200, "application/json", "{\"success\":true}");
-            }
-        }
-    });
-
     server.on("/connected_led_strips", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        // get the IP addresses of all LED strips and return them to frontend - so frontend can make /change_mode requests to led strips for changing to setup mode
+        // and get details like length of led strip, name and last animation in return - to generate preview of led strips
+        DynamicJsonDocument connected_led_strips(1024);
+        JsonArray led_strips = connected_led_strips["led_strips"].to<JsonArray>();
+
+        wifi_sta_list_t wifi_sta_list;
+        tcpip_adapter_sta_list_t adapter_sta_list;
+        
+        memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
+        memset(&adapter_sta_list, 0, sizeof(adapter_sta_list));
+        
+        esp_wifi_ap_get_sta_list(&wifi_sta_list);
+        tcpip_adapter_get_sta_list(&wifi_sta_list, &adapter_sta_list);
+        
+        for (int i = 0; i < adapter_sta_list.num; i++) {
+            tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
+            led_strips.add(String(ip4addr_ntoa(&(station.ip))));    
+        }
+
         request->send(200, "application/json", connected_led_strips.as<String>());
     });
 

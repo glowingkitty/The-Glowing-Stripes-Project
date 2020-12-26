@@ -12,8 +12,7 @@ const char* hotspot_password = "letsglow";
 string role;
 
 void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
-    Serial.println("Station connected");
-    Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
+    Serial.println("New device is connected to the webserver!");
 }
 
 void start_hotspot(){
