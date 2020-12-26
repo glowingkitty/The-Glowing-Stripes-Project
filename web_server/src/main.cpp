@@ -41,5 +41,15 @@ void loop() {
     // Give out current temperature in degrees celcius
     Serial.print((temprature_sens_read() - 32) / 1.8);
     Serial.println(" C");
-    delay(5000);
+
+
+    // if this webserver is not the host currently, check every few seconds if host is still online - else make this the host
+    if (wifisetup.get_role()=="backup_server"){
+        if (!wifisetup.host_is_online()){
+            Serial.print("Host went offline. Becoming new host by starting hotspot...");
+            wifisetup.start_hotspot();
+        }
+    }
+
+    delay(1000);
 }

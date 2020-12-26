@@ -3,6 +3,7 @@
 #include "wifi_setup.hpp"  
 #include <SPI.h>
 #include <SD.h>
+#include <string>
 
 WifiSetup::WifiSetup()
 {
@@ -18,6 +19,7 @@ WifiSetup::~WifiSetup()
 }
 
 void WifiSetup::start_hotspot(){
+  Serial.print("Starting hotspot...");
     WiFi.mode(WIFI_AP);           // changing ESP9266 wifi mode to AP + STATION
     WiFi.softAP(hotspot_ssid.c_str(), hotspot_password.c_str());         //Starting AccessPoint on given credential
 
@@ -26,12 +28,31 @@ void WifiSetup::start_hotspot(){
         Serial.println("Error starting mDNS");
         return;
     }
+    role = "host";
+}
 
-    IPAddress myIP = WiFi.softAPIP();        //IP Address of our Esp32 accesspoint(where we can host webpages, and see data)
-    Serial.print("Access Point IP address: ");
-    Serial.println(myIP);
-    
-    Serial.println("");
+std::string WifiSetup::get_role(){
+  return role;
+}
+
+boolean WifiSetup::host_is_online(){
+  // see if TheGlowinStripes in network nearby
+  Serial.println("Check if TheGlowinStripes wifi is online...");
+  int n = WiFi.scanNetworks();
+  if (n == 0) {
+      Serial.println("no networks found");
+      WiFi.scanDelete();
+      return false;
+  } else {
+      for (int i = 0; i < n; ++i) {
+          // Print SSID and RSSI for each network found
+          if (WiFi.SSID(i)=="TheGlowingStripes"){
+            return true;
+          }
+      }
+  }
+  WiFi.scanDelete();
+  return false;
 }
 
 boolean WifiSetup::connect_to_wifi(){
@@ -63,7 +84,13 @@ boolean WifiSetup::connect_to_wifi(){
 }
 
 void WifiSetup::start_wifi(){
-    if (!WifiSetup::connect_to_wifi()){
+    // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
+    if (WifiSetup::host_is_online()){
+      // if true, become a backup server - to enable easy switching between hosts
+      role = "backup_server";
+    } else {
+      // else become the host by starting the hotspot
       WifiSetup::start_hotspot();
     }
 }
+

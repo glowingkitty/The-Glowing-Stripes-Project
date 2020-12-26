@@ -3,10 +3,15 @@
 #include <AsyncTCP.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
+#include <vector>
+#include <algorithm>
+using namespace std;
+#include "ArduinoJson.h"
 
 AsyncWebServer server(80);
 
-const char* PARAM_MESSAGE = "Hello world";
+DynamicJsonDocument connected_led_strips(1024);
+JsonArray led_strips = connected_led_strips["led_strips"].to<JsonArray>();
 
 void notFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
@@ -14,30 +19,60 @@ void notFound(AsyncWebServerRequest *request) {
 
 void start_server(){
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");;
-    // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    //     request->send(200, "text/plain", "Hello, world");
-    // });
 
-    // Send a GET request to <IP>/get?message=<message>
-    server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        String message;
-        if (request->hasParam(PARAM_MESSAGE)) {
-            message = request->getParam(PARAM_MESSAGE)->value();
-        } else {
-            message = "No message sent";
+    server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
+        DynamicJsonDocument led_strip(1024);
+
+        if(request->hasParam("body", true)){
+            AsyncWebParameter* p = request->getParam("body", true);
+            // DynamicJsonBuffer buffer;
+            // deserializeJson(led_strip, buffer.parseObject(p->value()));
+            deserializeJson(led_strip, p->value());
+            
+            if (led_strip["ip_address"]){
+                led_strips.add(led_strip);
+
+                request->send(200, "application/json", "{\"success\":true}");
+            }
         }
-        request->send(200, "text/plain", "Hello, GET: " + message);
     });
 
-    // Send a POST request to <IP>/post with a form field message set to <message>
-    server.on("/post", HTTP_POST, [](AsyncWebServerRequest *request){
-        String message;
-        if (request->hasParam(PARAM_MESSAGE, true)) {
-            message = request->getParam(PARAM_MESSAGE, true)->value();
+    server.on("/connected_led_strips", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", connected_led_strips.as<String>());
+    });
+
+    server.on("/wifi_networks_nearby", HTTP_GET, [](AsyncWebServerRequest *request){
+        String json = "{\"networks\":[";
+
+        Serial.println("Scan for Wifi nerworks...");
+        int n = WiFi.scanNetworks();
+        if (n == 0) {
+            Serial.println("no networks found");
         } else {
-            message = "No message sent";
+            Serial.print(n);
+            Serial.println(" networks found");
+            
+            vector<String> processed_essids;
+            for (int i = 0; i < n; ++i) {
+                // Print SSID and RSSI for each network found
+                if (find(processed_essids.begin(), processed_essids.end(), WiFi.SSID(i)) != processed_essids.end()){
+                }else{
+                    if(i) json += ",";
+                    json += "{";
+                    json += "\"signal_strength\":"+String(WiFi.RSSI(i));
+                    json += ",\"essid\":\""+WiFi.SSID(i)+"\"";
+                    json += ",\"encryption\":"+String(WiFi.encryptionType(i) == 0 ? "off" : "on");
+                    json += ",\"current_wifi\":false";
+                    json += "}";
+                    processed_essids.push_back(WiFi.SSID(i));
+                }
+            }
         }
-        request->send(200, "text/plain", "Hello, POST: " + message);
+        WiFi.scanDelete();
+
+        json += "]}";
+        request->send(200, "application/json", json);
+        json = String();
     });
 
     server.onNotFound(notFound);
