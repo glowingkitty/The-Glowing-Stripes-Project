@@ -9,6 +9,7 @@
 #include "webserver.h"
 #include <HTTPClient.h>
 #include "ArduinoJson.h"
+#include "SPIFFS.h"
 
  #ifdef __cplusplus
   extern "C" {
@@ -34,7 +35,6 @@ void connect_to_host(){
   delay(500);              
   while (WiFi.status() != WL_CONNECTED) {
     Serial.println("Coudnt connect to host. Restarting...");
-    // TODO replace with a better solution to cut down boot time
     ESP.restart();
   }
 }
@@ -48,7 +48,12 @@ void setup() {
     #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
       clock_prescale_set(clock_div_1);
     #endif
-    Serial.begin(115200);               // to enable Serial Commmunication with connected Esp32 board
+    Serial.begin(115200);
+
+    if (!SPIFFS.begin(true)) {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
+    }
 
     // if connection to host drops, auto connect to new host
     WiFi.onEvent(reconnect_to_new_host, SYSTEM_EVENT_STA_DISCONNECTED);

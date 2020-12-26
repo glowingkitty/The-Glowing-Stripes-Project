@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include <AsyncTCP.h>
+#include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 #include "ArduinoJson.h"
 
@@ -11,6 +12,8 @@ void notFound(AsyncWebServerRequest *request) {
 }
 
 void start_server(){
+    server.serveStatic("/", SPIFFS, "/");
+
     server.on("/change_mode", HTTP_POST, [](AsyncWebServerRequest *request){
         DynamicJsonDocument new_mode(1024);
 
@@ -25,8 +28,13 @@ void start_server(){
 
     server.on("/led_strip_info", HTTP_GET, [](AsyncWebServerRequest *request){
         DynamicJsonDocument led_strip_info(1024);
+        // TODO get led stripe info from data/stripe_config.json & generate default values (id, name, animation) if they are set to none
         led_strip_info["name"] = "LED strip";
         led_strip_info["id"] = "9sjs82jas";
+        led_strip_info["num_of_sections"] = 2;
+        led_strip_info["num_of_leds"] = 30;
+        led_strip_info["last_animation"]["name"] = "Beats";
+        led_strip_info["last_animation"]["id"] = "12ed1wdwd";
         request->send(200, "application/json", led_strip_info.as<String>());
     });
 

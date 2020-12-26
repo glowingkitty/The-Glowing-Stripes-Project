@@ -1,0 +1,75 @@
+{
+    "mixes": [{
+        "id": "89sj3a",
+        "name": "Glow mix",
+        "led_strips": [
+            [{
+                "length": 4,
+                "position": 0,
+                "shift": 0,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }, {
+                "length": 2,
+                "position": 1,
+                "shift": 1,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }, {
+                "length": 4,
+                "position": 2,
+                "shift": 0,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }]
+        ]
+    }, {
+        "id": "s8hn199",
+        "name": "Another glow mix",
+        "led_strips": [
+            [{
+                "length": 4,
+                "position": 0,
+                "shift": 0,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }, {
+                "length": 2,
+                "position": 1,
+                "shift": 0,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }, {
+                "length": 4,
+                "position": 2,
+                "shift": 0,
+                "mode": {
+                    "name": "Rainbow",
+                    "direction": "down",
+                    "brightness": 100,
+                    "speed": 100
+                }
+            }]
+        ]
+    }]
+}

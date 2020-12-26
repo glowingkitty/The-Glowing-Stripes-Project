@@ -1,0 +1,113 @@
+{
+    "led_animations": {
+        "custom": [],
+        "default": [
+            {
+                "id": "0000000000",
+                "name": "Setup mode",
+                "neopixel_plus_function":"color"
+            },
+            {
+                "id": "1111111111",
+                "name": "off",
+                "neopixel_plus_function":"off"
+            },
+            {
+                "id": "9jwnqn8v3i",
+                "name": "Color",
+                "neopixel_plus_function":"color",
+                "customization":{
+                    "colors_selected":"random",
+                    "rgb_colors":"random",
+                    "num_random_colors":1
+                }
+            },
+            {
+                "id": "b943uee3y7",
+                "name": "Rainbow",
+                "neopixel_plus_function":"rainbow_animation",
+                "customization":{
+                    "brightness":1.0,
+                    "timing_selected":"manual",
+                    "duration_ms":1000,
+                    "pause_ms":0
+                }
+            },
+            {
+                "id": "8hsylal9v7",
+                "name": "Beats",
+                "neopixel_plus_function":"beats",
+                "customization":{
+                    "colors_selected":"random",
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "brightness_fixed":false,
+                    "max_height":1,
+                    "timing_selected":"manual",
+                    "duration_ms":200,
+                    "pause_ms":300,
+                    "start":"start",
+                    "possible_directions":[
+                        "start",
+                        "end",
+                        "start + end",
+                        "center"
+                    ]
+                }
+            },
+            {
+                "id": "leta9ed5fc",
+                "name": "Moving dot",
+                "neopixel_plus_function":"moving_dot",
+                "customization":{
+                    "colors_selected":"random",
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "timing_selected":"manual",
+                    "duration_ms":200,
+                    "pause_a_ms":0,
+                    "pause_b_ms":300,
+                    "start":"start",
+                    "possible_directions":[
+                        "start",
+                        "end"
+                    ]
+                }
+            },
+            {
+                "id": "kack2555kd",
+                "name": "Light Up",
+                "neopixel_plus_function":"light_up",
+                "customization":{
+                    "colors_selected":"random",
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "timing_selected":"manual",
+                    "duration_ms":200,
+                    "pause_ms":200,
+                    "sections_selected":"all",
+                    "sections":"all"
+                }
+            },
+            {
+                "id": "7u9tjpd0gi",
+                "name": "Transition",
+                "neopixel_plus_function":"transition",
+                "customization":{
+                    "colors_selected":"random",
+                    "rgb_colors":"random",
+                    "num_random_colors":5,
+                    "brightness":1.0,
+                    "timing_selected":"manual",
+                    "duration_ms":200,
+                    "pause_ms":200,
+                    "sections_selected":"all",
+                    "sections":"all"
+                }
+            }
+        ]
+    }
+}
