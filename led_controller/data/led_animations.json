@@ -1,4 +1,27 @@
 {
+    "default_animation":{
+        "id": "8hsylal9v7",
+        "name": "Beats",
+        "neopixel_plus_function":"beats",
+        "customization":{
+            "colors_selected":"random",
+            "rgb_colors":"random",
+            "num_random_colors":5,
+            "brightness":1.0,
+            "brightness_fixed":false,
+            "max_height":1,
+            "timing_selected":"manual",
+            "duration_ms":200,
+            "pause_ms":300,
+            "start":"start",
+            "possible_directions":[
+                "start",
+                "end",
+                "start + end",
+                "center"
+            ]
+        }
+    },
     "led_animations": {
         "custom": [],
         "default": [

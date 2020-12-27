@@ -31,6 +31,7 @@ const char* ssid = "TheGlowingStripes";
 const char* password = "letsglow";
 
 void connect_to_host(){
+  Serial.println("Connecting to host...");
   WiFi.begin(ssid,password);  
   delay(500);              
   while (WiFi.status() != WL_CONNECTED) {
