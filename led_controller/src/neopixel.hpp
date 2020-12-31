@@ -15,6 +15,8 @@ class NeoPixel
 		int num_random_colors;
 		int counter_current_color;
 		vector<vector<int>> rgb_colors;
+		int loudness;
+		int previous_loudness;
 
 
 	public:

@@ -24,7 +24,7 @@ void start_server(){
         // get the IP addresses of all LED strips and return them to frontend - so frontend can make /change_mode requests to led strips for changing to setup mode
         // and get details like length of led strip, name and last animation in return - to generate preview of led strips
         DynamicJsonDocument connected_led_strips(1024);
-        JsonArray led_strips = connected_led_strips["led_strips"].to<JsonArray>();
+        JsonArray led_strips = connected_led_strips["connected_led_strips"].to<JsonArray>();
 
         wifi_sta_list_t wifi_sta_list;
         tcpip_adapter_sta_list_t adapter_sta_list;

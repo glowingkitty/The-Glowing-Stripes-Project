@@ -12,6 +12,8 @@ using namespace std;
 #include "animations/light_up.h"
 #include "animations/transition.h"
 
+#define ANALOG_PIN 32
+
 NeoPixel::NeoPixel()
 {
     new_animation = "beats";
@@ -49,43 +51,52 @@ boolean NeoPixel::animation_has_changed(){
 }
 
 void NeoPixel::glow(){
-    // leds.clear();
+    loudness = analogRead(ANALOG_PIN);
+    Serial.println("Previous");
+    Serial.println(previous_loudness);
+    Serial.println("New");
+    Serial.println(loudness);
     
-    if (rgb_colors.size()==counter_current_color){
-        counter_current_color = 0;
+    if (loudness>previous_loudness){
+        
+        if (rgb_colors.size()==counter_current_color){
+            counter_current_color = 0;
+        }
+
+        if (NeoPixel::animation_has_changed()==true){
+            NeoPixel::generate_random_colors();
+        }
+
+        if (new_animation == "setup_mode") {
+            setup_mode(leds,num_leds);
+        } else if (new_animation == "rainbow") {
+            rainbow(leds,num_leds);
+        } else if (new_animation == "off") {
+            off(leds,num_leds);
+        } else if (new_animation == "color") {
+            color(leds,num_leds);
+        } else if (new_animation == "rainbow") {
+            rainbow(leds,num_leds);
+        } else if (new_animation == "beats") {
+            beats(
+                leds,
+                num_leds,
+                rgb_colors[counter_current_color]
+                );
+        } else if (new_animation == "moving_dot") {
+            moving_dot(leds,num_leds);
+        } else if (new_animation == "light_up") {
+            light_up(leds,num_leds);
+        } else if (new_animation == "transition") {
+            transition(leds,num_leds);
+        } else{
+            Serial.println("ERROR: new_animation not found. Turning LEDs off");
+            off(leds,num_leds);
+        }
+
+        previous_animation = new_animation;
+        counter_current_color+=1;
     }
 
-    if (NeoPixel::animation_has_changed()==true){
-        NeoPixel::generate_random_colors();
-    }
-
-    if (new_animation == "setup_mode") {
-        setup_mode(leds,num_leds);
-    } else if (new_animation == "rainbow") {
-        rainbow(leds,num_leds);
-    } else if (new_animation == "off") {
-        off(leds,num_leds);
-    } else if (new_animation == "color") {
-        color(leds,num_leds);
-    } else if (new_animation == "rainbow") {
-        rainbow(leds,num_leds);
-    } else if (new_animation == "beats") {
-        beats(
-            leds,
-            num_leds,
-            rgb_colors[counter_current_color]
-            );
-    } else if (new_animation == "moving_dot") {
-        moving_dot(leds,num_leds);
-    } else if (new_animation == "light_up") {
-        light_up(leds,num_leds);
-    } else if (new_animation == "transition") {
-        transition(leds,num_leds);
-    } else{
-        Serial.println("ERROR: new_animation not found. Turning LEDs off");
-        off(leds,num_leds);
-    }
-
-    previous_animation = new_animation;
-    counter_current_color+=1;
+    previous_loudness = loudness;
 }

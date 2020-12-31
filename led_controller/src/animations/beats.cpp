@@ -14,11 +14,11 @@ void beats(
     for(int i=0; i<num_leds; i++) {
         leds.setPixelColor(i, leds.Color(rgb_color[0],rgb_color[1],rgb_color[2]));
         leds.show();
-        delay(50);
+        delay(5);
     }
     for(int i=num_leds; i>=0; i--) {
         leds.setPixelColor(i, leds.Color(0,0,0));
         leds.show();
-        delay(50);
+        delay(5);
     }
 }

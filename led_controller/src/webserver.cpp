@@ -34,8 +34,8 @@ void start_server(){
     Serial.println("Starting server...");
     server.serveStatic("/", SPIFFS, "/");
 
-    server.on("/change_mode", HTTP_POST, [](AsyncWebServerRequest *request){
-        Serial.println("Process POST /change_mode request...");
+    server.on("/mode", HTTP_POST, [](AsyncWebServerRequest *request){
+        Serial.println("Process POST /mode request...");
         DynamicJsonDocument new_mode(1024);
 
         if(request->hasParam("body", true)){

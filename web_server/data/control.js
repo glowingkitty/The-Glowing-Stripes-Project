@@ -5,6 +5,7 @@ var num_of_led_strips = 0;
 var led_strips = {};
 var led_animations = {};
 var selected_led_strip_id = null;
+var processed_led_strips = [];
 
 let Control = class {
     constructor(sync_all) {
@@ -59,21 +60,40 @@ let Control = class {
                     connected_led_strips = response.data.connected_led_strips;
                     num_of_led_strips = connected_led_strips.length;
                     
+                    // make sure to process every led strip only once, instead of making a lot of request to the same LED strip (resulting in glitchy blinking)
                     var counter;
                     for (counter = 0; counter < num_of_led_strips; counter++) {
-
-                        // check if LED strip already exists, only add if it doesn't exist yet
-                        if (!document.getElementById(connected_led_strips[counter].id)) {
-                            led_strips[connected_led_strips[counter].id] = new LEDstrip(
-                                connected_led_strips[counter].id,
-                                connected_led_strips[counter].name,
-                                connected_led_strips[counter].last_animation,
-                                connected_led_strips[counter].num_of_leds
-                            );
-                            led_strips[connected_led_strips[counter].id].connect();
+                        if (!processed_led_strips.includes(connected_led_strips[counter])){
+                            // TODO switch led strip mode to setup mode (to hopefully prevent glitchy glowing up)
+                            var random_color = [
+                                Math.round(Math.random()*255),
+                                Math.round(Math.random()*255),
+                                Math.round(Math.random()*255)
+                            ];
+                            axios
+                                .post("http://"+connected_led_strips[counter]+"/mode",{
+                                    "new_animation": {
+                                        "id":"0000000000",
+                                        "name":"Setup mode",
+                                        "rgb_color":random_color
+                                    }
+                                })
+                                .then(function(led_strip_data){
+                                    // get full details from led strips
+                                    // check if LED strip already exists, only add if it doesn't exist yet
+                                    if (!document.getElementById(led_strip_data.data.id)) {
+                                        led_strips[led_strip_data.data.id] = new LEDstrip(
+                                            led_strip_data.data.id,
+                                            led_strip_data.data.name,
+                                            led_strip_data.data.last_animation,
+                                            led_strip_data.data.num_of_leds
+                                        );
+                                        led_strips[led_strip_data.data.id].connect();
+                                    }
+                                    processed_led_strips.push(connected_led_strips[counter]);
+                                });
                         }
-
-                    }
+                   }
 
                     // show "ready to glow?" if at least one LED strip connected
                     if (document.getElementById('ready_to_glow')) {
