@@ -33,8 +33,13 @@ const char* password = "letsglow";
 void connect_to_host(){
   Serial.println("Connecting to host...");
   WiFi.begin(ssid,password);  
-  delay(500);              
-  while (WiFi.status() != WL_CONNECTED) {
+  int waited = 0;              
+  while (WiFi.status() != WL_CONNECTED && waited<20) {
+    Serial.println("Coudnt connect to host. Waiting...");
+    waited+=1;
+    delay(100);
+  }
+  if (WiFi.status() != WL_CONNECTED && waited==20){
     Serial.println("Coudnt connect to host. Restarting...");
     ESP.restart();
   }
