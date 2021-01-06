@@ -1,26 +1,65 @@
-#include "Arduino.h"
 #include "neopixel.hpp"
+#include "wifi_setup.h"
+#include "webserver.h"
 
 // create neopixel led object
 NeoPixel leds;
 
+TaskHandle_t Task1;
+TaskHandle_t Task2;
+
+void Task1code( void * pvParameters ){
+  Serial.print("Task1 running on core ");
+  Serial.println(xPortGetCoreID());
+
+  start_wifi();
+  start_server();
+
+  for(;;){
+    delay(1000);
+  }
+}
+
+void Task2code( void * pvParameters ){
+  Serial.print("Task2 running on core ");
+  Serial.println(xPortGetCoreID());
+
+  for(;;){
+    leds.glow();
+  }
+}
+
 void setup() {
     Serial.begin(115200);
-
-    
     
 
-    // check if glowing stripes wifi exists
+    //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
+    xTaskCreatePinnedToCore(
+                      Task1code,   /* Task function. */
+                      "Task1",     /* name of task. */
+                      10000,       /* Stack size of task */
+                      NULL,        /* parameter of the task */
+                      1,           /* priority of the task */
+                      &Task1,      /* Task handle to keep track of created task */
+                      0);          /* pin task to core 0 */                  
+    delay(500); 
 
-    // if it does, connect to it and set role as "client"
-
+    //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+    xTaskCreatePinnedToCore(
+                      Task2code,   /* Task function. */
+                      "Task2",     /* name of task. */
+                      10000,       /* Stack size of task */
+                      NULL,        /* parameter of the task */
+                      1,           /* priority of the task */
+                      &Task2,      /* Task handle to keep track of created task */
+                      1);          /* pin task to core 1 */
+    delay(500);
 
 }
 
+
+
+
 void loop() {
-
-    // if role is "client", check if host is still online, else start hotspot to become host
-
-    // play animation
-    leds.glow();
+    
 }

@@ -35,6 +35,7 @@ void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
     for (int i = 0; i < adapter_sta_list.num; i++) {
         tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
         string ip_address = ip4addr_ntoa(&(station.ip));
+        Serial.println(("Trying to access "+ip_address).c_str());
 
         // make request to led strip & if response successfull - add to led_strips
         // TODO seems to fail, the request - check serial output on led strip at the same time (connect via wifi to check both at the same time)
@@ -63,8 +64,7 @@ void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
           }
         }
         else {
-          Serial.print("Error code: ");
-          Serial.println(httpResponseCode);
+          Serial.println("Didn't get a valid response from new device. Probably its not an LED strip");
         }
         // Free resources
         http.end();
@@ -170,10 +170,14 @@ string get_role(){
 }
 
 void start_wifi(){
+    if (!SPIFFS.begin(true)) {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
+    }
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
     if (host_is_online()){
-      // if true, become a backup server - to enable easy switching between hosts
-      role = "backup_server";
+      // if true, become a client (playing leds are get ready to take over host, if host goes offline)
+      role = "client";
     } else {
       // else become the host by starting the hotspot
       start_hotspot();
