@@ -28,6 +28,11 @@ void setup() {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
     }
+
+    // remove json with currently connected LED strips
+    if (SPIFFS.exists("/connected_led_strips.json")){
+        SPIFFS.remove("/connected_led_strips.json");
+    }
     
     start_wifi();
     start_server();

@@ -7,7 +7,6 @@
 #endif
 #include "neopixel.hpp"
 #include "webserver.h"
-#include <HTTPClient.h>
 #include "ArduinoJson.h"
 #include "SPIFFS.h"
 

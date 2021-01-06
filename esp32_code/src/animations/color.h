@@ -1,0 +1,1 @@
+void color(Adafruit_NeoPixel& leds,int num_pixels);

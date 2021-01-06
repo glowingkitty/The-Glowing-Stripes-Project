@@ -71,7 +71,9 @@ void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
     }
 
     // delete previous connected_led_strips.json
-    SPIFFS.remove("/connected_led_strips.json");
+    if (SPIFFS.exists("/connected_led_strips.json")){
+      SPIFFS.remove("/connected_led_strips.json");
+    }
 
     // save new connected_led_strips.json
     File file = SPIFFS.open("/connected_led_strips.json", FILE_WRITE);
@@ -90,7 +92,13 @@ void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
 }
 
 void start_hotspot(){
-    Serial.print("Starting hotspot...");
+    Serial.println("Starting hotspot...");
+    // remove json with currently connected LED strips
+    if (SPIFFS.exists("/connected_led_strips.json")){
+      SPIFFS.remove("/connected_led_strips.json");
+    }
+    
+    
     WiFi.mode(WIFI_AP);           // changing ESP9266 wifi mode to AP + STATION
     WiFi.softAP(hotspot_ssid, hotspot_password);         //Starting AccessPoint on given credential
 
@@ -102,6 +110,7 @@ void start_hotspot(){
     role = "host";
 
     WiFi.onEvent(signup_new_led_strip, SYSTEM_EVENT_AP_STAIPASSIGNED);
+    Serial.println("Hotspot active now!");
 }
 
 boolean host_is_online(){
@@ -116,11 +125,13 @@ boolean host_is_online(){
       for (int i = 0; i < n; ++i) {
           // Print SSID and RSSI for each network found
           if (WiFi.SSID(i)=="TheGlowingStripes"){
+            Serial.println("TheGlowingStripes wifi found!");
             return true;
           }
       }
   }
   WiFi.scanDelete();
+  Serial.println("TheGlowingStripes wifi NOT found!");
   return false;
 }
 
