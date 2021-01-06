@@ -175,7 +175,7 @@ void start_wifi(){
         return;
     }
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
-    if (host_is_online()){
+    if (connect_to_wifi()){
       // if true, become a client (playing leds are get ready to take over host, if host goes offline)
       role = "client";
     } else {
