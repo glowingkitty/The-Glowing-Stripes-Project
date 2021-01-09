@@ -1,1 +1,0 @@
-void transition(Adafruit_NeoPixel& leds,int num_pixels);

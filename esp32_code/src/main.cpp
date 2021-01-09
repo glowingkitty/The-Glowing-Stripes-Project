@@ -1,9 +1,11 @@
-#include "neopixel.hpp"
+#include "neopixel.h"
+#include "Arduino.h"
+#include <Adafruit_NeoPixel.h>
 #include "wifi_setup.h"
 #include "webserver.h"
+#include "ota_update.h"
 
-// create neopixel led object
-NeoPixel leds;
+
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -14,8 +16,10 @@ void Task1code( void * pvParameters ){
 
   start_wifi();
   start_server();
+  start_ota();
 
   for(;;){
+    handle_ota();
     delay(1000);
   }
 }
@@ -23,9 +27,10 @@ void Task1code( void * pvParameters ){
 void Task2code( void * pvParameters ){
   Serial.print("Task2 running on core ");
   Serial.println(xPortGetCoreID());
+  init_leds();
 
   for(;;){
-    leds.glow();
+    glow();
   }
 }
 
@@ -61,5 +66,5 @@ void setup() {
 
 
 void loop() {
-    
+    delay(500);
 }

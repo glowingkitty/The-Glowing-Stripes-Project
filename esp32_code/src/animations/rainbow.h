@@ -1,1 +1,0 @@
-void rainbow(Adafruit_NeoPixel& leds,int num_pixels);

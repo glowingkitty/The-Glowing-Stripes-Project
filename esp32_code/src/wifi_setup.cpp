@@ -59,6 +59,7 @@ void signup_new_led_strip(WiFiEvent_t event, WiFiEventInfo_t info){
             Serial.print(F("deserializeJson() failed: "));
             Serial.println(error.f_str());
           } else{
+            // serializeJsonPretty(led_strip_info_json, Serial);
             led_strips.add(led_strip_info_json);
             Serial.println(("Collected LED strip info for "+ip_address).c_str());
           }
