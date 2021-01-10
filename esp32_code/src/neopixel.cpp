@@ -8,7 +8,7 @@ using namespace std;
 // #define ANALOG_PIN 32
 int num_pin = 22;
 int num_leds = 60;
-int duration_ms = 1000;
+int duration_ms = 500;
 int pause_ms = 0;
 
 
@@ -27,9 +27,13 @@ void generate_random_colors(){
     // define random rgb colors here, loop over them and create new random colors if mode is changing 
     for (int i=0; i<num_random_colors; i++){
         vector<int> color;
-        color.push_back(rand() % 255 + 1);
-        color.push_back(rand() % 255 + 1);
-        color.push_back(rand() % 255 + 1);
+        int r = (rand() % 255 + 1);
+        int g = (rand() % 255 + 1);
+        int b = (rand() % 255 + 1);
+
+        color.push_back(r);
+        color.push_back(g);
+        color.push_back(b);
         rgb_colors.push_back(color);
     }
 }
@@ -65,12 +69,17 @@ void beats(){
 
 void transition(){
     Serial.println("Glow transition...");
-    // transition from rgb_colors[counter_current_color-1] to rgb_colors[counter_current_color] in 20 steps
+    // transition from previous to new color in x steps
     int num_of_steps = 20;
 
-    int start_r = rgb_colors[counter_current_color-1][0];
-    int start_g = rgb_colors[counter_current_color-1][1];
-    int start_b = rgb_colors[counter_current_color-1][2];
+    int start_r = rgb_colors.back()[0];
+    int start_g = rgb_colors.back()[1];
+    int start_b = rgb_colors.back()[2];
+    if (counter_current_color>0){
+        start_r = rgb_colors[counter_current_color-1][0];
+        start_g = rgb_colors[counter_current_color-1][1];
+        start_b = rgb_colors[counter_current_color-1][2];
+    }
 
     int target_r = rgb_colors[counter_current_color][0];
     int target_g = rgb_colors[counter_current_color][1];
@@ -79,25 +88,6 @@ void transition(){
     int by_step_change_r = round((target_r-start_r)/num_of_steps);
     int by_step_change_g = round((target_g-start_g)/num_of_steps);
     int by_step_change_b = round((target_b-start_b)/num_of_steps);
-
-    if (by_step_change_r < -255 || by_step_change_r > 255){
-        Serial.println(target_r);
-        Serial.println(start_r);
-        Serial.println(target_r-start_r);
-        by_step_change_r = 0;
-    }
-    if (by_step_change_g < -255 || by_step_change_g > 255){
-        Serial.println(target_g);
-        Serial.println(start_g);
-        Serial.println(target_g-start_g);
-        by_step_change_g = 0;
-    }
-    if (by_step_change_b < -255 || by_step_change_b > 255){
-        Serial.println(target_b);
-        Serial.println(start_b);
-        Serial.println(target_b-start_b);
-        by_step_change_b = 0;
-    }
 
     int delay_step = (duration_ms/num_of_steps);
 
