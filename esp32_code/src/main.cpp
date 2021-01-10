@@ -1,7 +1,6 @@
 #include "neopixel.h"
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
-#include "wifi_setup.h"
 #include "webserver.h"
 #include "ota_update.h"
 
