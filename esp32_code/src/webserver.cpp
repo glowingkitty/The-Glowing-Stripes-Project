@@ -8,13 +8,14 @@
 #include <SPI.h>
 #include <SD.h>
 #include <HTTPClient.h>
-#include "ArduinoJson.h"
 #include <AsyncTCP.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 #include "ArduinoJson.h"
 #include "credentials.h"
 #include <string>
+#include <stdio.h>
+#include "strip_config.h"
 using namespace std;
 
 const char* glowing_stripes_ssid = "TheGlowingStripes";
@@ -23,29 +24,41 @@ string role;
 
 AsyncWebServer server(80);
 
-DynamicJsonDocument connected_led_strips(2048);
-JsonArray led_strips = connected_led_strips["connected_led_strips"].to<JsonArray>();
+//// stripe_config.json fields - around 70bytes when fields are filled:
+// 0:id
+// 1:name
+// 2:num_of_leds
+// 3:num_of_sections
+// 4:last_animation_id
+// 5:ip_address
+
+//// led_animations.json fields - around 930bytes with default content:
+// 0:id
+// 1:name
+// 2:neopixel_plus_function
+// 3:customization
+//// customization settings:
+// a:colors_selected
+// b:rgb_colors
+// c:num_random_colors
+// d:brightness
+// e:timing_selected
+// f:duration_ms
+// g:pause_a_ms
+// h:pause_b_ms
+// i:sections_selected
+// j:sections
+// k:start
+// l:possible_directions
+// m:brightness_fixed
+// n:max_height
+
+DynamicJsonDocument connected_led_strips(2048); // equals about 30 LED strips (70bytes per LED strip)
+JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 
 /////////////////////////////
 /// Wifi
 /////////////////////////////
-
-string gen_random(const int len) {
-    string tmp_s;
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-    
-    srand( (unsigned) time(NULL) * getpid());
-
-    tmp_s.reserve(len);
-
-    for (int i = 0; i < len; ++i) 
-        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
-    return tmp_s;
-    
-}
 
 void start_hotspot(){
     Serial.println("Starting hotspot...");
@@ -89,6 +102,7 @@ boolean connect_to_wifi(){
     Serial.println(wifi_ssid);
     delay(500);
 
+    // TODO if credentials for a wifi exist, connect to wifi, else connect to TheGlowingStripes hotspot
     WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
 
     // after 2 fails, create hotspot instead
@@ -105,76 +119,14 @@ boolean connect_to_wifi(){
     return true;
 }
 
+
 void signup_led_strip(){
     // TODO make POST request to webserver to submit information like ip address and details
-    // load stripe_config.json
-    StaticJsonDocument<512> led_strip_info;
-    File led_strip_info_file = SPIFFS.open("/stripe_config.json");
-    if(!led_strip_info_file){
-        Serial.println("Failed to open led_strip_info for reading");
-    }
-    DeserializationError error = deserializeJson(led_strip_info, led_strip_info_file);
-    led_strip_info_file.close();
-    if (error){
-        Serial.println("Failed to read led_strip_info_file, using default configuration");
-    }
-
-
-    bool update_led_strip_info {false};
-    // generate values if they don't exist yet
-    if (!led_strip_info["name"]){
-        Serial.println("led_strip_info.name is null, generating name...");
-        led_strip_info["name"] = "LED strip";
-        update_led_strip_info = true;
-    }
-    if (!led_strip_info["id"]){
-        Serial.println("led_strip_info.id is null, generating random id...");
-        // generate random id
-        led_strip_info["id"] = gen_random(10);
-        update_led_strip_info = true;
-    }
-    if (!led_strip_info["last_animation"]["id"]){
-        Serial.println("led_strip_info.last_animation is null, generating last_animation...");
-
-        // read led_animations.json
-        StaticJsonDocument<3072> led_animations;
-        File led_animations_file = SPIFFS.open("/led_animations.json");
-        
-        if(!led_animations_file){
-            Serial.println("Failed to open led_strip_info for reading");
-        }
-        DeserializationError error = deserializeJson(led_animations, led_animations_file);
-        led_animations_file.close();
-        if (error){
-            Serial.println("Failed to read led_animations_file, using default configuration");
-        }
-
-        // define defaul animation - based on led_animations.json
-        led_strip_info["last_animation"]["id"] = led_animations["default_animation"]["id"];
-        led_strip_info["last_animation"]["name"] = led_animations["default_animation"]["name"];
-        led_strip_info["last_animation"]["customization"] = led_animations["default_animation"]["customization"];
-        update_led_strip_info = true;
-    }
-
-    if (update_led_strip_info){
-        // write updated file
-        SPIFFS.remove("/stripe_config.json");
-
-        // Open file for writing
-        File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
-        if (!file) {
-            Serial.println("Failed to create file");
-            return;
-        }
-        // Serialize JSON to file
-        if (serializeJson(led_strip_info, file) == 0) {
-            Serial.println(F("Failed to write to file"));
-        }
-        // Close the file
-        file.close();
-    }
-
-    led_strip_info["ip_address"] = String(WiFi.localIP());
+    StaticJsonDocument<140> led_strip_info = load_strip_config();
+    String name = led_strip_info["1"];
+    Serial.println(name);
+    
+    led_strip_info["5"] = String(WiFi.localIP());
 
     // TODO make post request
     if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status

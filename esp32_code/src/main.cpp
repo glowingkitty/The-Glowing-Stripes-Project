@@ -4,8 +4,6 @@
 #include "webserver.h"
 #include "ota_update.h"
 
-
-
 TaskHandle_t Task1;
 TaskHandle_t Task2;
 

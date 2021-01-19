@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 #include <math.h>
-
+#include "strip_config.h"
 
 // #define ANALOG_PIN 32
 int num_pin = 22;
@@ -123,6 +123,9 @@ void transition(){
 //////////////////////////////////////
 
 void init_leds(){
+    StaticJsonDocument<140> led_strip_info = load_strip_config();
+    String name = led_strip_info["1"];
+    Serial.println(name);
     leds.begin();
 }
 

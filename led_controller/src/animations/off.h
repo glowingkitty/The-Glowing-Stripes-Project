@@ -1,1 +1,0 @@
-void off(Adafruit_NeoPixel& leds,int num_pixels);
