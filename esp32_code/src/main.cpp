@@ -1,3 +1,4 @@
+#include <SPIFFS.h>
 #include "neopixel.h"
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
@@ -24,11 +25,7 @@ void Task1code( void * pvParameters ){
 void Task2code( void * pvParameters ){
   Serial.print("Task2 running on core ");
   Serial.println(xPortGetCoreID());
-  init_leds();
-
-  for(;;){
-    glow();
-  }
+  start_leds();
 }
 
 void setup() {

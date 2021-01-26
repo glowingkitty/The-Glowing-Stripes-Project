@@ -5,25 +5,14 @@ using namespace std;
 #include <math.h>
 #include "strip_config.h"
 
-// #define ANALOG_PIN 32
-int num_pin = 22;
-int num_leds = 60;
+
 int duration_ms = 500;
 int pause_ms = 0;
-
-
-Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
-
-
-string previous_animation;
-string new_animation = "transition";
-
-int num_random_colors = 5;
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
 
 
-void generate_random_colors(){
+void generate_random_colors(int num_random_colors){
     // define random rgb colors here, loop over them and create new random colors if mode is changing 
     for (int i=0; i<num_random_colors; i++){
         vector<int> color;
@@ -38,9 +27,9 @@ void generate_random_colors(){
     }
 }
 
-boolean animation_has_changed(){
+boolean animation_has_changed(string new_animation_id,string previous_animation_id){
     // see if the animation has changed
-    if (new_animation==previous_animation){
+    if (new_animation_id==previous_animation_id){
         return false;
     } else {
         return true;
@@ -50,7 +39,10 @@ boolean animation_has_changed(){
 //////////////////////////////////////
 // ANIMATIONS
 //////////////////////////////////////
-void beats(){
+void beats(
+    Adafruit_NeoPixel leds,
+    int num_leds
+){
     Serial.println("Glow beats...");
     // TODO make duration & pause 100 accurate, by calculating also required time for calculation
     int delay_step = ((duration_ms/num_leds)/2);
@@ -67,7 +59,9 @@ void beats(){
     }
 }
 
-void transition(){
+void transition(
+    Adafruit_NeoPixel leds
+){
     Serial.println("Glow transition...");
     // transition from previous to new color in x steps
     int num_of_steps = 20;
@@ -120,38 +114,65 @@ void transition(){
 
 }
 
-//////////////////////////////////////
-
-void init_leds(){
-    StaticJsonDocument<140> led_strip_info = load_strip_config();
-    String name = led_strip_info["1"];
-    Serial.println(name);
-    leds.begin();
-}
-
-void glow(){
+void glow(
+    Adafruit_NeoPixel leds,
+    StaticJsonDocument<140> led_strip_info,
+    string new_animation_id,
+    string previous_animation_id
+    ){
 
     leds.clear();
     if (rgb_colors.size()==counter_current_color){
         counter_current_color = 0;
     }
+    
 
-    if (animation_has_changed()==true){
-        generate_random_colors();
+    if (animation_has_changed(new_animation_id,previous_animation_id)==true){
+        int num_random_colors = 5; //TODO replace with num of random colors from animations.json
+        generate_random_colors(num_random_colors);
     }
 
     // play animation
-    if (new_animation == "beats") {
-        beats();
-    } else if (new_animation == "transition") {
-        transition();
+    if (new_animation_id == "bea") {
+        beats(leds,led_strip_info["2"]);
+    } else if (new_animation_id == "tra") {
+        transition(leds);
     } else{
         Serial.println("ERROR: new_animation not found.");
     }
 
-    previous_animation = new_animation;
     counter_current_color+=1;
     
     delay(pause_ms);
 }
+
+
+//////////////////////////////////////
+
+void start_leds(){
+    StaticJsonDocument<140> led_strip_info = load_strip_config();
+    
+    string new_animation_id = led_strip_info["4"];
+    string previous_animation_id;
+    int num_leds = led_strip_info["2"];
+    int num_pin = 22;
+    Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
+    leds.begin();
+
+    Serial.println("Started LED strip:");
+    Serial.println("id:                 "+ led_strip_info["0"].as<String>());
+    Serial.println("name:               "+ led_strip_info["1"].as<String>());
+    Serial.println("num_of_leds:        "+ led_strip_info["2"].as<String>());
+    Serial.println("num_of_sections:    "+ led_strip_info["3"].as<String>());
+    Serial.println("last_animation_id:  "+ led_strip_info["4"].as<String>());
+
+    
+
+    // start animation loop
+    for(;;){
+        glow(leds,led_strip_info,new_animation_id,previous_animation_id);
+        previous_animation_id = new_animation_id;
+    }
+}
+
 

@@ -12,12 +12,13 @@
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 #include "ArduinoJson.h"
-#include "credentials.h"
 #include <string>
 #include <stdio.h>
 #include "strip_config.h"
 using namespace std;
 
+const char* wifi_ssid;
+const char* wifi_password;
 const char* glowing_stripes_ssid = "TheGlowingStripes";
 const char* glowing_stripes_password = "letsglow";
 string role;
@@ -98,11 +99,35 @@ boolean host_is_online(){
 }
 
 boolean connect_to_wifi(){
-    Serial.println("Connect to wifi...");
-    Serial.println(wifi_ssid);
+    if (SPIFFS.exists("/wifi_credentials.json")){
+        Serial.println("Wifi credientias found");
+        StaticJsonDocument<60> wifi_credentials;
+        File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
+        if(!wifi_credentials_file){
+            Serial.println("Failed to open wifi_credentials for reading");
+        }else {
+            DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
+            if (error){
+                Serial.println("Failed to read wifi_credentials_file.");
+            } else {
+                Serial.println("Loaded wifi_credentials.json");
+            }
+        }
+        wifi_credentials_file.close();
+        wifi_ssid = wifi_credentials["0"];
+        wifi_password = wifi_credentials["1"];
+    } else {
+        wifi_ssid = glowing_stripes_ssid;
+        wifi_password = glowing_stripes_password;
+    }
+    
+    Serial.println("");
+    Serial.print("Connect to wifi: ");
+    Serial.print(wifi_ssid);
+    Serial.println("");
     delay(500);
 
-    // TODO if credentials for a wifi exist, connect to wifi, else connect to TheGlowingStripes hotspot
+    // if credentials for a wifi exist, connect to wifi, else connect to TheGlowingStripes hotspot
     WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
 
     // after 2 fails, create hotspot instead
@@ -110,32 +135,43 @@ boolean connect_to_wifi(){
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
       failed = failed+1;
       if (failed==5){
+        Serial.println("");
+        Serial.print("Failed to connect to wifi: ");
+        Serial.print(wifi_ssid);
+        Serial.println("");
         return false;
       }
       delay(500);
       Serial.print(".");
     }
-    Serial.println("WiFi connected");
+    Serial.println("");
+    Serial.print("Connected LED strip to Wifi: ");
+    Serial.print(wifi_ssid);
+    Serial.println("");
     return true;
 }
 
 
 void signup_led_strip(){
-    // TODO make POST request to webserver to submit information like ip address and details
+    Serial.print("Sign up LED strip to host...");
+    // make POST request to webserver to submit information like ip address and details
     StaticJsonDocument<140> led_strip_info = load_strip_config();
-    String name = led_strip_info["1"];
-    Serial.println(name);
     
-    led_strip_info["5"] = String(WiFi.localIP());
+    led_strip_info["5"] = WiFi.localIP().toString();
+    Serial.println("ip_address:  "+ led_strip_info["5"].as<String>());
+    
 
     // TODO make post request
     if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
         HTTPClient http;   
         
+        // TODO use debugger to fix domain issue
         http.begin("http://theglowingstripes.local/signup_led_strip");
         http.addHeader("Content-Type", "application/json");
         
-        int httpResponseCode = http.POST("{}");   //TODO Send the actual POST request
+        String json;
+        serializeJson(led_strip_info, json);
+        int httpResponseCode = http.POST(json);   //TODO Send the actual POST request
         if(httpResponseCode>0){
             String response = http.getString();                       //Get the response to the request
             Serial.println(httpResponseCode);   //Print return code
@@ -154,11 +190,11 @@ void signup_led_strip(){
 }
 
 void start_wifi(){
-    Serial.println(wifi_ssid);
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
     }
+
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
     if (host_is_online() && connect_to_wifi()){
       // if true, become a client (playing leds are get ready to take over host, if host goes offline)

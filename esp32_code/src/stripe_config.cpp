@@ -20,7 +20,6 @@ string gen_random() {
     
 }
 
-
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
 StaticJsonDocument<140> load_strip_config(){
     StaticJsonDocument<140> led_strip_config;
