@@ -116,9 +116,7 @@ void transition(
 
 void glow(
     Adafruit_NeoPixel leds,
-    StaticJsonDocument<140> led_strip_info,
-    string new_animation_id,
-    string previous_animation_id
+    StaticJsonDocument<140> led_strip_info
     ){
 
     leds.clear();
@@ -127,15 +125,10 @@ void glow(
     }
     
 
-    if (animation_has_changed(new_animation_id,previous_animation_id)==true){
-        int num_random_colors = 5; //TODO replace with num of random colors from animations.json
-        generate_random_colors(num_random_colors);
-    }
-
     // play animation
-    if (new_animation_id == "bea") {
+    if (led_strip_info["4"] == "bea") {
         beats(leds,led_strip_info["2"]);
-    } else if (new_animation_id == "tra") {
+    } else if (led_strip_info["4"] == "tra") {
         transition(leds);
     } else{
         Serial.println("ERROR: new_animation not found.");
@@ -152,8 +145,6 @@ void glow(
 void start_leds(){
     StaticJsonDocument<140> led_strip_info = load_strip_config();
     
-    string new_animation_id = led_strip_info["4"];
-    string previous_animation_id;
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
@@ -166,12 +157,13 @@ void start_leds(){
     Serial.println("num_of_sections:    "+ led_strip_info["3"].as<String>());
     Serial.println("last_animation_id:  "+ led_strip_info["4"].as<String>());
 
-    
+    int num_random_colors = 5; //TODO replace with num of random colors from animations.json
+    generate_random_colors(num_random_colors);
 
     // start animation loop
     for(;;){
-        glow(leds,led_strip_info,new_animation_id,previous_animation_id);
-        previous_animation_id = new_animation_id;
+        // TODO reload strip config on every loop?
+        glow(leds,led_strip_info);
     }
 }
 
