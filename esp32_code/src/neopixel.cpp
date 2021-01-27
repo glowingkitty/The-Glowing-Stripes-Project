@@ -58,7 +58,9 @@ void start_leds(){
 
     // start animation loop
     for(;;){
-        // TODO reload strip config on every loop?
+        // reload strip config on every loop
+        led_strip_info = load_strip_config();
+
         leds.clear();
         if (rgb_colors.size()==counter_current_color){
             counter_current_color = 0;
