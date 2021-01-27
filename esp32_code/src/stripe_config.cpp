@@ -21,8 +21,8 @@ string gen_random() {
 }
 
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
-StaticJsonDocument<140> load_strip_config(){
-    StaticJsonDocument<140> led_strip_config;
+StaticJsonDocument<250> load_strip_config(){
+    StaticJsonDocument<250> led_strip_config;
     File led_strip_config_file = SPIFFS.open("/stripe_config.json");
     if(!led_strip_config_file){
         Serial.println("Failed to open led_strip_config for reading");

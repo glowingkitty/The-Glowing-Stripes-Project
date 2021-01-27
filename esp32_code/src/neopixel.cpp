@@ -6,8 +6,6 @@ using namespace std;
 #include "strip_config.h"
 
 
-int duration_ms = 500;
-int pause_ms = 0;
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
 
@@ -39,7 +37,7 @@ boolean animation_has_changed(string new_animation_id,string previous_animation_
 //////////////////////////////////////
 
 void start_leds(){
-    StaticJsonDocument<140> led_strip_info = load_strip_config();
+    StaticJsonDocument<250> led_strip_info = load_strip_config();
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
@@ -53,13 +51,15 @@ void start_leds(){
     Serial.println("num_of_sections:    "+ led_strip_info["3"].as<String>());
     Serial.println("last_animation_id:  "+ led_strip_info["4"].as<String>());
 
-    int num_random_colors = 5; //TODO replace with num of random colors from animations.json
+    int num_random_colors = led_strip_info["5"]["c"].as<int>();
     generate_random_colors(num_random_colors);
 
     // start animation loop
     for(;;){
         // reload strip config on every loop
         led_strip_info = load_strip_config();
+
+        // TODO detect if animation has changed - if true, update colors
 
         leds.clear();
         if (rgb_colors.size()==counter_current_color){
@@ -73,10 +73,17 @@ void start_leds(){
         if (led_strip_info["4"] == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
-            int delay_step = ((duration_ms/led_strip_info["2"].as<int>())/2);
+            int duration_ms = led_strip_info["5"]["f"].as<int>();
+            int pause_a_ms = led_strip_info["5"]["g"].as<int>();
+            float brightness = led_strip_info["5"]["d"].as<float>();
+            int delay_step = ((duration_ms/num_leds)/2);
 
             for(int i=0; i<num_leds; i++) {
-                leds.setPixelColor(i, leds.Color(rgb_colors[counter_current_color][0],rgb_colors[counter_current_color][1],rgb_colors[counter_current_color][2]));
+                leds.setPixelColor(i, leds.Color(
+                    round(rgb_colors[counter_current_color][0]*brightness),
+                    round(rgb_colors[counter_current_color][1]*brightness),
+                    round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
                 leds.show();
                 delay(delay_step);
             }
@@ -85,9 +92,17 @@ void start_leds(){
                 leds.show();
                 delay(delay_step);
             }
+
+            delay(pause_a_ms);
+
         } else if (led_strip_info["4"] == "tra") {
             Serial.println("Glow transition...");
+            
             // transition from previous to new color in x steps
+            int duration_ms = led_strip_info["5"]["f"];
+            int pause_a_ms = led_strip_info["5"]["g"];
+            float brightness = led_strip_info["5"]["d"];
+
             int num_of_steps = 20;
 
             int start_r = rgb_colors.back()[0];
@@ -131,17 +146,21 @@ void start_leds(){
                     start_b = 0;
                 }
 
-                leds.fill(leds.Color(start_r,start_g,start_b));
+                leds.fill(leds.Color(
+                    round(start_r*brightness),
+                    round(start_g*brightness),
+                    round(start_b*brightness)
+                    ));
                 leds.show();
                 delay(delay_step);
             }
+
+            delay(pause_a_ms);
         } else{
             Serial.println("ERROR: last_animation_id doesnt exist: '"+led_strip_info["4"].as<String>()+"'");
         }
 
         counter_current_color+=1;
-        
-        delay(pause_ms);
     }
 }
 

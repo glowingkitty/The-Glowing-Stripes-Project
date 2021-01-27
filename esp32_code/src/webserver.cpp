@@ -31,7 +31,8 @@ AsyncWebServer server(80);
 // 2:num_of_leds
 // 3:num_of_sections
 // 4:last_animation_id
-// 5:ip_address
+// 5:last_animation_customization
+// 6:ip_address
 
 //// led_animations.json fields - around 930bytes with default content:
 // 0:id
@@ -155,10 +156,10 @@ boolean connect_to_wifi(){
 void signup_led_strip(){
     Serial.print("Sign up LED strip to host...");
     // make POST request to webserver to submit information like ip address and details
-    StaticJsonDocument<140> led_strip_info = load_strip_config();
+    StaticJsonDocument<250> led_strip_info = load_strip_config();
     
-    led_strip_info["5"] = WiFi.localIP().toString();
-    Serial.println("ip_address:  "+ led_strip_info["5"].as<String>());
+    led_strip_info["6"] = WiFi.localIP().toString();
+    Serial.println("ip_address:  "+ led_strip_info["6"].as<String>());
     
 
     // TODO make post request
@@ -264,7 +265,7 @@ void start_server(){
 
     server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
         Serial.println("Process POST /signup_led_strip request...");
-        // TODO add led strip data to variable
+        // TODO get json data from post request and add led strip to "led_strips"
         String message;
         if (request->hasParam("body", true)) {
             message = request->getParam("body", true)->value();
