@@ -4,7 +4,7 @@
 using namespace std;
 #include <math.h>
 #include "strip_config.h"
-
+#include <algorithm>
 
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
@@ -70,7 +70,21 @@ void start_leds(){
         //////////////////////////////////////
         // ANIMATIONS
         //////////////////////////////////////
-        if (led_strip_info["4"] == "bea") {
+
+        // Off
+        if (led_strip_info["4"] == "111"){
+            // TODO turn all leds off
+        }
+        // Color
+        else if (led_strip_info["4"] == "col"){
+            // TODO glow selected or random color
+        }
+        // Rainbow
+        else if (led_strip_info["4"] == "rai"){
+            // TODO glow rainbox animation
+        }
+        // Beats
+        else if (led_strip_info["4"] == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
             int duration_ms = led_strip_info["5"]["f"].as<int>();
@@ -95,13 +109,36 @@ void start_leds(){
 
             delay(pause_a_ms);
 
-        } else if (led_strip_info["4"] == "tra") {
+        }
+        // Moving dot
+        else if (led_strip_info["4"] == "mov"){
+            // TODO glow moving dot
+        }
+        // Light up
+        else if (led_strip_info["4"] == "lig"){
+            // TODO light up leds, from start, end, center or start and end
+        }
+        // Transition
+        else if (led_strip_info["4"] == "tra") {
             Serial.println("Glow transition...");
-            
             // transition from previous to new color in x steps
             int duration_ms = led_strip_info["5"]["f"];
             int pause_a_ms = led_strip_info["5"]["g"];
             float brightness = led_strip_info["5"]["d"];
+            bool all_sections = false;
+            vector<int> section_leds;
+            int section_size = 15;
+            if (led_strip_info["5"]["j"]=="all"){
+                all_sections = true;
+            } else {
+                // for every section, add leds to section_leds which should glow up
+                for(int i = 0; i<led_strip_info["5"]["j"].size();i++){
+                    for (int processed_leds = 0; processed_leds<section_size; processed_leds++){
+                        section_leds.push_back(((processed_leds+1)*led_strip_info["5"]["j"][i].as<int>())-1);
+                    }
+                }
+            }
+            
 
             int num_of_steps = 20;
 
@@ -146,17 +183,35 @@ void start_leds(){
                     start_b = 0;
                 }
 
-                leds.fill(leds.Color(
-                    round(start_r*brightness),
-                    round(start_g*brightness),
-                    round(start_b*brightness)
+                // if all sections, use fill, else only fill specific leds
+                if (all_sections){
+                    leds.fill(leds.Color(
+                        round(start_r*brightness),
+                        round(start_g*brightness),
+                        round(start_b*brightness)
                     ));
+                } else {
+                    // for every led in section, fill color
+                    for(int i=0; i<num_leds; i++) {
+                        if (find(section_leds.begin(), section_leds.end(), i) != section_leds.end()){
+                            leds.setPixelColor(i, leds.Color(
+                                round(start_r*brightness),
+                                round(start_g*brightness),
+                                round(start_b*brightness)
+                            ));
+                        }
+                    }
+                }
+                
                 leds.show();
                 delay(delay_step);
             }
 
             delay(pause_a_ms);
-        } else{
+        }
+        // 
+        
+        else {
             Serial.println("ERROR: last_animation_id doesnt exist: '"+led_strip_info["4"].as<String>()+"'");
         }
 
