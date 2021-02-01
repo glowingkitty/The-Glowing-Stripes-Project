@@ -37,7 +37,7 @@ boolean animation_has_changed(string new_animation_id,string previous_animation_
 //////////////////////////////////////
 
 void start_leds(){
-    StaticJsonDocument<250> led_strip_info = load_strip_config();
+    StaticJsonDocument<350> led_strip_info = load_strip_config();
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
@@ -45,11 +45,12 @@ void start_leds(){
     leds.begin();
 
     Serial.println("Started LED strip:");
-    Serial.println("id:                 "+ led_strip_info["0"].as<String>());
-    Serial.println("name:               "+ led_strip_info["1"].as<String>());
-    Serial.println("num_of_leds:        "+ led_strip_info["2"].as<String>());
-    Serial.println("num_of_sections:    "+ led_strip_info["3"].as<String>());
-    Serial.println("last_animation_id:  "+ led_strip_info["4"].as<String>());
+    Serial.println("id:                             "+ led_strip_info["0"].as<String>());
+    Serial.println("name:                           "+ led_strip_info["1"].as<String>());
+    Serial.println("num_of_leds:                    "+ led_strip_info["2"].as<String>());
+    Serial.println("num_of_sections:                "+ led_strip_info["3"].as<String>());
+    Serial.println("last_animation_id:              "+ led_strip_info["4"].as<String>());
+    Serial.println("last_animation_customization:   "+ led_strip_info["5"].as<String>());
 
     int num_random_colors = led_strip_info["5"]["c"].as<int>();
     generate_random_colors(num_random_colors);
@@ -57,7 +58,8 @@ void start_leds(){
     // start animation loop
     for(;;){
         // reload strip config on every loop
-        led_strip_info = load_strip_config();
+        led_strip_info.clear();
+        StaticJsonDocument<350> led_strip_info = load_strip_config();
 
         // TODO detect if animation has changed - if true, update colors
 
@@ -72,19 +74,19 @@ void start_leds(){
         //////////////////////////////////////
 
         // Off
-        if (led_strip_info["4"] == "111"){
+        if (led_strip_info["4"].as<String>() == "111"){
             // TODO turn all leds off
         }
         // Color
-        else if (led_strip_info["4"] == "col"){
+        else if (led_strip_info["4"].as<String>() == "col"){
             // TODO glow selected or random color
         }
         // Rainbow
-        else if (led_strip_info["4"] == "rai"){
+        else if (led_strip_info["4"].as<String>() == "rai"){
             // TODO glow rainbox animation
         }
         // Beats
-        else if (led_strip_info["4"] == "bea") {
+        else if (led_strip_info["4"].as<String>() == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
             int duration_ms = led_strip_info["5"]["f"].as<int>();
@@ -111,24 +113,24 @@ void start_leds(){
 
         }
         // Moving dot
-        else if (led_strip_info["4"] == "mov"){
+        else if (led_strip_info["4"].as<String>() == "mov"){
             // TODO glow moving dot
         }
         // Light up
-        else if (led_strip_info["4"] == "lig"){
+        else if (led_strip_info["4"].as<String>() == "lig"){
             // TODO light up leds, from start, end, center or start and end
         }
         // Transition
-        else if (led_strip_info["4"] == "tra") {
+        else if (led_strip_info["4"].as<String>() == "tra") {
             Serial.println("Glow transition...");
             // transition from previous to new color in x steps
             int duration_ms = led_strip_info["5"]["f"];
             int pause_a_ms = led_strip_info["5"]["g"];
             float brightness = led_strip_info["5"]["d"];
-            bool all_sections = false;
+            bool all_sections {false};
             vector<int> section_leds;
             int section_size = 15;
-            if (led_strip_info["5"]["j"]=="all"){
+            if (led_strip_info["5"]["j"].as<String>()=="all"){
                 all_sections = true;
             } else {
                 // for every section, add leds to section_leds which should glow up
@@ -183,13 +185,14 @@ void start_leds(){
                     start_b = 0;
                 }
 
-                // if all sections, use fill, else only fill specific leds
+                // if all sections, glow all leds, else only those in the selected sections
                 if (all_sections){
                     leds.fill(leds.Color(
                         round(start_r*brightness),
                         round(start_g*brightness),
                         round(start_b*brightness)
                     ));
+                    
                 } else {
                     // for every led in section, fill color
                     for(int i=0; i<num_leds; i++) {

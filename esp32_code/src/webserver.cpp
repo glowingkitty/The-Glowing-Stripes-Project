@@ -156,7 +156,7 @@ boolean connect_to_wifi(){
 void signup_led_strip(){
     Serial.print("Sign up LED strip to host...");
     // make POST request to webserver to submit information like ip address and details
-    StaticJsonDocument<250> led_strip_info = load_strip_config();
+    StaticJsonDocument<350> led_strip_info = load_strip_config();
     
     led_strip_info["6"] = WiFi.localIP().toString();
     Serial.println("ip_address:  "+ led_strip_info["6"].as<String>());
@@ -191,11 +191,6 @@ void signup_led_strip(){
 }
 
 void start_wifi(){
-    if (!SPIFFS.begin(true)) {
-        Serial.println("An Error has occurred while mounting SPIFFS");
-        return;
-    }
-
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
     if (host_is_online() && connect_to_wifi()){
       // if true, become a client (playing leds are get ready to take over host, if host goes offline)

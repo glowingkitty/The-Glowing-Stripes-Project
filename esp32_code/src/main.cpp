@@ -30,6 +30,11 @@ void Task2code( void * pvParameters ){
 
 void setup() {
     Serial.begin(115200);
+
+    if (!SPIFFS.begin(true)) {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
+    }
     
 
     //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
