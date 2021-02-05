@@ -149,11 +149,19 @@ void start_leds(){
 
         // Color
         if (new_animation_id == "col"){
-            // TODO glow in selected or random color, without transition
+            Serial.println("Glow color...");
+            // glow in selected or random color, without transition
+            leds.fill(leds.Color(
+                        round(rgb_colors[0][0]*brightness),
+                        round(rgb_colors[0][1]*brightness),
+                        round(rgb_colors[0][2]*brightness)
+                    ));
+            leds.show();
+            delay(500);
         }
         // Rainbow
         else if (new_animation_id == "rai"){
-            // TODO glow rainbox animation
+            // TODO glow rainbow animation
         }
         // Beats
         else if (new_animation_id == "bea") {
