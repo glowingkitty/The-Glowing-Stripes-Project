@@ -1,3 +1,3 @@
 #include "ArduinoJson.h"
 
-StaticJsonDocument<350> load_strip_config();
+StaticJsonDocument<450> load_strip_config();

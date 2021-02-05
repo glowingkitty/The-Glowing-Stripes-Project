@@ -25,22 +25,15 @@ void generate_random_colors(int num_random_colors){
     }
 }
 
-boolean animation_has_changed(string new_animation_id,string previous_animation_id){
-    // see if the animation has changed
-    if (new_animation_id==previous_animation_id){
-        return false;
-    } else {
-        return true;
-    }
-}
 
 //////////////////////////////////////
 
 void start_leds(){
-    StaticJsonDocument<350> led_strip_info = load_strip_config();
+    StaticJsonDocument<450> led_strip_info = load_strip_config();
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
+    String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     leds.begin();
 
@@ -52,14 +45,41 @@ void start_leds(){
     Serial.println("last_animation_id:              "+ led_strip_info["4"].as<String>());
     Serial.println("last_animation_customization:   "+ led_strip_info["5"].as<String>());
 
-    int num_random_colors = led_strip_info["5"]["c"].as<int>();
-    generate_random_colors(num_random_colors);
-
     // start animation loop
     for(;;){
+        leds.clear();
+
         // reload strip config on every loop
         led_strip_info.clear();
-        StaticJsonDocument<350> led_strip_info = load_strip_config();
+        StaticJsonDocument<450> led_strip_info = load_strip_config();
+        String new_animation_id = led_strip_info["4"].as<String>();
+
+        // detect if animation has changed - if true, update colors
+        if (new_animation_id!=previous_animation_id){
+            // set colors, which are looped over - so every time an animation repeats, it repeats with new colors
+            rgb_colors.clear();
+
+            if (led_strip_info["5"]["b"]=="random"){
+                // generate random colors 
+                int num_random_colors = led_strip_info["5"]["c"].as<int>();
+                generate_random_colors(num_random_colors);
+            }
+            else {
+                // get predefined colors
+                for(int i = 0; i<led_strip_info["5"]["b"].size();i++){
+                    vector<int> color;
+                    color.push_back(led_strip_info["5"]["b"][i][0]);
+                    color.push_back(led_strip_info["5"]["b"][i][1]);
+                    color.push_back(led_strip_info["5"]["b"][i][2]);
+                    rgb_colors.push_back(color);
+                }
+            }
+        }
+        // if colors are all processed, start with first color again
+        else if (rgb_colors.size()==counter_current_color){
+            counter_current_color = 0;
+        }
+        
 
         // get customization settings for animation
         int duration_ms = led_strip_info["5"]["f"];
@@ -123,32 +143,20 @@ void start_leds(){
             }
         }
 
-        // TODO detect if animation has changed - if true, update colors
-
-        leds.clear();
-        if (rgb_colors.size()==counter_current_color){
-            counter_current_color = 0;
-        }
-        
-
         //////////////////////////////////////
         // ANIMATIONS
         //////////////////////////////////////
 
-        // Off
-        if (led_strip_info["4"].as<String>() == "111"){
-            // TODO turn all leds off
-        }
         // Color
-        else if (led_strip_info["4"].as<String>() == "col"){
-            // TODO glow selected or random color
+        if (new_animation_id == "col"){
+            // TODO glow in selected or random color, without transition
         }
         // Rainbow
-        else if (led_strip_info["4"].as<String>() == "rai"){
+        else if (new_animation_id == "rai"){
             // TODO glow rainbox animation
         }
         // Beats
-        else if (led_strip_info["4"].as<String>() == "bea") {
+        else if (new_animation_id == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
             int duration_ms = led_strip_info["5"]["f"].as<int>();
@@ -175,15 +183,15 @@ void start_leds(){
 
         }
         // Moving dot
-        else if (led_strip_info["4"].as<String>() == "mov"){
+        else if (new_animation_id == "mov"){
             // TODO glow moving dot
         }
         // Light up
-        else if (led_strip_info["4"].as<String>() == "lig"){
-            // TODO light up leds, from start, end, center or start and end
+        else if (new_animation_id == "lig"){
+            // TODO light up leds, all or just sections
         }
         // Transition
-        else if (led_strip_info["4"].as<String>() == "tra") {
+        else if (new_animation_id == "tra") {
             Serial.println("Glow transition...");
             // transition from previous to new color in x steps
             int num_of_steps = 20;
@@ -256,13 +264,16 @@ void start_leds(){
 
             delay(pause_a_ms);
         }
-        // 
         
         else {
-            Serial.println("ERROR: last_animation_id doesnt exist: '"+led_strip_info["4"].as<String>()+"'");
+            Serial.println("No animation selected. Turn LEDs off.");
+            leds.fill(leds.Color(0,0,0));
+            leds.show();
+            delay(100);
         }
 
         counter_current_color+=1;
+        previous_animation_id = led_strip_info["4"].as<String>();
     }
 }
 

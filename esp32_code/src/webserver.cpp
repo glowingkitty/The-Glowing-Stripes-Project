@@ -156,7 +156,7 @@ boolean connect_to_wifi(){
 void signup_led_strip(){
     Serial.print("Sign up LED strip to host...");
     // make POST request to webserver to submit information like ip address and details
-    StaticJsonDocument<350> led_strip_info = load_strip_config();
+    StaticJsonDocument<450> led_strip_info = load_strip_config();
     
     led_strip_info["6"] = WiFi.localIP().toString();
     Serial.println("ip_address:  "+ led_strip_info["6"].as<String>());

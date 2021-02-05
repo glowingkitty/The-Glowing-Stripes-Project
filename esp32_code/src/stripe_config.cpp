@@ -21,8 +21,8 @@ string gen_random() {
 }
 
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
-StaticJsonDocument<350> load_strip_config(){
-    StaticJsonDocument<350> led_strip_config;
+StaticJsonDocument<450> load_strip_config(){
+    StaticJsonDocument<450> led_strip_config;
     File led_strip_config_file = SPIFFS.open("/stripe_config.json");
     if(!led_strip_config_file){
         Serial.println("Failed to open led_strip_config for reading");
@@ -31,7 +31,8 @@ StaticJsonDocument<350> load_strip_config(){
         
         DeserializationError error = deserializeJson(led_strip_config, led_strip_config_file);
         if (error){
-            Serial.println("Failed to read stripe_config.json");
+            Serial.print(F("Failed to read stripe_config.json: "));
+            Serial.println(error.c_str());
         } else {
             Serial.println("Loaded stripe_config.json");
         }
@@ -65,7 +66,8 @@ StaticJsonDocument<350> load_strip_config(){
         DynamicJsonDocument led_animations(2048);
         DeserializationError error = deserializeJson(led_animations, led_animations_file);
         if (error){
-            Serial.println("Failed to read led_animations.json");
+            Serial.print(F("Failed to read led_animations.json: "));
+            Serial.println(error.c_str());
         } else {
             Serial.println("Loaded led_animations.json");
         }
