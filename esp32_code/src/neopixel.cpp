@@ -9,7 +9,6 @@ using namespace std;
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
 
-
 void generate_random_colors(int num_random_colors){
     // define random rgb colors here, loop over them and create new random colors if mode is changing 
     for (int i=0; i<num_random_colors; i++){
@@ -33,6 +32,7 @@ void start_leds(){
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
+    int time_passed_ms = 0;
     String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     leds.begin();
@@ -161,7 +161,53 @@ void start_leds(){
         }
         // Rainbow
         else if (new_animation_id == "rai"){
+            Serial.println("Glow rainbow...");
             // TODO glow rainbow animation
+            
+            int full_duration = 1000;
+            int default_rate = 60;
+
+            int added_ms = (full_duration/duration_ms)*default_rate;
+
+            time_passed_ms += added_ms;
+            
+            for(int i=0; i<num_leds; i++) {
+                // generate rainbow color
+                int t = time_passed_ms/1000;
+                vector<float> a{ 0.5, 0.5, 0.5 };
+                vector<float> e{ 0.5, 0.5, 0.5 };
+                vector<float> c{ 1.0, 1.0, 1.0 };
+                vector<float> d{ 0.00, 0.33, 0.67 };
+
+                float k = t + 0.05 * i;
+
+                float r = (a[0] + e[0] * cos(6.28318 * (c[0] * k + d[0])));
+                float g = (a[1] + e[1] * cos(6.28318 * (c[1] * k + d[1])));
+                float b = (a[2] + e[2] * cos(6.28318 * (c[2] * k + d[2])));
+
+                r = round(255.0 * r * brightness);
+                g = round(255.0 * g * brightness);
+                b = round(255.0 * b * brightness);
+
+                if (r > 255){
+                    r=255;
+                } else if (r<0){
+                    r=0;
+                }
+                if (g > 255){
+                    g=255;
+                } else if (g<0){
+                    g=0;
+                }
+                if (b > 255){
+                    b=255;
+                } else if (b<0){
+                    b=0;
+                }
+
+                leds.setPixelColor(i, leds.Color(r,g,b));
+            }
+            leds.show();
         }
         // Beats
         else if (new_animation_id == "bea") {
