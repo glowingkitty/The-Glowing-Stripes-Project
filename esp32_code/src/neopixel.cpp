@@ -61,6 +61,68 @@ void start_leds(){
         led_strip_info.clear();
         StaticJsonDocument<350> led_strip_info = load_strip_config();
 
+        // get customization settings for animation
+        int duration_ms = led_strip_info["5"]["f"];
+        int pause_a_ms = led_strip_info["5"]["g"];
+        float brightness = led_strip_info["5"]["d"];
+        bool all_sections {false};
+        vector<int> section_leds;
+        if (led_strip_info["5"]["j"].as<String>()=="all"){
+            all_sections = true;
+        } else {
+            // if section random - generate random section number
+            if (led_strip_info["5"]["j"].as<String>()=="random"){
+                int section = (rand() % 4 + 1);
+
+                if (section==1){
+                    for (int processed_leds = 0; processed_leds<15; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==2){
+                    for (int processed_leds = 15; processed_leds<30; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==3){
+                    for (int processed_leds = 30; processed_leds<45; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==4){
+                    for (int processed_leds = 45; processed_leds<60; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+            }
+
+            // for every section, add leds to section_leds which should glow up
+            for(int i = 0; i<led_strip_info["5"]["j"].size();i++){
+                int section = led_strip_info["5"]["j"][i].as<int>();
+                if (section==1){
+                    for (int processed_leds = 0; processed_leds<15; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==2){
+                    for (int processed_leds = 15; processed_leds<30; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==3){
+                    for (int processed_leds = 30; processed_leds<45; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                else if (section==4){
+                    for (int processed_leds = 45; processed_leds<60; processed_leds++){
+                        section_leds.push_back(processed_leds);
+                    }
+                }
+                
+            }
+        }
+
         // TODO detect if animation has changed - if true, update colors
 
         leds.clear();
@@ -124,68 +186,6 @@ void start_leds(){
         else if (led_strip_info["4"].as<String>() == "tra") {
             Serial.println("Glow transition...");
             // transition from previous to new color in x steps
-            int duration_ms = led_strip_info["5"]["f"];
-            int pause_a_ms = led_strip_info["5"]["g"];
-            float brightness = led_strip_info["5"]["d"];
-            bool all_sections {false};
-            vector<int> section_leds;
-            if (led_strip_info["5"]["j"].as<String>()=="all"){
-                all_sections = true;
-            } else {
-                // if section random - generate random section number
-                if (led_strip_info["5"]["j"].as<String>()=="random"){
-                    int section = (rand() % 4 + 1);
-
-                    if (section==1){
-                        for (int processed_leds = 0; processed_leds<15; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==2){
-                        for (int processed_leds = 15; processed_leds<30; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==3){
-                        for (int processed_leds = 30; processed_leds<45; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==4){
-                        for (int processed_leds = 45; processed_leds<60; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                }
-
-                // for every section, add leds to section_leds which should glow up
-                for(int i = 0; i<led_strip_info["5"]["j"].size();i++){
-                    int section = led_strip_info["5"]["j"][i].as<int>();
-                    if (section==1){
-                        for (int processed_leds = 0; processed_leds<15; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==2){
-                        for (int processed_leds = 15; processed_leds<30; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==3){
-                        for (int processed_leds = 30; processed_leds<45; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    else if (section==4){
-                        for (int processed_leds = 45; processed_leds<60; processed_leds++){
-                            section_leds.push_back(processed_leds);
-                        }
-                    }
-                    
-                }
-            }
-            
-
             int num_of_steps = 20;
 
             int start_r = rgb_colors.back()[0];
