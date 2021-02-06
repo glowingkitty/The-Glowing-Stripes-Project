@@ -35,6 +35,7 @@ void start_leds(){
     int time_passed_ms = 0;
     String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
+    bool switch_direction {false};
     leds.begin();
 
     Serial.println("Started LED strip:");
@@ -85,6 +86,10 @@ void start_leds(){
         int duration_ms = led_strip_info["5"]["f"].as<int>();
         int pause_a_ms = led_strip_info["5"]["g"].as<int>();
         float brightness = led_strip_info["5"]["d"].as<float>();
+        String start = led_strip_info["5"]["k"];
+        
+
+        // define sections which should glow up
         bool all_sections {false};
         vector<int> section_leds;
         if (led_strip_info["5"]["j"].as<String>()=="all"){
@@ -206,7 +211,6 @@ void start_leds(){
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
 
             int delay_step = ((duration_ms/num_leds)/2);
-            String start = led_strip_info["5"]["k"];
             for(int i=0; i<num_leds; i++) {
                 if (start=="end"){
                     leds.setPixelColor(num_leds-i, leds.Color(
@@ -277,7 +281,82 @@ void start_leds(){
         }
         // Moving dot
         else if (new_animation_id == "mov"){
-            // TODO glow moving dot
+            Serial.println("Glow moving dot...");
+            int delay_step = (duration_ms/num_leds);
+            // move forward
+            if ((start=="start" && switch_direction==false) || (start=="end" && switch_direction==true)){
+                for(int start_point=0; start_point<(num_leds+5); start_point++) {
+                    for(int i=0; i<num_leds; i++) {
+                        float dot_visibility;
+                        if (i==start_point){
+                            dot_visibility = 1.0;
+                        }
+                        else if (i==(start_point-1)){
+                            dot_visibility = 0.7;
+                        }
+                        else if (i==(start_point-2)){
+                            dot_visibility = 0.4;
+                        }
+                        else if (i==(start_point-3)){
+                            dot_visibility = 0.1;
+                        }
+                        else if (i==(start_point-4)){
+                            dot_visibility = 0.01;
+                        }
+                        else {
+                            dot_visibility = 0;
+                        }
+
+                        int r = round((rgb_colors[counter_current_color][0]*brightness)*dot_visibility);
+                        int g = round((rgb_colors[counter_current_color][1]*brightness)*dot_visibility);
+                        int b = round((rgb_colors[counter_current_color][2]*brightness)*dot_visibility);
+                        leds.setPixelColor(i, leds.Color(r,g,b));
+                    }
+
+                    leds.show();
+                    delay(delay_step);
+                }
+            }
+            // move backward
+            else {
+                for(int start_point=num_leds; start_point>-6; start_point--) {
+                    for(int i=0; i<num_leds; i++) {
+                        float dot_visibility;
+                        if (i==start_point){
+                            dot_visibility = 1.0;
+                        }
+                        else if (i==(start_point+1)){
+                            dot_visibility = 0.7;
+                        }
+                        else if (i==(start_point+2)){
+                            dot_visibility = 0.4;
+                        }
+                        else if (i==(start_point+3)){
+                            dot_visibility = 0.1;
+                        }
+                        else if (i==(start_point+4)){
+                            dot_visibility = 0.01;
+                        }
+                        else {
+                            dot_visibility = 0;
+                        }
+
+                        int r = round((rgb_colors[counter_current_color][0]*brightness)*dot_visibility);
+                        int g = round((rgb_colors[counter_current_color][1]*brightness)*dot_visibility);
+                        int b = round((rgb_colors[counter_current_color][2]*brightness)*dot_visibility);
+                        leds.setPixelColor(i, leds.Color(r,g,b));
+                    }
+
+                    leds.show();
+                    delay(delay_step);
+                }
+            }
+            
+            // change direction
+            switch_direction = !switch_direction;
+            
+            delay(pause_a_ms);
+            
         }
         // Light up
         else if (new_animation_id == "lig"){
