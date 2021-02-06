@@ -36,6 +36,9 @@ void start_leds(){
     String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     bool switch_direction {false};
+    int start_r=0;
+    int start_g=0;
+    int start_b=0;
     leds.begin();
 
     Serial.println("Started LED strip:");
@@ -361,21 +364,13 @@ void start_leds(){
         // Light up
         else if (new_animation_id == "lig"){
             // TODO light up leds, all or just sections
+            
         }
         // Transition
         else if (new_animation_id == "tra") {
             Serial.println("Glow transition...");
             // transition from previous to new color in x steps
-            int num_of_steps = 20;
-
-            int start_r = rgb_colors.back()[0];
-            int start_g = rgb_colors.back()[1];
-            int start_b = rgb_colors.back()[2];
-            if (counter_current_color>0){
-                start_r = rgb_colors[counter_current_color-1][0];
-                start_g = rgb_colors[counter_current_color-1][1];
-                start_b = rgb_colors[counter_current_color-1][2];
-            }
+            int num_of_steps = 255;
 
             int target_r = rgb_colors[counter_current_color][0];
             int target_g = rgb_colors[counter_current_color][1];
