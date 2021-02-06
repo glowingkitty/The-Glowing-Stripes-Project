@@ -28,7 +28,7 @@ void generate_random_colors(int num_random_colors){
 //////////////////////////////////////
 
 void start_leds(){
-    StaticJsonDocument<450> led_strip_info = load_strip_config();
+    StaticJsonDocument<850> led_strip_info = load_strip_config();
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
@@ -47,11 +47,11 @@ void start_leds(){
 
     // start animation loop
     for(;;){
-        leds.clear();
+        // leds.clear();
 
         // reload strip config on every loop
         led_strip_info.clear();
-        StaticJsonDocument<450> led_strip_info = load_strip_config();
+        StaticJsonDocument<850> led_strip_info = load_strip_config();
         String new_animation_id = led_strip_info["4"].as<String>();
 
         // detect if animation has changed - if true, update colors
@@ -82,9 +82,9 @@ void start_leds(){
         
 
         // get customization settings for animation
-        int duration_ms = led_strip_info["5"]["f"];
-        int pause_a_ms = led_strip_info["5"]["g"];
-        float brightness = led_strip_info["5"]["d"];
+        int duration_ms = led_strip_info["5"]["f"].as<int>();
+        int pause_a_ms = led_strip_info["5"]["g"].as<int>();
+        float brightness = led_strip_info["5"]["d"].as<float>();
         bool all_sections {false};
         vector<int> section_leds;
         if (led_strip_info["5"]["j"].as<String>()=="all"){
@@ -163,27 +163,18 @@ void start_leds(){
         else if (new_animation_id == "rai"){
             Serial.println("Glow rainbow...");
             // TODO glow rainbow animation
-            
-            int full_duration = 1000;
-            int default_rate = 60;
 
-            int added_ms = (full_duration/duration_ms)*default_rate;
-
-            time_passed_ms += added_ms;
+            time_passed_ms += 60;
             
             for(int i=0; i<num_leds; i++) {
                 // generate rainbow color
                 int t = time_passed_ms/1000;
-                vector<float> a{ 0.5, 0.5, 0.5 };
-                vector<float> e{ 0.5, 0.5, 0.5 };
-                vector<float> c{ 1.0, 1.0, 1.0 };
-                vector<float> d{ 0.00, 0.33, 0.67 };
 
                 float k = t + 0.05 * i;
 
-                float r = (a[0] + e[0] * cos(6.28318 * (c[0] * k + d[0])));
-                float g = (a[1] + e[1] * cos(6.28318 * (c[1] * k + d[1])));
-                float b = (a[2] + e[2] * cos(6.28318 * (c[2] * k + d[2])));
+                float r = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.00));
+                float g = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.33));
+                float b = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.67));
 
                 r = round(255.0 * r * brightness);
                 g = round(255.0 * g * brightness);
@@ -213,26 +204,74 @@ void start_leds(){
         else if (new_animation_id == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
-            int duration_ms = led_strip_info["5"]["f"].as<int>();
-            int pause_a_ms = led_strip_info["5"]["g"].as<int>();
-            float brightness = led_strip_info["5"]["d"].as<float>();
+
             int delay_step = ((duration_ms/num_leds)/2);
-
+            String start = led_strip_info["5"]["k"];
             for(int i=0; i<num_leds; i++) {
-                leds.setPixelColor(i, leds.Color(
-                    round(rgb_colors[counter_current_color][0]*brightness),
-                    round(rgb_colors[counter_current_color][1]*brightness),
-                    round(rgb_colors[counter_current_color][2]*brightness)
+                if (start=="end"){
+                    leds.setPixelColor(num_leds-i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
                     ));
-                leds.show();
-                delay(delay_step);
-            }
-            for(int i=num_leds; i>=0; i--) {
-                leds.setPixelColor(i, leds.Color(0,0,0));
+                }
+                else if (start=="start + end"){
+                    leds.setPixelColor(i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
+                    leds.setPixelColor(num_leds-i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
+                }
+                else if (start=="center"){
+                    leds.setPixelColor((num_leds/2)+i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
+                    leds.setPixelColor((num_leds/2)-i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
+                }
+                else {
+                    // start = "start"
+                    leds.setPixelColor(i, leds.Color(
+                        round(rgb_colors[counter_current_color][0]*brightness),
+                        round(rgb_colors[counter_current_color][1]*brightness),
+                        round(rgb_colors[counter_current_color][2]*brightness)
+                    ));
+                }
+                
                 leds.show();
                 delay(delay_step);
             }
 
+            for(int i=num_leds; i>=0; i--) {
+                if (start=="end"){
+                    leds.setPixelColor(num_leds-i, leds.Color(0,0,0));
+                }
+                else if (start=="start + end"){
+                    leds.setPixelColor((num_leds/2)+(num_leds-i), leds.Color(0,0,0));
+                    leds.setPixelColor((num_leds/2)-(num_leds-i), leds.Color(0,0,0));
+                }
+                else if (start=="center"){
+                    leds.setPixelColor((num_leds/2)+i, leds.Color(0,0,0));
+                    leds.setPixelColor((num_leds/2)-i, leds.Color(0,0,0));
+                }
+                else {
+                    // start = "start"
+                    leds.setPixelColor(i, leds.Color(0,0,0));
+                }
+                
+                leds.show();
+                delay(delay_step);
+            }
             delay(pause_a_ms);
 
         }
