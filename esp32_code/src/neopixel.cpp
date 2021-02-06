@@ -363,7 +363,68 @@ void start_leds(){
         }
         // Light up
         else if (new_animation_id == "lig"){
-            // TODO light up leds, all or just sections
+            Serial.println("Glow light up...");
+            int brightness_steps = ((duration_ms/2)/20);
+            int delay_step = ((duration_ms/2)/brightness_steps);
+
+            // light up
+            for (float max_brightness=0;max_brightness<=brightness;max_brightness+=(brightness/brightness_steps)){
+                if (max_brightness>1){
+                    max_brightness = 1;
+                }
+                if (all_sections){
+                    leds.fill(leds.Color(
+                        round(rgb_colors[counter_current_color][0]*max_brightness),
+                        round(rgb_colors[counter_current_color][1]*max_brightness),
+                        round(rgb_colors[counter_current_color][2]*max_brightness)
+                    ));
+                    
+                } else {
+                    // for every led in section, fill color
+                    for(int i=0; i<num_leds; i++) {
+                        if (find(section_leds.begin(), section_leds.end(), i) != section_leds.end()){
+                            leds.setPixelColor(i, leds.Color(
+                                round(rgb_colors[counter_current_color][0]*max_brightness),
+                                round(rgb_colors[counter_current_color][1]*max_brightness),
+                                round(rgb_colors[counter_current_color][2]*max_brightness)
+                            ));
+                        }
+                    }
+                }
+                
+                leds.show();
+                delay(delay_step);
+            }
+            // light down
+            for (float max_brightness=brightness;max_brightness>=0;max_brightness-=(brightness/brightness_steps)){
+                if (max_brightness<0){
+                    max_brightness = 0;
+                }
+                if (all_sections){
+                    leds.fill(leds.Color(
+                        round(rgb_colors[counter_current_color][0]*max_brightness),
+                        round(rgb_colors[counter_current_color][1]*max_brightness),
+                        round(rgb_colors[counter_current_color][2]*max_brightness)
+                    ));
+                    
+                } else {
+                    // for every led in section, fill color
+                    for(int i=0; i<num_leds; i++) {
+                        if (find(section_leds.begin(), section_leds.end(), i) != section_leds.end()){
+                            leds.setPixelColor(i, leds.Color(
+                                round(rgb_colors[counter_current_color][0]*max_brightness),
+                                round(rgb_colors[counter_current_color][1]*max_brightness),
+                                round(rgb_colors[counter_current_color][2]*max_brightness)
+                            ));
+                        }
+                    }
+                }
+                leds.show();
+                delay(delay_step);
+            }
+
+            leds.fill(leds.Color(0,0,0));
+            leds.show();
             
         }
         // Transition
