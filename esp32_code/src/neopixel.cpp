@@ -237,7 +237,7 @@ void start_leds(){
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
 
-            // TODO add changing brightness
+            // TODO add increasing/decreasing brightness
 
             int delay_step = ((duration_ms/num_leds)/2);
             for(int i=0; i<num_leds; i++) {
