@@ -32,7 +32,6 @@ void start_leds(){
     
     int num_leds = led_strip_info["2"];
     int num_pin = 22;
-    int time_passed_ms = 0;
     String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     bool switch_direction {false};
@@ -170,43 +169,32 @@ void start_leds(){
         // Rainbow
         else if (new_animation_id == "rai"){
             Serial.println("Glow rainbow...");
-            // TODO glow rainbow animation
+            // TODO make delay precise
+            float delay_step = (duration_ms/(256*5));
 
-            time_passed_ms += 60;
-            
-            for(int i=0; i<num_leds; i++) {
-                // generate rainbow color
-                int t = time_passed_ms/1000;
+            // based on "rainbowCycle" from https://learn.adafruit.com/florabrella/test-the-neopixel-strip
+            uint16_t i, j;
+            for(j=0; j<256*5; j++) {
+                for(i=0; i< num_leds; i++) {
+                    byte WheelPos = ((i * 256 / num_leds) + j) & 255;
+                    uint32_t Wheel;
+                    if(WheelPos < 85) {
+                        Wheel = leds.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+                    } else if(WheelPos < 170) {
+                        WheelPos -= 85;
+                        Wheel = leds.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+                    } else {
+                        WheelPos -= 170;
+                        Wheel = leds.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+                    }
 
-                float k = t + 0.05 * i;
-
-                float r = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.00));
-                float g = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.33));
-                float b = 0.5 + 0.5 * cos(6.28318 * (1.0 * k + 0.67));
-
-                r = round(255.0 * r * brightness);
-                g = round(255.0 * g * brightness);
-                b = round(255.0 * b * brightness);
-
-                if (r > 255){
-                    r=255;
-                } else if (r<0){
-                    r=0;
+                    // TODO add brightness + brightness going up and down if pause after animation
+                    leds.setPixelColor(i, Wheel);
                 }
-                if (g > 255){
-                    g=255;
-                } else if (g<0){
-                    g=0;
-                }
-                if (b > 255){
-                    b=255;
-                } else if (b<0){
-                    b=0;
-                }
-
-                leds.setPixelColor(i, leds.Color(r,g,b));
+                leds.show();
+                delay(delay_step);
             }
-            leds.show();
+
         }
         // Beats
         else if (new_animation_id == "bea") {
