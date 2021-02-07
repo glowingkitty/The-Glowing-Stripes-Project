@@ -87,7 +87,19 @@ void start_leds(){
         // get customization settings for animation
         int duration_ms = led_strip_info["5"]["f"].as<int>();
         int pause_a_ms = led_strip_info["5"]["g"].as<int>();
-        float brightness = led_strip_info["5"]["d"].as<float>();
+        float brightness;
+        float max_brightness = led_strip_info["5"]["d"].as<float>();
+        // check if brightness is not fixed
+        bool brightness_fixed = true;
+        if (led_strip_info["5"].containsKey("m")){
+            brightness_fixed = led_strip_info["5"]["m"].as<bool>();
+        }
+        if (brightness_fixed==false){
+            brightness = 0;
+        } else {
+            brightness = max_brightness;
+        }
+        
         String start = led_strip_info["5"]["k"];
         
 
@@ -159,9 +171,9 @@ void start_leds(){
             Serial.println("Glow color...");
             // glow in selected or random color, without transition
             leds.fill(leds.Color(
-                        round(rgb_colors[0][0]*brightness),
-                        round(rgb_colors[0][1]*brightness),
-                        round(rgb_colors[0][2]*brightness)
+                        round(rgb_colors[0][0]*max_brightness),
+                        round(rgb_colors[0][1]*max_brightness),
+                        round(rgb_colors[0][2]*max_brightness)
                     ));
             leds.show();
             delay(500);
@@ -170,36 +182,62 @@ void start_leds(){
         else if (new_animation_id == "rai"){
             Serial.println("Glow rainbow...");
             // TODO make delay precise
-            float delay_step = (duration_ms/(256*5));
+            int steps = (256*5);
+            float delay_step = (duration_ms/steps);
+            double brightness_step = (1.0/(steps/2));
 
             // based on "rainbowCycle" from https://learn.adafruit.com/florabrella/test-the-neopixel-strip
             uint16_t i, j;
-            for(j=0; j<256*5; j++) {
+            for(j=0; j<steps; j++) {
                 for(i=0; i< num_leds; i++) {
                     byte WheelPos = ((i * 256 / num_leds) + j) & 255;
                     uint32_t Wheel;
                     if(WheelPos < 85) {
-                        Wheel = leds.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+                        Wheel = leds.Color(round((WheelPos * 3)*brightness), round((255 - WheelPos * 3)*brightness), 0);
                     } else if(WheelPos < 170) {
                         WheelPos -= 85;
-                        Wheel = leds.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+                        Wheel = leds.Color(round((255 - WheelPos * 3)*brightness), 0, round((WheelPos * 3)*brightness));
                     } else {
                         WheelPos -= 170;
-                        Wheel = leds.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+                        Wheel = leds.Color(0, round((WheelPos * 3)*brightness), round((255 - WheelPos * 3)*brightness));
                     }
 
-                    // TODO add brightness + brightness going up and down if pause after animation
+                    // add brightness + brightness going up and down if pause after animation
                     leds.setPixelColor(i, Wheel);
                 }
                 leds.show();
                 delay(delay_step);
-            }
 
+                // increase brightness if brightness not fixed
+                if (brightness_fixed==false){
+                    if (switch_direction){
+                        brightness-=brightness_step;
+                    } else {
+                        brightness+=brightness_step;
+                    }
+
+                    // changing direction
+                    if (brightness>=1){
+                        brightness = 1;
+                        switch_direction = true;
+                    } else if (brightness<=0){
+                        brightness = 0;
+                        switch_direction = false;
+                    }
+                }
+
+            }
+            
+            if (brightness_fixed==false){
+                delay(pause_a_ms);
+            }
         }
         // Beats
         else if (new_animation_id == "bea") {
             Serial.println("Glow beats...");
             // TODO make duration & pause 100 accurate, by calculating also required time for calculation
+
+            // TODO add changing brightness
 
             int delay_step = ((duration_ms/num_leds)/2);
             for(int i=0; i<num_leds; i++) {
