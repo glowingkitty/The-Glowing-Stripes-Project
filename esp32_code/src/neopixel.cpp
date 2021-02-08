@@ -10,6 +10,11 @@ int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
 
 void generate_random_colors(int num_random_colors){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || generate_random_colors()");
+    Serial.println("");
     // define random rgb colors here, loop over them and create new random colors if mode is changing 
     for (int i=0; i<num_random_colors; i++){
         vector<int> color;
@@ -28,10 +33,15 @@ void generate_random_colors(int num_random_colors){
 //////////////////////////////////////
 
 void start_leds(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || start_leds()");
+    Serial.println("");
     StaticJsonDocument<850> led_strip_info = load_strip_config();
     
-    int num_leds = led_strip_info["2"];
-    int num_pin = 22;
+    int num_leds = led_strip_info.containsKey("2") ? led_strip_info["2"].as<int>() : 60;
+    int num_pin = led_strip_info.containsKey("p") ? led_strip_info["p"].as<int>() : 22;
     String previous_animation_id;
     Adafruit_NeoPixel leds(num_leds, num_pin, NEO_GRB + NEO_KHZ800);
     bool switch_direction {false};
@@ -50,8 +60,6 @@ void start_leds(){
 
     // start animation loop
     for(;;){
-        // leds.clear();
-
         // reload strip config on every loop
         led_strip_info.clear();
         StaticJsonDocument<850> led_strip_info = load_strip_config();
@@ -87,28 +95,18 @@ void start_leds(){
         // get customization settings for animation
         int duration_ms = led_strip_info["5"]["f"].as<int>();
         int pause_a_ms = led_strip_info["5"]["g"].as<int>();
-        float brightness;
         float max_brightness = led_strip_info["5"]["d"].as<float>();
         // check if brightness is not fixed
-        bool brightness_fixed = true;
-        if (led_strip_info["5"].containsKey("m")){
-            brightness_fixed = led_strip_info["5"]["m"].as<bool>();
-        }
-        if (brightness_fixed==false){
-            brightness = 0;
-        } else {
-            brightness = max_brightness;
-        }
+        bool brightness_fixed = led_strip_info["5"].containsKey("m") ? led_strip_info["5"]["m"].as<bool>() : true;
+        float brightness = brightness_fixed==false ? 0 : max_brightness;
         
         String start = led_strip_info["5"]["k"];
         
 
         // define sections which should glow up
-        bool all_sections {false};
+        bool all_sections = (led_strip_info["5"]["j"].as<String>()=="all") ? true : false;
         vector<int> section_leds;
-        if (led_strip_info["5"]["j"].as<String>()=="all"){
-            all_sections = true;
-        } else {
+        if (all_sections==false) {
             // if section random - generate random section number
             if (led_strip_info["5"]["j"].as<String>()=="random"){
                 int section = (rand() % 4 + 1);
@@ -180,7 +178,12 @@ void start_leds(){
         }
         // Rainbow
         else if (new_animation_id == "rai"){
-            Serial.println("Glow rainbow...");
+            Serial.println("");
+            Serial.print("|| Core ");
+            Serial.print(xPortGetCoreID());
+            Serial.print(" || Glow rainbow...");
+            Serial.println("");
+            
             // TODO make delay precise
             int steps = (256*5);
             float delay_step = (duration_ms/steps);

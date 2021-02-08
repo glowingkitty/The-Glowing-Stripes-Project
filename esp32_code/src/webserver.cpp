@@ -26,6 +26,7 @@ string role;
 AsyncWebServer server(80);
 
 //// stripe_config.json fields - around 70bytes when fields are filled:
+// p:data_pin
 // 0:id
 // 1:name
 // 2:num_of_leds
@@ -63,7 +64,11 @@ JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 /////////////////////////////
 
 void start_hotspot(){
-    Serial.println("Starting hotspot...");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || start_hotspot()");
+    Serial.println("");
     
     WiFi.mode(WIFI_AP);          
     WiFi.softAP(glowing_stripes_ssid, glowing_stripes_password);
@@ -77,29 +82,12 @@ void start_hotspot(){
     Serial.println("Hotspot active now!");
 }
 
-boolean host_is_online(){
-  // see if TheGlowinStripes in network nearby
-  Serial.println("Check if TheGlowinStripes wifi is online...");
-  int n = WiFi.scanNetworks();
-  if (n == 0) {
-      Serial.println("no networks found");
-      WiFi.scanDelete();
-      return false;
-  } else {
-      for (int i = 0; i < n; ++i) {
-          // Print SSID and RSSI for each network found
-          if (WiFi.SSID(i)=="TheGlowingStripes"){
-            Serial.println("TheGlowingStripes wifi found!");
-            return true;
-          }
-      }
-  }
-  WiFi.scanDelete();
-  Serial.println("TheGlowingStripes wifi NOT found!");
-  return false;
-}
-
 boolean connect_to_wifi(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || connect_to_wifi()");
+    Serial.println("");
     if (SPIFFS.exists("/wifi_credentials.json")){
         Serial.println("Wifi credientias found");
         StaticJsonDocument<60> wifi_credentials;
@@ -123,10 +111,10 @@ boolean connect_to_wifi(){
     }
     
     Serial.println("");
-    Serial.print("Connect to wifi: ");
+    Serial.print("Connecting to wifi: ");
     Serial.print(wifi_ssid);
     Serial.println("");
-    delay(500);
+    delay(2000);
 
     // if credentials for a wifi exist, connect to wifi, else connect to TheGlowingStripes hotspot
     WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
@@ -135,7 +123,7 @@ boolean connect_to_wifi(){
     int failed = 0;
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
       failed = failed+1;
-      if (failed==5){
+      if (failed==10){
         Serial.println("");
         Serial.print("Failed to connect to wifi: ");
         Serial.print(wifi_ssid);
@@ -154,7 +142,11 @@ boolean connect_to_wifi(){
 
 
 void signup_led_strip(){
-    Serial.print("Sign up LED strip to host...");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || signup_led_strip()");
+    Serial.println("");
     // make POST request to webserver to submit information like ip address and details
     StaticJsonDocument<850> led_strip_info = load_strip_config();
     
@@ -191,8 +183,13 @@ void signup_led_strip(){
 }
 
 void start_wifi(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || start_wifi()");
+    Serial.println("");
     // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
-    if (host_is_online() && connect_to_wifi()){
+    if (connect_to_wifi()){
       // if true, become a client (playing leds are get ready to take over host, if host goes offline)
       role = "client";
     } else {
@@ -211,14 +208,30 @@ void start_wifi(){
 
 
 void notFound(AsyncWebServerRequest *request) {
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || notFound()");
+    Serial.println("");
     request->send(404, "text/plain", "Not found");
 }
 
 void start_server(){
-    Serial.println("Starting server...");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || start_server()");
+    Serial.println("");
+
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
+    // TODO fix flickering which happens when server request is made
     server.on("/wifi_networks_nearby", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /wifi_networks_nearby");
+        Serial.println("");
         String json = "{\"networks\":[";
 
         Serial.println("Scan for Wifi nerworks...");
@@ -253,13 +266,21 @@ void start_server(){
     });
 
     server.on("/mode", HTTP_POST, [](AsyncWebServerRequest *request){
-        Serial.println("Process POST /mode request...");
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /mode");
+        Serial.println("");
         // TODO
         request->send(200, "application/json", "{\"success\":true}");
     });
 
     server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
-        Serial.println("Process POST /signup_led_strip request...");
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /signup_led_strip");
+        Serial.println("");
         // TODO get json data from post request and add led strip to "led_strips"
         String message;
         if (request->hasParam("body", true)) {

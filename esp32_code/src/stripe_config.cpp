@@ -5,6 +5,11 @@
 using namespace std;
 
 string gen_random() {
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || gen_random()");
+    Serial.println("");
     string tmp_s;
     static const char alphanum[] =
         "0123456789"
@@ -22,6 +27,11 @@ string gen_random() {
 
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
 StaticJsonDocument<850> load_strip_config(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || load_strip_config()");
+    Serial.println("");
     StaticJsonDocument<850> led_strip_config;
     File led_strip_config_file = SPIFFS.open("/stripe_config.json");
     if(!led_strip_config_file){
