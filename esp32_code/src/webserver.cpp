@@ -78,7 +78,7 @@ void start_hotspot(){
         Serial.println("Error starting mDNS");
         return;
     }
-    role = "host";
+    MDNS.addService("http", "tcp", 80);
     Serial.println("Hotspot active now!");
 }
 
@@ -155,7 +155,7 @@ void signup_led_strip(){
     
 
     // TODO make post request
-    if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
+    if(role == "client" && WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
         HTTPClient http;   
         
         // TODO use debugger to fix domain issue
@@ -176,8 +176,12 @@ void signup_led_strip(){
         
         }
         http.end();  //Free resources
-    }else{
-        Serial.println("Error in WiFi connection. Couldnt sign up LED strip.");   
+    } else if (role == "host"){
+        // if led strip isn't connected to wifi - because its the host, add led strip directly to list of signed up led strips
+        led_strips.add(led_strip_info);
+        Serial.println("Signed up LED strip");
+    } else {
+        Serial.println("Error in signup_led_strip(), couldnt sign up LED strip.");
     }
 
 }
@@ -194,6 +198,7 @@ void start_wifi(){
       role = "client";
     } else {
       // else become the host by starting the hotspot
+      role = "host";
       start_hotspot();
     }
     // sign up led strip to webserver
@@ -271,8 +276,30 @@ void start_server(){
         Serial.print(xPortGetCoreID());
         Serial.print(" || /mode");
         Serial.println("");
-        // TODO
-        request->send(200, "application/json", "{\"success\":true}");
+        // get json data from post request and update led strip mode
+        String message;
+        if (request->hasParam("body", true)) {
+            message = request->getParam("body", true)->value();
+            StaticJsonDocument<700> new_led_mode;
+            DeserializationError error = deserializeJson(new_led_mode, message);
+            if (error){
+                Serial.print(F("Failed to read body from /mode POST request"));
+                Serial.println(error.c_str());
+                request->send(500, "application/json", "{\"success\":false}");
+            } else {
+                // TODO change mode based on POST request
+                // TODO load config file
+
+                // TODO overwrite updated fields
+                
+                Serial.println("Changed LED strip mode for {} to {}");
+                new_led_mode.clear();
+                request->send(200, "application/json", "{\"success\":true}");
+            }
+        } else {
+            message = "No message sent";
+            request->send(500, "application/json", "{\"success\":false}");
+        }
     });
 
     server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -281,14 +308,26 @@ void start_server(){
         Serial.print(xPortGetCoreID());
         Serial.print(" || /signup_led_strip");
         Serial.println("");
-        // TODO get json data from post request and add led strip to "led_strips"
+        // get json data from post request and add led strip to "led_strips"
         String message;
         if (request->hasParam("body", true)) {
             message = request->getParam("body", true)->value();
+            StaticJsonDocument<850> led_strip_config;
+            DeserializationError error = deserializeJson(led_strip_config, message);
+            if (error){
+                Serial.print(F("Failed to read body from /signup_led_strip POST request"));
+                Serial.println(error.c_str());
+                request->send(500, "application/json", "{\"success\":false}");
+            } else {
+                led_strips.add(led_strip_config);
+                Serial.println("Signed up LED strip");
+                led_strip_config.clear();
+                request->send(200, "application/json", "{\"success\":true}");
+            }
         } else {
             message = "No message sent";
+            request->send(500, "application/json", "{\"success\":false}");
         }
-        request->send(200, "application/json", "{\"success\":true}");
     });
 
     server.onNotFound(notFound);
