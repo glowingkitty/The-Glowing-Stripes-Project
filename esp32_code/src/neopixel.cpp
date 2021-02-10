@@ -54,7 +54,6 @@ void start_leds(){
     Serial.println("id:                             "+ led_strip_info["0"].as<String>());
     Serial.println("name:                           "+ led_strip_info["1"].as<String>());
     Serial.println("num_of_leds:                    "+ led_strip_info["2"].as<String>());
-    Serial.println("num_of_sections:                "+ led_strip_info["3"].as<String>());
     Serial.println("last_animation_id:              "+ led_strip_info["4"].as<String>());
     Serial.println("last_animation_customization:   "+ led_strip_info["5"].as<String>());
 

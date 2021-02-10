@@ -1,7 +1,25 @@
 #include <ArduinoOTA.h>
+#include "strip_config.h"
+#include <SPIFFS.h>
 
 void start_ota(){
-    ArduinoOTA.setPassword("letsglow");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || start_ota()");
+    Serial.println("");
+    // if this is the host, set hostname to "theglowingstripes"
+    if (SPIFFS.exists("/host.txt")){
+      ArduinoOTA.setHostname("theglowingstripes");
+      Serial.println("Hostname set: theglowingstripes.local");
+    } else {
+      // get host name from saved config json
+      StaticJsonDocument<850> led_strip_info = load_strip_config();
+      String hostname = "led_strip__"+led_strip_info["0"].as<String>();
+      ArduinoOTA.setHostname(hostname.c_str());
+      Serial.println("Hostname set: "+hostname+".local");
+    }
+    
     ArduinoOTA
       .onStart([]() {
         String type;

@@ -63,6 +63,51 @@ JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 /// Wifi
 /////////////////////////////
 
+boolean host_is_online(){
+  // see if TheGlowinStripes in network nearby
+  Serial.println("Check if TheGlowinStripes wifi is online...");
+  int n = WiFi.scanNetworks();
+  if (n == 0) {
+      Serial.println("no networks found");
+      WiFi.scanDelete();
+      return false;
+  } else {
+      for (int i = 0; i < n; ++i) {
+          // Print SSID and RSSI for each network found
+          if (WiFi.SSID(i)=="TheGlowingStripes"){
+            Serial.println("TheGlowingStripes wifi found!");
+            return true;
+          }
+      }
+  }
+  WiFi.scanDelete();
+  Serial.println("TheGlowingStripes wifi NOT found!");
+  return false;
+}
+
+void become_client(){
+    role = "client";
+    // remove host.txt file, if it exists
+    if (SPIFFS.exists("/host.txt")){
+        SPIFFS.remove("/host.txt");
+    }
+}
+
+void become_host(){
+    role = "host";
+    // create "host.txt" file, so ota_update.cpp knows this device is the host now - and sets the hotname to "theglowingstripes"
+    File file = SPIFFS.open("/host.txt", FILE_WRITE);
+    if(!file){
+        Serial.println("There was an error opening host.txt for writing");
+        return;
+    }
+    if(file.print("1")) {
+        Serial.println("host.txt was written");
+    }else {
+        Serial.println("host.txt write failed");
+    }
+}
+
 void start_hotspot(){
     Serial.println("");
     Serial.print("|| Core ");
@@ -72,13 +117,7 @@ void start_hotspot(){
     
     WiFi.mode(WIFI_AP);          
     WiFi.softAP(glowing_stripes_ssid, glowing_stripes_password);
-
-    // make ESP accessible via "theglowingstripes.local"
-    if(!MDNS.begin("theglowingstripes")) {
-        Serial.println("Error starting mDNS");
-        return;
-    }
-    MDNS.addService("http", "tcp", 80);
+    // don't set hostname here, since ota_update.cpp will overwrite hostname after this
     Serial.println("Hotspot active now!");
 }
 
@@ -118,20 +157,11 @@ boolean connect_to_wifi(){
 
     // if credentials for a wifi exist, connect to wifi, else connect to TheGlowingStripes hotspot
     WiFi.begin(wifi_ssid, wifi_password);                  // to tell Esp32 Where to connect and trying to connect
+    delay(500);
 
-    // after 2 fails, create hotspot instead
-    int failed = 0;
+    // if that fails, return false (causing a restart)
     while (WiFi.status() != WL_CONNECTED) {                // While loop for checking Internet Connected or not
-      failed = failed+1;
-      if (failed==10){
-        Serial.println("");
-        Serial.print("Failed to connect to wifi: ");
-        Serial.print(wifi_ssid);
-        Serial.println("");
         return false;
-      }
-      delay(500);
-      Serial.print(".");
     }
     Serial.println("");
     Serial.print("Connected LED strip to Wifi: ");
@@ -192,14 +222,19 @@ void start_wifi(){
     Serial.print(xPortGetCoreID());
     Serial.print(" || start_wifi()");
     Serial.println("");
-    // see if TheGlowingStripes wifi already exists (if a host is already active nearby)
-    if (connect_to_wifi()){
-      // if true, become a client (playing leds are get ready to take over host, if host goes offline)
-      role = "client";
+    // see if host wifi is nearby (the one defined in credentials, or TheGlowingStripes wifi)
+    if (host_is_online()){
+        if (connect_to_wifi()){
+            // if true, become a client (playing leds are get ready to take over host, if host goes offline)
+            become_client();
+        } else {
+            // if that failed, restart ESP and try again
+            ESP.restart();
+        }
     } else {
-      // else become the host by starting the hotspot
-      role = "host";
-      start_hotspot();
+        // else become the host by starting the hotspot
+        become_host();
+        start_hotspot();
     }
     // sign up led strip to webserver
     signup_led_strip();
