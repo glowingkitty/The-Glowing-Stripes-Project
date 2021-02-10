@@ -1,6 +1,7 @@
 import json
 import os
 import socket
+import time
 from shutil import copyfile
 
 
@@ -33,6 +34,7 @@ for filename in [x for x in os.listdir("./stripe_configs") if x.endswith(".json"
         copyfile("./stripe_configs/"+filename, "./data/stripe_config.json")
 
         os.system("pio run -t uploadfs --upload-port led_strip__"+led_strip_id+".local")
+        time.sleep(5)
         os.system("pio run -t upload --upload-port led_strip__"+led_strip_id+".local")
         print("LED strip '"+led_strip_name+"' ("+led_strip_id+") updated!")
     else:
@@ -43,3 +45,6 @@ copyfile("./data/stripe_config_backup.json", "./data/stripe_config.json")
 
 # remove backup file
 os.remove("./data/stripe_config_backup.json")
+
+# TODO Summarize how many LED strips have been updated and how many have been offline
+# TODO stop current animation when update starts + start LED update animation 
