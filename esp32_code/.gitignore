@@ -6,3 +6,4 @@
 credentials.h
 credentials.json
 wifi_credentials.json
+stripe_configs/
