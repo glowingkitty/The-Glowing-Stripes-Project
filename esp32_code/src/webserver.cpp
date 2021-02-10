@@ -64,24 +64,44 @@ JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 /////////////////////////////
 
 boolean host_is_online(){
-  // see if TheGlowinStripes in network nearby
-  Serial.println("Check if TheGlowinStripes wifi is online...");
+  Serial.println("Check if host wifi is online...");
+  
   int n = WiFi.scanNetworks();
   if (n == 0) {
       Serial.println("no networks found");
       WiFi.scanDelete();
       return false;
   } else {
-      for (int i = 0; i < n; ++i) {
-          // Print SSID and RSSI for each network found
-          if (WiFi.SSID(i)=="TheGlowingStripes"){
-            Serial.println("TheGlowingStripes wifi found!");
-            return true;
-          }
-      }
+        if (SPIFFS.exists("/wifi_credentials.json")){
+            Serial.println("Wifi credientias found");
+            StaticJsonDocument<60> wifi_credentials;
+            File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
+            if(!wifi_credentials_file){
+                Serial.println("Failed to open wifi_credentials for reading");
+            }else {
+                DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
+                if (error){
+                    Serial.println("Failed to read wifi_credentials_file.");
+                } else {
+                    Serial.println("Loaded wifi_credentials.json");
+                }
+            }
+            wifi_credentials_file.close();
+            wifi_ssid = wifi_credentials["0"];
+        } else {
+            wifi_ssid = glowing_stripes_ssid;
+        }
+        
+        for (int i = 0; i < n; ++i) {
+            // Print SSID and RSSI for each network found
+            if (WiFi.SSID(i)==wifi_ssid){
+                Serial.println("Host wifi found!");
+                return true;
+            }
+        }
   }
   WiFi.scanDelete();
-  Serial.println("TheGlowingStripes wifi NOT found!");
+  Serial.println("Host wifi NOT found!");
   return false;
 }
 
