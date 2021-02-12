@@ -18,6 +18,8 @@ print("Start updating all LED strips...")
 copyfile("./data/stripe_config.json", "./data/stripe_config_backup.json")
 
 # for every json file in /stripe_configs:
+success = []
+offline = []
 for filename in [x for x in os.listdir("./stripe_configs") if x.endswith(".json")]:
 
     # load json file and id
@@ -34,11 +36,14 @@ for filename in [x for x in os.listdir("./stripe_configs") if x.endswith(".json"
         copyfile("./stripe_configs/"+filename, "./data/stripe_config.json")
 
         os.system("pio run -t uploadfs --upload-port led_strip__"+led_strip_id+".local")
-        time.sleep(5)
+        time.sleep(10)
         os.system("pio run -t upload --upload-port led_strip__"+led_strip_id+".local")
+        success.append(led_strip_name+"' ("+led_strip_id+")")
         print("LED strip '"+led_strip_name+"' ("+led_strip_id+") updated!")
     else:
+        offline.append(led_strip_name+"' ("+led_strip_id+")")
         print("LED strip '"+led_strip_name+"' ("+led_strip_id+") offline. Skip.")
+        
 
 # copy backup file back to /data/stripe_config.json
 copyfile("./data/stripe_config_backup.json", "./data/stripe_config.json")
@@ -46,5 +51,16 @@ copyfile("./data/stripe_config_backup.json", "./data/stripe_config.json")
 # remove backup file
 os.remove("./data/stripe_config_backup.json")
 
-# TODO Summarize how many LED strips have been updated and how many have been offline
-# TODO stop current animation when update starts + start LED update animation 
+# Summarize how many LED strips have been updated and how many have been offline
+print("Updates complete!")
+print("=================")
+print("")
+print("Updated:")
+for name in success:
+    print(name)
+print("")
+print("Offline (unable to update):")
+for name in offline:
+    print(name)
+print("")
+

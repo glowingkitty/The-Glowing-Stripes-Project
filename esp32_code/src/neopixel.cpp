@@ -521,6 +521,43 @@ void start_leds(){
             delay(pause_a_ms);
         }
         
+        // Software update
+        else if (new_animation_id == "upd"){
+            Serial.println("Show software update progress...");
+            // show progress in leds
+            int r = 0;
+            int g = 0;
+            int b = 0;
+
+            if (led_strip_info["5"]["o"]=="filesystem"){
+                g = 255;
+            } else {
+                b = 255;
+            }
+
+            int num_leds_to_glow = round(num_leds*led_strip_info["5"]["p"].as<float>());
+            for(int i=num_leds; i>=0; i--) {
+                if (i < num_leds_to_glow){
+                    leds.setPixelColor(i, leds.Color(r,g,b));
+                } else {
+                    leds.setPixelColor(i, leds.Color(0,0,0));
+                }
+            }
+        }
+
+        // Error
+        else if (new_animation_id == "err"){
+            // show blinking red leds for warning
+            for(float brightness=0; brightness<=1.0; brightness+=0.1) {
+                leds.fill(leds.Color(round(255*brightness),0,0));
+                delay(10);
+            }
+            for(float brightness=1.0; brightness>=0; brightness-=0.1) {
+                leds.fill(leds.Color(round(255*brightness),0,0));
+                delay(10);
+            }
+        }
+
         else {
             Serial.println("No animation selected. Turn LEDs off.");
             leds.fill(leds.Color(0,0,0));

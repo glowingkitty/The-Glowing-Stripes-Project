@@ -55,6 +55,8 @@ AsyncWebServer server(80);
 // l:possible_directions
 // m:brightness_fixed
 // n:max_height
+// o:update_type
+// p:update_progress
 
 DynamicJsonDocument connected_led_strips(2048); // equals about 30 LED strips (70bytes per LED strip)
 JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
@@ -104,6 +106,43 @@ boolean host_is_online(){
   Serial.println("Host wifi NOT found!");
   return false;
 }
+
+
+void update_animation(String id,StaticJsonDocument<500> customizations){
+    // Open file for writing
+    StaticJsonDocument<850> led_strip_info;
+    File led_strip_info_file = SPIFFS.open("/stripe_config.json");
+    if(!led_strip_info_file){
+        Serial.println("Failed to open stripe_config for reading");
+        led_strip_info_file.close();
+    }else {
+        DeserializationError error = deserializeJson(led_strip_info, led_strip_info_file);
+        if (error){
+            Serial.println("Failed to read led_strip_info_file.");
+        } else {
+            Serial.println("Loaded stripe_config.json");
+            led_strip_info_file.close();
+            led_strip_info["4"] = id;
+            led_strip_info["5"] = customizations;
+
+            SPIFFS.remove("/stripe_config.json");
+
+            // Open file for writing
+            File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
+            if (!file) {
+                Serial.println("Failed to create stripe_config.json");
+            }
+            // Serialize JSON to file
+            if (serializeJson(led_strip_info, file) == 0) {
+                Serial.println(F("Failed to write to stripe_config.json"));
+            }
+            // Close the file
+            file.close();
+        }
+    }
+    
+}
+
 
 void become_client(){
     role = "client";
@@ -342,10 +381,8 @@ void start_server(){
                 Serial.println(error.c_str());
                 request->send(500, "application/json", "{\"success\":false}");
             } else {
-                // TODO change mode based on POST request
-                // TODO load config file
-
-                // TODO overwrite updated fields
+                // change mode based on POST request
+                update_animation(new_led_mode["0"],new_led_mode["1"]);
                 
                 Serial.println("Changed LED strip mode for {} to {}");
                 new_led_mode.clear();
