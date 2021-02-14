@@ -119,8 +119,17 @@ void start_ota(){
       });
 
     ArduinoOTA.begin();
+    Serial.println("ArduinoOTA started");
 }
 
 void handle_ota(){
     ArduinoOTA.handle();
+    // (if this is not the host) check if theglowingstripes.local (host) is still available
+
+    // TODO wifi access causes flickering LEDs
+    if (SPIFFS.exists("/host.txt")==false && host_is_online()==false){
+      // If host goes offline - become host
+      Serial.println("Host is offline. Restarting to connect to new host or become host...");
+      ESP.restart();
+    }
 }

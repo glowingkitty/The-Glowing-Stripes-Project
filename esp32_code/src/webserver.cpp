@@ -65,50 +65,82 @@ JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 /// Wifi
 /////////////////////////////
 
-boolean host_is_online(){
-  Serial.println("Check if host wifi is online...");
-  
-  int n = WiFi.scanNetworks();
-  if (n == 0) {
-      Serial.println("no networks found");
-      WiFi.scanDelete();
-      return false;
-  } else {
-        if (SPIFFS.exists("/wifi_credentials.json")){
-            Serial.println("Wifi credientias found");
-            StaticJsonDocument<60> wifi_credentials;
-            File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
-            if(!wifi_credentials_file){
-                Serial.println("Failed to open wifi_credentials for reading");
-            }else {
-                DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
-                if (error){
-                    Serial.println("Failed to read wifi_credentials_file.");
-                } else {
-                    Serial.println("Loaded wifi_credentials.json");
+boolean host_wifi_is_online(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || host_wifi_is_online()");
+    Serial.println("");
+
+    Serial.println("Check if host wifi is online...");
+    
+    int n = WiFi.scanNetworks();
+    if (n == 0) {
+        Serial.println("no networks found");
+        WiFi.scanDelete();
+        return false;
+    } else {
+            if (SPIFFS.exists("/wifi_credentials.json")){
+                Serial.println("Wifi credientias found");
+                StaticJsonDocument<60> wifi_credentials;
+                File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
+                if(!wifi_credentials_file){
+                    Serial.println("Failed to open wifi_credentials for reading");
+                }else {
+                    DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
+                    if (error){
+                        Serial.println("Failed to read wifi_credentials_file.");
+                    } else {
+                        Serial.println("Loaded wifi_credentials.json");
+                    }
+                }
+                wifi_credentials_file.close();
+                wifi_ssid = wifi_credentials["0"];
+            } else {
+                wifi_ssid = glowing_stripes_ssid;
+            }
+            
+            for (int i = 0; i < n; ++i) {
+                // Print SSID and RSSI for each network found
+                if (WiFi.SSID(i)==wifi_ssid){
+                    Serial.println("Host wifi found!");
+                    return true;
                 }
             }
-            wifi_credentials_file.close();
-            wifi_ssid = wifi_credentials["0"];
-        } else {
-            wifi_ssid = glowing_stripes_ssid;
-        }
-        
-        for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            if (WiFi.SSID(i)==wifi_ssid){
-                Serial.println("Host wifi found!");
-                return true;
-            }
-        }
-  }
-  WiFi.scanDelete();
-  Serial.println("Host wifi NOT found!");
-  return false;
+    }
+    WiFi.scanDelete();
+    Serial.println("Host wifi NOT found!");
+    return false;
 }
 
+boolean host_is_online(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || host_is_online()");
+    Serial.println("");
 
+    // check if "theglowingstripes.local" is accessible
+    // search for theglowingstripes domain
+    if(mdns_init()!= ESP_OK){
+        Serial.println("mDNS failed to start");
+        return false;
+    }
+    IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+    if (serverIp){
+        return true;
+    }
+    return false;
+}
+
+// TODO test
 void update_animation(String id,StaticJsonDocument<500> customizations){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_animation()");
+    Serial.println("");
+
     // Open file for writing
     StaticJsonDocument<850> led_strip_info;
     File led_strip_info_file = SPIFFS.open("/stripe_config.json");
@@ -145,6 +177,12 @@ void update_animation(String id,StaticJsonDocument<500> customizations){
 
 
 void become_client(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || become_client()");
+    Serial.println("");
+
     role = "client";
     // remove host.txt file, if it exists
     if (SPIFFS.exists("/host.txt")){
@@ -153,6 +191,12 @@ void become_client(){
 }
 
 void become_host(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || become_host()");
+    Serial.println("");
+
     role = "host";
     // create "host.txt" file, so ota_update.cpp knows this device is the host now - and sets the hotname to "theglowingstripes"
     File file = SPIFFS.open("/host.txt", FILE_WRITE);
@@ -243,12 +287,12 @@ void signup_led_strip(){
     Serial.println("ip_address:  "+ led_strip_info["6"].as<String>());
     
 
-    // TODO make post request
+    // make post request
     if(role == "client" && WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
         HTTPClient http;   
         
-        // TODO use debugger to fix domain issue
-        http.begin("http://theglowingstripes.local/signup_led_strip");
+        IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+        http.begin("http://"+serverIp.toString()+"/signup_led_strip");
         http.addHeader("Content-Type", "application/json");
         
         String json;
@@ -265,6 +309,8 @@ void signup_led_strip(){
         
         }
         http.end();  //Free resources
+        return;
+
     } else if (role == "host"){
         // if led strip isn't connected to wifi - because its the host, add led strip directly to list of signed up led strips
         led_strips.add(led_strip_info);
@@ -282,12 +328,18 @@ void start_wifi(){
     Serial.print(" || start_wifi()");
     Serial.println("");
     // see if host wifi is nearby (the one defined in credentials, or TheGlowingStripes wifi)
-    if (host_is_online()){
+    if (host_wifi_is_online()){
         if (connect_to_wifi()){
-            // if true, become a client (playing leds are get ready to take over host, if host goes offline)
-            become_client();
+            if (host_is_online()){
+                // if true, become a client (playing leds are get ready to take over host, if host goes offline)
+                become_client();
+            }
+            else {
+                become_host();
+            }
         } else {
             // if that failed, restart ESP and try again
+            Serial.println("Failed to connect to host wifi. Restarting...");
             ESP.restart();
         }
     } else {
@@ -312,7 +364,7 @@ void notFound(AsyncWebServerRequest *request) {
     Serial.print(xPortGetCoreID());
     Serial.print(" || notFound()");
     Serial.println("");
-    request->send(404, "text/plain", "Not found");
+    request->send(404, "application/json", "{\"error\":\"page not found\"}");
 }
 
 void start_server(){
@@ -323,6 +375,15 @@ void start_server(){
     Serial.println("");
 
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+    server.on("/online", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /online");
+        Serial.println("");
+        request->send(200, "application/json", "{\"online\":true}");
+    });
 
     // TODO fix flickering which happens when server request is made
     server.on("/wifi_networks_nearby", HTTP_GET, [](AsyncWebServerRequest *request){

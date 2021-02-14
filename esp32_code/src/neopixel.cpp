@@ -91,15 +91,15 @@ void start_leds(){
         }
         
 
-        // get customization settings for animation
-        int duration_ms = led_strip_info["5"]["f"].as<int>();
-        int pause_a_ms = led_strip_info["5"]["g"].as<int>();
-        float max_brightness = led_strip_info["5"]["d"].as<float>();
+        // get customization settings for animation | if they don't exist use default settings
+        int duration_ms = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("f") ? led_strip_info["5"]["f"].as<int>() :200 : 200;
+        int pause_a_ms = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("g") ? led_strip_info["5"]["g"].as<int>() :0 : 0;
+        float max_brightness = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("d") ? led_strip_info["5"]["d"].as<float>() : 1.0 : 1.0;
         // check if brightness is not fixed
-        bool brightness_fixed = led_strip_info["5"].containsKey("m") ? led_strip_info["5"]["m"].as<bool>() : true;
+        bool brightness_fixed = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("m") ? led_strip_info["5"]["m"].as<bool>() : true : true;
         float brightness = brightness_fixed==false ? 0 : max_brightness;
         
-        String start = led_strip_info["5"]["k"];
+        String start = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("k") ? led_strip_info["5"]["k"].as<String>() : "start" : "start";
         
 
         // define sections which should glow up

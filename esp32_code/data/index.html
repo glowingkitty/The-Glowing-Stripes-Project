@@ -10,29 +10,4162 @@
         <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
         <link rel="shortcut icon" href="favicons/favicon.ico" type="image/x-icon">
         
-        <link rel="stylesheet" href="styles.css"/>
-        <link rel="stylesheet" href="popup.css"/>
-        <link rel="stylesheet" href="buttons.css"/>
-        <link rel="stylesheet" href="icons.css"/>
-        <link rel="stylesheet" href="leds.css"/>
-        <link rel="stylesheet" href="animation_customizer.css"/>
+        {% comment %} TODO embedd all .css as inline - to reduce needed requests {% endcomment %}
+        <style>
+        /* lexend-deca-regular - latin */
+        @font-face {
+            font-family: 'Lexend Deca';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Lexend Deca Regular'), local('LexendDeca-Regular'),
+                url('fonts/lexenddeca.woff2') format('woff2'),
+                /* Chrome 26+, Opera 23+, Firefox 39+ */
+                url('fonts/lexenddeca.woff') format('woff');
+            /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+        }
 
-        <script src="axios.min.js"></script>
-        <script src="popup.js"></script>
-        <script src="power.js"></script>
-        <script src="software_update.js"></script>
-        <script src="wifi.js"></script>
-        <script src="leds.js"></script>
-        <script src="control.js"></script>
-        <script src="connection_check.js"></script>
-        <script src="customizer/field.js"></script>
-        <script src="customizer/brightness.js"></script>
-        <script src="customizer/colors.js"></script>
-        <script src="customizer/direction.js"></script>
-        <script src="customizer/height.js"></script>
-        <script src="customizer/sections.js"></script>
-        <script src="customizer/timing.js"></script>
-        <script src="animation_customizer.js"></script>
+        .background {
+            background: #FFFFFF;
+            font-family: Lexend Deca;
+            font-style: normal;
+            font-weight: normal;
+            margin: 0px;
+        }
+
+        .background.darkmode {
+            background: #000000;
+        }
+
+        .header_overlay {
+            margin: auto;
+            margin-top: 20px;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .main_window {
+            position: relative;
+            z-index: 10;
+            margin: auto;
+            margin-top: -80px;
+            max-width: 600px;
+            min-height: 145px;
+            width: 90%;
+            box-sizing: border-box;
+            border-radius: 10px;
+            padding: 26px;
+            font-size: 16px;
+            line-height: 20px;
+            text-align: center;
+            background: #292929;
+            border: 1px solid #505050;
+            color: #FFFFFF;
+        }
+
+        @media only screen and (max-width: 740px) {
+            .header_overlay {
+                margin-top: 0px;
+                margin-bottom: -120px;
+                text-align: right;
+            }
+
+            .main_window {
+                margin-top: -115px;
+            }
+
+            #edit_layout_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+        }
+
+
+        .main_window.popup_content {
+            margin-top: 25vh;
+            text-align: left;
+            max-height: 60vh;
+        }
+
+
+        @media only screen and (max-width: 415px) {
+            .main_window.popup_content {
+                margin-top: 15vh;
+            }
+        }
+
+
+        @media only screen and (max-width: 374px) {
+            .main_window.popup_content {
+                padding: 10px;
+                padding-top: 26px;
+            }
+        }
+
+
+        .main_window_content {
+            /* opacity: 0; */
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .left_aligned_maincontent {
+            text-align: left;
+        }
+
+        .inline_block {
+            display: inline-block;
+        }
+
+        .text_max_width_40_percent {
+            width: 40%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .right_aligned {
+            float: right;
+        }
+
+        .left_aligned {
+            float: left;
+        }
+
+        .wifi_network {
+            font-size: 18px;
+            line-height: 58px;
+            display: block;
+            margin: 5px;
+        }
+
+        @media only screen and (max-width: 740px) {
+            .wifi_network {
+                font-size: 16px;
+            }
+        }
+
+        .opacity_50 {
+            opacity: 0.5;
+        }
+
+        .divider_line {
+            border: 1px solid #656565;
+        }
+
+        .num_of_connected_leds {
+            display: inline-block;
+            text-align: center;
+            width: 19px;
+            height: 19px;
+            padding: 3px;
+            border-radius: 20px;
+            background: #FFFFFF;
+        }
+
+        .num_of_connected_leds.darkmode {
+            background: #000000;
+        }
+
+        .glow_text {
+            color: #DF0A0A;
+        }
+
+        .shadow {
+            max-width: 1195px;
+            height: 200px;
+            margin: auto;
+            margin-top: -100px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            background-image: url("images/shadow.svg");
+            margin-bottom: -30px;
+        }
+
+        .sub_menu {
+            max-width: 700px;
+            margin: auto;
+            text-align: center;
+            padding-bottom: 50px;
+        }
+
+        .right_positioned {
+            float: right;
+        }
+
+        .mode_selector {
+            position: absolute;
+            margin-bottom: 30px;
+            background: black;
+            color: white;
+            font-size: 22px;
+            right: 80px;
+            left: 25px;
+            margin-top: 15px;
+        }
+
+        .mode_selector:hover {
+            cursor: pointer;
+        }
+
+        /* Customize the label (the container) */
+        .checkbox {
+            display: inline-block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 20px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .checkbox.block {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox.with_icon {
+            padding-left: 54px;
+            background-repeat: no-repeat !important;
+            background-position: left 30px center !important;
+            background-size: 17px 17px !important;
+        }
+
+        /* Hide the browser's default checkbox */
+        .checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #eee;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox:hover input~.checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox input:checked~.checkmark {
+            background-color: #f32121;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox input:checked~.checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        .mixes {
+            margin-bottom: 30px;
+        }
+
+        .mix_entry {
+            opacity: 0.5;
+            display: block;
+            position: relative;
+            z-index: 10;
+            margin: auto;
+            width: 600px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            padding-left: 26px;
+            font-size: 16px;
+            line-height: 60px;
+            text-align: left;
+            background: #292929;
+            border: 1px solid #505050;
+            color: #FFFFFF;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .mix_entry:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .icon {
+            background-repeat: no-repeat !important;
+            background-position: left 0px center !important;
+            background-size: 17px 17px !important;
+            padding-left: 25px;
+        }
+
+        .icon.large_inline {
+            background-size: 27px 27px !important;
+            height: 30px;
+            width: 30px;
+            display: inline-block;
+            opacity: 0.5;
+        }
+
+        .icon.large_inline:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .input_field {
+            background: #1C1C1C;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+            font-size: 18px;
+            color: white;
+            font-family: Lexend Deca;
+            font-style: normal;
+            font-weight: normal;
+            padding: 10px;
+            padding-left: 20px;
+            width: 60%;
+        }
+
+        .led_strip_name {
+            max-width: 50vw;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+
+
+        .popup {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: block;
+            opacity: 1;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .opacity_null {
+            opacity: 0;
+        }
+
+        .display_none {
+            display: none !important;
+        }
+
+
+        .popup_button {
+            display: inline-block;
+            border-radius: 40px;
+            box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.4);
+            position: absolute;
+            top: -20px;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+            text-decoration: none;
+            background: #2F2F2F;
+            color: #FFFFFF;
+            border: 1px solid #414141;
+            box-sizing: border-box;
+            left: -10px;
+            width: 40px;
+            height: 40px;
+            background-repeat: no-repeat !important;
+            background-position: center center !important;
+            background-size: 17px 17px !important;
+        }
+
+        .popup_button:hover {
+            top: -25px;
+            cursor: pointer;
+        }
+
+        .popup_headline {
+            font-size: 20px;
+            line-height: 20px;
+            padding-bottom: 20px;
+        }
+
+        .popup_message {
+            color: #AEAEAE;
+            overflow-y: scroll;
+            max-height: 395px;
+        }
+
+        .popup_buttons {
+            position: absolute;
+            right: 0px;
+        }
+
+
+
+        .cta {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            padding-right: 14px;
+            padding-left: 14px;
+            font-size: 16px;
+            line-height: 18px;
+            border-radius: 6px;
+            box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            top: 0px;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+            text-decoration: none;
+        }
+
+        @media only screen and (max-width: 740px) {
+            a[data-button-type="wifi_disconnect_button"] {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+
+            a[data-button-type="wifi_connect_button"] {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+        }
+
+        @media only screen and (max-width: 450px) {
+            .cta#shutdown_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+
+            .cta#restart_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+
+            .cta#sleep_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+        }
+
+        @media only screen and (max-width: 413px) {
+            .cta#save_mix_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+        }
+
+        @media only screen and (max-width: 374px) {
+            .cta#undo_changes_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+
+            #edit_name_button {
+                font-size: 0px;
+                padding-right: 5px;
+            }
+        }
+
+        .cta:hover {
+            top: -5px;
+            cursor: pointer;
+        }
+
+        .cta:active {
+            top: 0px;
+        }
+
+        .cta.primary {
+            background: #FF3F3F;
+            color: #FFFFFF;
+        }
+
+        .cta.secondary {
+            background: #FFFFFF;
+            color: #575757;
+            border: 1px solid #DCDCDC;
+            box-sizing: border-box;
+        }
+
+        .cta.darkmode {
+            background: #2F2F2F;
+            color: #FFFFFF;
+            border: 1px solid #414141;
+            box-sizing: border-box;
+        }
+
+        .text_cta {
+            position: relative;
+            top: 0px;
+            font-size: 12px;
+            line-height: 15px;
+            color: #A9A9A9;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .text_cta:hover {
+            top: -5px;
+            cursor: pointer;
+        }
+
+        .with_icon {
+            padding-left: 35px;
+            background-repeat: no-repeat !important;
+            background-position: left 10px center !important;
+            background-size: 17px 17px !important;
+        }
+
+        .button_customize_animation {
+            width: 36px;
+            height: 36px;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            background-size: 25px 25px !important;
+            background: #1C1C1C;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+            margin-top: 12px;
+            top: 0px;
+            position: relative;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .button_customize_animation:hover {
+            top: -5px;
+            cursor: pointer;
+        }
+
+        .fixed_bottom_left {
+            position: absolute;
+            bottom: -25px;
+            left: 15px;
+        }
+
+        .fixed_bottom_right {
+            position: absolute;
+            bottom: -25px;
+            right: 15px;
+        }
+
+
+
+        .close {
+            background-image: url("icons/close.svg") !important;
+        }
+
+        .close_dark {
+            background-image: url("icons/close_dark.svg") !important;
+        }
+
+        .code {
+            background-image: url("icons/code.svg") !important;
+        }
+
+        .code_dark {
+            background-image: url("icons/code_dark.svg") !important;
+        }
+
+        .customize {
+            background-image: url("icons/customize.svg") !important;
+        }
+
+        .customize_dark {
+            background-image: url("icons/customize_dark.svg") !important;
+        }
+
+        .dark_mode {
+            background-image: url("icons/dark_mode.svg") !important;
+        }
+
+        .dark_mode_dark {
+            background-image: url("icons/dark_mode_dark.svg") !important;
+        }
+
+        .delete {
+            background-image: url("icons/delete.svg") !important;
+        }
+
+        .delete_dark {
+            background-image: url("icons/delete_dark.svg") !important;
+        }
+
+        .edit {
+            background-image: url("icons/edit.svg") !important;
+        }
+
+        .edit_dark {
+            background-image: url("icons/edit_dark.svg") !important;
+        }
+
+        .error {
+            background-image: url("icons/error.svg") !important;
+        }
+
+        .error_dark {
+            background-image: url("icons/error_dark.svg") !important;
+        }
+
+        .light_mode {
+            background-image: url("icons/light_mode.svg") !important;
+        }
+
+        .light_mode_dark {
+            background-image: url("icons/light_mode_dark.svg") !important;
+        }
+
+        .lock {
+            background-image: url("icons/lock.svg") !important;
+        }
+
+        .lock_dark {
+            background-image: url("icons/lock_dark.svg") !important;
+        }
+
+        .mix {
+            background-image: url("icons/mix.svg") !important;
+        }
+
+        .mix_dark {
+            background-image: url("icons/mix_dark.svg") !important;
+        }
+
+        .move {
+            background-image: url("icons/move.svg") !important;
+        }
+
+        .move_dark {
+            background-image: url("icons/move_dark.svg") !important;
+        }
+
+        .multi_select {
+            background-image: url("icons/multi_select.svg") !important;
+        }
+
+        .multi_select_dark {
+            background-image: url("icons/multi_select_dark.svg") !important;
+        }
+
+        .power {
+            background-image: url("icons/power.svg") !important;
+        }
+
+        .power_dark {
+            background-image: url("icons/power_dark.svg") !important;
+        }
+
+        .restart {
+            background-image: url("icons/restart.svg") !important;
+        }
+
+        .restart_dark {
+            background-image: url("icons/restart_dark.svg") !important;
+        }
+
+        .save {
+            background-image: url("icons/save.svg") !important;
+        }
+
+        .save_dark {
+            background-image: url("icons/save_dark.svg") !important;
+        }
+
+        .share {
+            background-image: url("icons/share.svg") !important;
+        }
+
+        .share_dark {
+            background-image: url("icons/share_dark.svg") !important;
+        }
+
+        .sleep {
+            background-image: url("icons/sleep.svg") !important;
+        }
+
+        .sleep_dark {
+            background-image: url("icons/sleep_dark.svg") !important;
+        }
+
+        .sync {
+            background-image: url("icons/sync.svg") !important;
+        }
+
+        .sync_dark {
+            background-image: url("icons/sync_dark.svg") !important;
+        }
+
+        .true {
+            background-image: url("icons/true.svg") !important;
+        }
+
+        .true_dark {
+            background-image: url("icons/true_dark.svg") !important;
+        }
+
+        .undo {
+            background-image: url("icons/undo.svg") !important;
+        }
+
+        .undo_dark {
+            background-image: url("icons/undo_dark.svg") !important;
+        }
+
+        .wifi_local {
+            background-image: url("icons/wifi_local.svg") !important;
+        }
+
+        .wifi_local_dark {
+            background-image: url("icons/wifi_local_dark.svg") !important;
+        }
+
+        .wifi_online {
+            background-image: url("icons/wifi_online.svg") !important;
+        }
+
+        .wifi_online_dark {
+            background-image: url("icons/wifi_online_dark.svg") !important;
+        }
+
+        .wifi_one_bar {
+            background-image: url("icons/wifi_one_bar.svg") !important;
+        }
+
+        .wifi_one_bar_dark {
+            background-image: url("icons/wifi_one_bar_dark.svg") !important;
+        }
+
+        .wifi_two_bars {
+            background-image: url("icons/wifi_two_bars.svg") !important;
+        }
+
+        .wifi_two_bars_dark {
+            background-image: url("icons/wifi_two_bars_dark.svg") !important;
+        }
+
+        .wifi_three_bars {
+            background-image: url("icons/wifi_three_bars.svg") !important;
+        }
+
+        .wifi_three_bars_dark {
+            background-image: url("icons/wifi_three_bars_dark.svg") !important;
+        }
+
+
+
+        .leds_preview_block {
+            margin: auto;
+            margin-top: 40px;
+            max-width: 600px;
+            height: 500px;
+            text-align: center;
+            position: relative;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        @media only screen and (max-width: 740px) {
+            .leds_preview_block {
+                transform: scale(0.8);
+                margin-top: -20px;
+            }
+        }
+
+        .led_strip {
+            display: inline-block;
+            padding-right: 20px;
+            padding-left: 20px;
+            position: relative;
+            top: 0;
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .led_strip.up_1 {
+            top: -20px;
+        }
+
+        .led_strip.up_2 {
+            top: -40px;
+        }
+
+        .led_strip.up_3 {
+            top: -60px;
+        }
+
+        .led_strip_part {
+            margin: auto;
+            width: 12px;
+            padding-right: 2px;
+            padding-left: 2px;
+            background: rgba(85, 85, 85, 0.4);
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+
+        .led {
+            width: 8px;
+            height: 6px;
+            margin: auto;
+            background: rgb(0, 0, 0);
+            box-shadow: 0 0px 35px 0 rgb(0, 0, 0)
+        }
+
+        .led_strip_base {
+            width: 26px;
+            height: 100px;
+            margin: auto;
+            margin-top: -2px;
+            background: rgba(57, 57, 57, 0.69);
+        }
+
+        .led_strip_base.wide_base {
+            width: 100px;
+            height: 26px;
+        }
+
+
+
+        .all_colors {
+            margin: 6px;
+        }
+
+        .color_selector {
+            width: 60px;
+            height: 60px;
+            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        .add_color_button {
+            width: 55px;
+            height: 55px;
+            background-image: url("icons/plus.svg") !important;
+            cursor: pointer;
+            background: #1C1C1C;
+            background-repeat: no-repeat !important;
+            background-position: left 18px center !important;
+            background-size: 25px 25px !important;
+            display: inline-block;
+            margin: 6px;
+        }
+
+        .remove_color_button {
+            width: 55px;
+            height: 55px;
+            background-image: url("icons/minus.svg") !important;
+            cursor: pointer;
+            background: #1C1C1C;
+            background-repeat: no-repeat !important;
+            background-position: left 18px center !important;
+            background-size: 25px 25px !important;
+            display: inline-block;
+            margin: 6px;
+        }
+
+        .field_name {
+            font-size: 12px;
+            line-height: 15px;
+            color: #7A7A7A;
+            display: inline-block
+        }
+
+        .subfield {
+            background: #343434;
+            border-radius: 15px;
+        }
+
+        .customize_field_selector {
+            background: black;
+            color: white;
+            font-size: 24px;
+            width: 50%;
+            float: right;
+        }
+
+        .main_field {
+            line-height: 37px;
+            margin-bottom: 15px;
+        }
+
+        .sections_block {
+            float: right;
+            width: 50%;
+        }
+
+        </style>
+
+        <script type="text/javascript">
+        /* axios v0.20.0 | (c) 2020 by Matt Zabriskie */ ! function (e, t) {
+                "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define([], t) : "object" == typeof exports ? exports.axios = t() : e.axios = t()
+            }(this, function () {
+                return function (e) {
+                    function t(r) {
+                        if (n[r]) return n[r].exports;
+                        var o = n[r] = {
+                            exports: {},
+                            id: r,
+                            loaded: !1
+                        };
+                        return e[r].call(o.exports, o, o.exports, t), o.loaded = !0, o.exports
+                    }
+                    var n = {};
+                    return t.m = e, t.c = n, t.p = "", t(0)
+                }([function (e, t, n) {
+                    e.exports = n(1)
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        var t = new s(e),
+                            n = i(s.prototype.request, t);
+                        return o.extend(n, s.prototype, t), o.extend(n, t), n
+                    }
+                    var o = n(2),
+                        i = n(3),
+                        s = n(4),
+                        a = n(22),
+                        u = n(10),
+                        c = r(u);
+                    c.Axios = s, c.create = function (e) {
+                        return r(a(c.defaults, e))
+                    }, c.Cancel = n(23), c.CancelToken = n(24), c.isCancel = n(9), c.all = function (e) {
+                        return Promise.all(e)
+                    }, c.spread = n(25), e.exports = c, e.exports.default = c
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        return "[object Array]" === R.call(e)
+                    }
+
+                    function o(e) {
+                        return "undefined" == typeof e
+                    }
+
+                    function i(e) {
+                        return null !== e && !o(e) && null !== e.constructor && !o(e.constructor) && "function" == typeof e.constructor.isBuffer && e.constructor.isBuffer(e)
+                    }
+
+                    function s(e) {
+                        return "[object ArrayBuffer]" === R.call(e)
+                    }
+
+                    function a(e) {
+                        return "undefined" != typeof FormData && e instanceof FormData
+                    }
+
+                    function u(e) {
+                        var t;
+                        return t = "undefined" != typeof ArrayBuffer && ArrayBuffer.isView ? ArrayBuffer.isView(e) : e && e.buffer && e.buffer instanceof ArrayBuffer
+                    }
+
+                    function c(e) {
+                        return "string" == typeof e
+                    }
+
+                    function f(e) {
+                        return "number" == typeof e
+                    }
+
+                    function p(e) {
+                        return null !== e && "object" == typeof e
+                    }
+
+                    function d(e) {
+                        if ("[object Object]" !== R.call(e)) return !1;
+                        var t = Object.getPrototypeOf(e);
+                        return null === t || t === Object.prototype
+                    }
+
+                    function l(e) {
+                        return "[object Date]" === R.call(e)
+                    }
+
+                    function h(e) {
+                        return "[object File]" === R.call(e)
+                    }
+
+                    function m(e) {
+                        return "[object Blob]" === R.call(e)
+                    }
+
+                    function y(e) {
+                        return "[object Function]" === R.call(e)
+                    }
+
+                    function g(e) {
+                        return p(e) && y(e.pipe)
+                    }
+
+                    function v(e) {
+                        return "undefined" != typeof URLSearchParams && e instanceof URLSearchParams
+                    }
+
+                    function x(e) {
+                        return e.replace(/^\s*/, "").replace(/\s*$/, "")
+                    }
+
+                    function w() {
+                        return ("undefined" == typeof navigator || "ReactNative" !== navigator.product && "NativeScript" !== navigator.product && "NS" !== navigator.product) && ("undefined" != typeof window && "undefined" != typeof document)
+                    }
+
+                    function b(e, t) {
+                        if (null !== e && "undefined" != typeof e)
+                            if ("object" != typeof e && (e = [e]), r(e))
+                                for (var n = 0, o = e.length; n < o; n++) t.call(null, e[n], n, e);
+                            else
+                                for (var i in e) Object.prototype.hasOwnProperty.call(e, i) && t.call(null, e[i], i, e)
+                    }
+
+                    function E() {
+                        function e(e, n) {
+                            d(t[n]) && d(e) ? t[n] = E(t[n], e) : d(e) ? t[n] = E({}, e) : r(e) ? t[n] = e.slice() : t[n] = e
+                        }
+                        for (var t = {}, n = 0, o = arguments.length; n < o; n++) b(arguments[n], e);
+                        return t
+                    }
+
+                    function C(e, t, n) {
+                        return b(t, function (t, r) {
+                            n && "function" == typeof t ? e[r] = S(t, n) : e[r] = t
+                        }), e
+                    }
+
+                    function j(e) {
+                        return 65279 === e.charCodeAt(0) && (e = e.slice(1)), e
+                    }
+                    var S = n(3),
+                        R = Object.prototype.toString;
+                    e.exports = {
+                        isArray: r,
+                        isArrayBuffer: s,
+                        isBuffer: i,
+                        isFormData: a,
+                        isArrayBufferView: u,
+                        isString: c,
+                        isNumber: f,
+                        isObject: p,
+                        isPlainObject: d,
+                        isUndefined: o,
+                        isDate: l,
+                        isFile: h,
+                        isBlob: m,
+                        isFunction: y,
+                        isStream: g,
+                        isURLSearchParams: v,
+                        isStandardBrowserEnv: w,
+                        forEach: b,
+                        merge: E,
+                        extend: C,
+                        trim: x,
+                        stripBOM: j
+                    }
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e, t) {
+                        return function () {
+                            for (var n = new Array(arguments.length), r = 0; r < n.length; r++) n[r] = arguments[r];
+                            return e.apply(t, n)
+                        }
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        this.defaults = e, this.interceptors = {
+                            request: new s,
+                            response: new s
+                        }
+                    }
+                    var o = n(2),
+                        i = n(5),
+                        s = n(6),
+                        a = n(7),
+                        u = n(22);
+                    r.prototype.request = function (e) {
+                        "string" == typeof e ? (e = arguments[1] || {}, e.url = arguments[0]) : e = e || {}, e = u(this.defaults, e), e.method ? e.method = e.method.toLowerCase() : this.defaults.method ? e.method = this.defaults.method.toLowerCase() : e.method = "get";
+                        var t = [a, void 0],
+                            n = Promise.resolve(e);
+                        for (this.interceptors.request.forEach(function (e) {
+                                t.unshift(e.fulfilled, e.rejected)
+                            }), this.interceptors.response.forEach(function (e) {
+                                t.push(e.fulfilled, e.rejected)
+                            }); t.length;) n = n.then(t.shift(), t.shift());
+                        return n
+                    }, r.prototype.getUri = function (e) {
+                        return e = u(this.defaults, e), i(e.url, e.params, e.paramsSerializer).replace(/^\?/, "")
+                    }, o.forEach(["delete", "get", "head", "options"], function (e) {
+                        r.prototype[e] = function (t, n) {
+                            return this.request(u(n || {}, {
+                                method: e,
+                                url: t
+                            }))
+                        }
+                    }), o.forEach(["post", "put", "patch"], function (e) {
+                        r.prototype[e] = function (t, n, r) {
+                            return this.request(u(r || {}, {
+                                method: e,
+                                url: t,
+                                data: n
+                            }))
+                        }
+                    }), e.exports = r
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        return encodeURIComponent(e).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+").replace(/%5B/gi, "[").replace(/%5D/gi, "]")
+                    }
+                    var o = n(2);
+                    e.exports = function (e, t, n) {
+                        if (!t) return e;
+                        var i;
+                        if (n) i = n(t);
+                        else if (o.isURLSearchParams(t)) i = t.toString();
+                        else {
+                            var s = [];
+                            o.forEach(t, function (e, t) {
+                                null !== e && "undefined" != typeof e && (o.isArray(e) ? t += "[]" : e = [e], o.forEach(e, function (e) {
+                                    o.isDate(e) ? e = e.toISOString() : o.isObject(e) && (e = JSON.stringify(e)), s.push(r(t) + "=" + r(e))
+                                }))
+                            }), i = s.join("&")
+                        }
+                        if (i) {
+                            var a = e.indexOf("#");
+                            a !== -1 && (e = e.slice(0, a)), e += (e.indexOf("?") === -1 ? "?" : "&") + i
+                        }
+                        return e
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r() {
+                        this.handlers = []
+                    }
+                    var o = n(2);
+                    r.prototype.use = function (e, t) {
+                        return this.handlers.push({
+                            fulfilled: e,
+                            rejected: t
+                        }), this.handlers.length - 1
+                    }, r.prototype.eject = function (e) {
+                        this.handlers[e] && (this.handlers[e] = null)
+                    }, r.prototype.forEach = function (e) {
+                        o.forEach(this.handlers, function (t) {
+                            null !== t && e(t)
+                        })
+                    }, e.exports = r
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        e.cancelToken && e.cancelToken.throwIfRequested()
+                    }
+                    var o = n(2),
+                        i = n(8),
+                        s = n(9),
+                        a = n(10);
+                    e.exports = function (e) {
+                        r(e), e.headers = e.headers || {}, e.data = i(e.data, e.headers, e.transformRequest), e.headers = o.merge(e.headers.common || {}, e.headers[e.method] || {}, e.headers), o.forEach(["delete", "get", "head", "post", "put", "patch", "common"], function (t) {
+                            delete e.headers[t]
+                        });
+                        var t = e.adapter || a.adapter;
+                        return t(e).then(function (t) {
+                            return r(e), t.data = i(t.data, t.headers, e.transformResponse), t
+                        }, function (t) {
+                            return s(t) || (r(e), t && t.response && (t.response.data = i(t.response.data, t.response.headers, e.transformResponse))), Promise.reject(t)
+                        })
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2);
+                    e.exports = function (e, t, n) {
+                        return r.forEach(n, function (n) {
+                            e = n(e, t)
+                        }), e
+                    }
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e) {
+                        return !(!e || !e.__CANCEL__)
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e, t) {
+                        !i.isUndefined(e) && i.isUndefined(e["Content-Type"]) && (e["Content-Type"] = t)
+                    }
+
+                    function o() {
+                        var e;
+                        return "undefined" != typeof XMLHttpRequest ? e = n(12) : "undefined" != typeof process && "[object process]" === Object.prototype.toString.call(process) && (e = n(12)), e
+                    }
+                    var i = n(2),
+                        s = n(11),
+                        a = {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        u = {
+                            adapter: o(),
+                            transformRequest: [function (e, t) {
+                                return s(t, "Accept"), s(t, "Content-Type"), i.isFormData(e) || i.isArrayBuffer(e) || i.isBuffer(e) || i.isStream(e) || i.isFile(e) || i.isBlob(e) ? e : i.isArrayBufferView(e) ? e.buffer : i.isURLSearchParams(e) ? (r(t, "application/x-www-form-urlencoded;charset=utf-8"), e.toString()) : i.isObject(e) ? (r(t, "application/json;charset=utf-8"), JSON.stringify(e)) : e
+                            }],
+                            transformResponse: [function (e) {
+                                if ("string" == typeof e) try {
+                                    e = JSON.parse(e)
+                                } catch (e) {}
+                                return e
+                            }],
+                            timeout: 0,
+                            xsrfCookieName: "XSRF-TOKEN",
+                            xsrfHeaderName: "X-XSRF-TOKEN",
+                            maxContentLength: -1,
+                            maxBodyLength: -1,
+                            validateStatus: function (e) {
+                                return e >= 200 && e < 300
+                            }
+                        };
+                    u.headers = {
+                        common: {
+                            Accept: "application/json, text/plain, */*"
+                        }
+                    }, i.forEach(["delete", "get", "head"], function (e) {
+                        u.headers[e] = {}
+                    }), i.forEach(["post", "put", "patch"], function (e) {
+                        u.headers[e] = i.merge(a)
+                    }), e.exports = u
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2);
+                    e.exports = function (e, t) {
+                        r.forEach(e, function (n, r) {
+                            r !== t && r.toUpperCase() === t.toUpperCase() && (e[t] = n, delete e[r])
+                        })
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2),
+                        o = n(13),
+                        i = n(16),
+                        s = n(5),
+                        a = n(17),
+                        u = n(20),
+                        c = n(21),
+                        f = n(14);
+                    e.exports = function (e) {
+                        return new Promise(function (t, n) {
+                            var p = e.data,
+                                d = e.headers;
+                            r.isFormData(p) && delete d["Content-Type"], (r.isBlob(p) || r.isFile(p)) && p.type && delete d["Content-Type"];
+                            var l = new XMLHttpRequest;
+                            if (e.auth) {
+                                var h = e.auth.username || "",
+                                    m = unescape(encodeURIComponent(e.auth.password)) || "";
+                                d.Authorization = "Basic " + btoa(h + ":" + m)
+                            }
+                            var y = a(e.baseURL, e.url);
+                            if (l.open(e.method.toUpperCase(), s(y, e.params, e.paramsSerializer), !0), l.timeout = e.timeout, l.onreadystatechange = function () {
+                                    if (l && 4 === l.readyState && (0 !== l.status || l.responseURL && 0 === l.responseURL.indexOf("file:"))) {
+                                        var r = "getAllResponseHeaders" in l ? u(l.getAllResponseHeaders()) : null,
+                                            i = e.responseType && "text" !== e.responseType ? l.response : l.responseText,
+                                            s = {
+                                                data: i,
+                                                status: l.status,
+                                                statusText: l.statusText,
+                                                headers: r,
+                                                config: e,
+                                                request: l
+                                            };
+                                        o(t, n, s), l = null
+                                    }
+                                }, l.onabort = function () {
+                                    l && (n(f("Request aborted", e, "ECONNABORTED", l)), l = null)
+                                }, l.onerror = function () {
+                                    n(f("Network Error", e, null, l)), l = null
+                                }, l.ontimeout = function () {
+                                    var t = "timeout of " + e.timeout + "ms exceeded";
+                                    e.timeoutErrorMessage && (t = e.timeoutErrorMessage), n(f(t, e, "ECONNABORTED", l)), l = null
+                                }, r.isStandardBrowserEnv()) {
+                                var g = (e.withCredentials || c(y)) && e.xsrfCookieName ? i.read(e.xsrfCookieName) : void 0;
+                                g && (d[e.xsrfHeaderName] = g)
+                            }
+                            if ("setRequestHeader" in l && r.forEach(d, function (e, t) {
+                                    "undefined" == typeof p && "content-type" === t.toLowerCase() ? delete d[t] : l.setRequestHeader(t, e)
+                                }), r.isUndefined(e.withCredentials) || (l.withCredentials = !!e.withCredentials), e.responseType) try {
+                                l.responseType = e.responseType
+                            } catch (t) {
+                                if ("json" !== e.responseType) throw t
+                            }
+                            "function" == typeof e.onDownloadProgress && l.addEventListener("progress", e.onDownloadProgress), "function" == typeof e.onUploadProgress && l.upload && l.upload.addEventListener("progress", e.onUploadProgress), e.cancelToken && e.cancelToken.promise.then(function (e) {
+                                l && (l.abort(), n(e), l = null)
+                            }), p || (p = null), l.send(p)
+                        })
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(14);
+                    e.exports = function (e, t, n) {
+                        var o = n.config.validateStatus;
+                        n.status && o && !o(n.status) ? t(r("Request failed with status code " + n.status, n.config, null, n.request, n)) : e(n)
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(15);
+                    e.exports = function (e, t, n, o, i) {
+                        var s = new Error(e);
+                        return r(s, t, n, o, i)
+                    }
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e, t, n, r, o) {
+                        return e.config = t, n && (e.code = n), e.request = r, e.response = o, e.isAxiosError = !0, e.toJSON = function () {
+                            return {
+                                message: this.message,
+                                name: this.name,
+                                description: this.description,
+                                number: this.number,
+                                fileName: this.fileName,
+                                lineNumber: this.lineNumber,
+                                columnNumber: this.columnNumber,
+                                stack: this.stack,
+                                config: this.config,
+                                code: this.code
+                            }
+                        }, e
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2);
+                    e.exports = r.isStandardBrowserEnv() ? function () {
+                        return {
+                            write: function (e, t, n, o, i, s) {
+                                var a = [];
+                                a.push(e + "=" + encodeURIComponent(t)), r.isNumber(n) && a.push("expires=" + new Date(n).toGMTString()), r.isString(o) && a.push("path=" + o), r.isString(i) && a.push("domain=" + i), s === !0 && a.push("secure"), document.cookie = a.join("; ")
+                            },
+                            read: function (e) {
+                                var t = document.cookie.match(new RegExp("(^|;\\s*)(" + e + ")=([^;]*)"));
+                                return t ? decodeURIComponent(t[3]) : null
+                            },
+                            remove: function (e) {
+                                this.write(e, "", Date.now() - 864e5)
+                            }
+                        }
+                    }() : function () {
+                        return {
+                            write: function () {},
+                            read: function () {
+                                return null
+                            },
+                            remove: function () {}
+                        }
+                    }()
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(18),
+                        o = n(19);
+                    e.exports = function (e, t) {
+                        return e && !r(t) ? o(e, t) : t
+                    }
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e) {
+                        return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(e)
+                    }
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e, t) {
+                        return t ? e.replace(/\/+$/, "") + "/" + t.replace(/^\/+/, "") : e
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2),
+                        o = ["age", "authorization", "content-length", "content-type", "etag", "expires", "from", "host", "if-modified-since", "if-unmodified-since", "last-modified", "location", "max-forwards", "proxy-authorization", "referer", "retry-after", "user-agent"];
+                    e.exports = function (e) {
+                        var t, n, i, s = {};
+                        return e ? (r.forEach(e.split("\n"), function (e) {
+                            if (i = e.indexOf(":"), t = r.trim(e.substr(0, i)).toLowerCase(), n = r.trim(e.substr(i + 1)), t) {
+                                if (s[t] && o.indexOf(t) >= 0) return;
+                                "set-cookie" === t ? s[t] = (s[t] ? s[t] : []).concat([n]) : s[t] = s[t] ? s[t] + ", " + n : n
+                            }
+                        }), s) : s
+                    }
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2);
+                    e.exports = r.isStandardBrowserEnv() ? function () {
+                        function e(e) {
+                            var t = e;
+                            return n && (o.setAttribute("href", t), t = o.href), o.setAttribute("href", t), {
+                                href: o.href,
+                                protocol: o.protocol ? o.protocol.replace(/:$/, "") : "",
+                                host: o.host,
+                                search: o.search ? o.search.replace(/^\?/, "") : "",
+                                hash: o.hash ? o.hash.replace(/^#/, "") : "",
+                                hostname: o.hostname,
+                                port: o.port,
+                                pathname: "/" === o.pathname.charAt(0) ? o.pathname : "/" + o.pathname
+                            }
+                        }
+                        var t, n = /(msie|trident)/i.test(navigator.userAgent),
+                            o = document.createElement("a");
+                        return t = e(window.location.href),
+                            function (n) {
+                                var o = r.isString(n) ? e(n) : n;
+                                return o.protocol === t.protocol && o.host === t.host
+                            }
+                    }() : function () {
+                        return function () {
+                            return !0
+                        }
+                    }()
+                }, function (e, t, n) {
+                    "use strict";
+                    var r = n(2);
+                    e.exports = function (e, t) {
+                        function n(e, t) {
+                            return r.isPlainObject(e) && r.isPlainObject(t) ? r.merge(e, t) : r.isPlainObject(t) ? r.merge({}, t) : r.isArray(t) ? t.slice() : t
+                        }
+
+                        function o(o) {
+                            r.isUndefined(t[o]) ? r.isUndefined(e[o]) || (i[o] = n(void 0, e[o])) : i[o] = n(e[o], t[o])
+                        }
+                        t = t || {};
+                        var i = {},
+                            s = ["url", "method", "data"],
+                            a = ["headers", "auth", "proxy", "params"],
+                            u = ["baseURL", "transformRequest", "transformResponse", "paramsSerializer", "timeout", "timeoutMessage", "withCredentials", "adapter", "responseType", "xsrfCookieName", "xsrfHeaderName", "onUploadProgress", "onDownloadProgress", "decompress", "maxContentLength", "maxBodyLength", "maxRedirects", "transport", "httpAgent", "httpsAgent", "cancelToken", "socketPath", "responseEncoding"],
+                            c = ["validateStatus"];
+                        r.forEach(s, function (e) {
+                            r.isUndefined(t[e]) || (i[e] = n(void 0, t[e]))
+                        }), r.forEach(a, o), r.forEach(u, function (o) {
+                            r.isUndefined(t[o]) ? r.isUndefined(e[o]) || (i[o] = n(void 0, e[o])) : i[o] = n(void 0, t[o])
+                        }), r.forEach(c, function (r) {
+                            r in t ? i[r] = n(e[r], t[r]) : r in e && (i[r] = n(void 0, e[r]))
+                        });
+                        var f = s.concat(a).concat(u).concat(c),
+                            p = Object.keys(e).concat(Object.keys(t)).filter(function (e) {
+                                return f.indexOf(e) === -1
+                            });
+                        return r.forEach(p, o), i
+                    }
+                }, function (e, t) {
+                    "use strict";
+
+                    function n(e) {
+                        this.message = e
+                    }
+                    n.prototype.toString = function () {
+                        return "Cancel" + (this.message ? ": " + this.message : "")
+                    }, n.prototype.__CANCEL__ = !0, e.exports = n
+                }, function (e, t, n) {
+                    "use strict";
+
+                    function r(e) {
+                        if ("function" != typeof e) throw new TypeError("executor must be a function.");
+                        var t;
+                        this.promise = new Promise(function (e) {
+                            t = e
+                        });
+                        var n = this;
+                        e(function (e) {
+                            n.reason || (n.reason = new o(e), t(n.reason))
+                        })
+                    }
+                    var o = n(23);
+                    r.prototype.throwIfRequested = function () {
+                        if (this.reason) throw this.reason
+                    }, r.source = function () {
+                        var e, t = new r(function (t) {
+                            e = t
+                        });
+                        return {
+                            token: t,
+                            cancel: e
+                        }
+                    }, e.exports = r
+                }, function (e, t) {
+                    "use strict";
+                    e.exports = function (e) {
+                        return function (t) {
+                            return e.apply(null, t)
+                        }
+                    }
+                }])
+            });
+            //# sourceMappingURL=axios.min.map
+
+        
+        
+        {% comment %} popup.js {% endcomment %}
+        let Popup = class {
+            constructor(header='', message='', buttons=[]) {
+                this.header = header;
+                this.message = message;
+                this.buttons = buttons;
+                this.i=0;
+                // buttons example = [{"style":"primary","text":"Continue","icon":"sync","onclick":"control.next_page()"}]
+            }
+
+            get popup_active() {
+                if (document.getElementById('popup').classList.contains('display_none')){
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+
+            show() {
+                // make sure animation customizer is hidden
+                animation_customizer.close();
+
+                // if another popup is open: hide that popup, then continue with showing new popup
+                if (this.popup_active){
+                    this.hide();
+                }
+
+                var self = this;
+                setTimeout(function(){
+                    // overwrite headline
+                    document.getElementById('popup_headline').innerHTML = self.header;
+
+                    // overwrite message
+                    document.getElementById('popup_message').innerHTML = self.message;
+                    
+                    // overwrite buttons
+                    var buttons = '';
+                    for (this.i = 0; this.i < self.buttons.length; this.i++) {
+                        // get button values
+                        if ('style' in self.buttons[this.i] && self.buttons[this.i].style){
+                            this.style = self.buttons[this.i].style;
+                        } else {
+                            this.style = 'primary';
+                        }
+                        if ('icon' in self.buttons[this.i] && self.buttons[this.i].icon){
+                            this.icon = self.buttons[this.i].icon;
+                        } else {
+                            this.icon = null;
+                        }
+                        if ('id' in self.buttons[this.i] && self.buttons[this.i].id){
+                            this.id = self.buttons[this.i].id;
+                        } else {
+                            this.id = null;
+                        }
+                        if ('hide' in self.buttons[this.i] && self.buttons[this.i].hide==true){
+                            this.hide = true;
+                        } else {
+                            this.hide = false;
+                        }
+                        var text = self.buttons[this.i].text;
+                        var onclick = self.buttons[this.i].onclick;
+
+                        // add button
+                        buttons+='<a class="cta ';
+
+                        if (this.style=='primary'){
+                            buttons+='primary';
+                        } else{
+                            buttons+='darkmode';
+                        }
+
+                        if (this.icon){
+                            buttons+=' with_icon '+this.icon;
+                        }
+
+                        // if button is supposed to be hidden - hide by default
+                        if (this.hide==true){
+                            buttons+=' display_none';
+                        }
+                        
+                        buttons+='"';
+                        
+                        if (this.id){
+                            buttons+=' id="'+this.id+'"';
+                        }
+
+                        buttons+=' onclick="'+onclick+'">';
+
+                        buttons+=text;
+                        buttons+='</a>';
+                    }
+                    document.getElementById('popup_buttons').innerHTML = buttons;
+
+                    // make popup visible
+                    document.getElementById('popup').classList.remove('display_none');
+                    document.getElementById('popup').classList.remove('opacity_null');
+
+                    // prevent scrolling of background (body)
+                    document.getElementsByTagName('body')[0].style.overflow='hidden';
+
+                },200);
+            }
+
+            hide(){
+                document.getElementsByTagName('body')[0].style.removeProperty('overflow');
+                document.getElementById('popup').classList.add('opacity_null');
+                setTimeout(function(){
+                    document.getElementById('popup').classList.add('display_none');
+                },200);
+            }
+        };
+        var popup = new Popup();
+
+
+        {% comment %} power.js {% endcomment %}
+        let Power = class {
+            show_options(){
+                popup.header = 'Power options';
+                popup.message = 'What do you want to do?';
+                popup.buttons = [
+                    {
+                        'style':'secondary',
+                        'id':'shutdown_button',
+                        'icon':'power',
+                        'text':'Shutdown',
+                        'onclick':'power.shutdown()'
+                    },
+                    {
+                        'style':'secondary',
+                        'id':'restart_button',
+                        'icon':'restart',
+                        'text':'Restart',
+                        'onclick':'power.restart()'
+                    },
+                    {
+                        'style':'primary',
+                        'id':'sleep_button',
+                        'icon':'sleep',
+                        'text':'Sleep',
+                        'onclick':'power.sleep()'
+                    }
+                ];
+                popup.show();
+            }
+
+            shutdown(){
+                popup.header = 'Shut Down';
+                popup.message = 'Shutting down all connected LED strips. Please wait...';
+                popup.buttons = [];
+                popup.show();
+                axios
+                    .post("/shutdown_all_led_strips")
+                    .catch(function(error){
+                        console.log('Shut Down successfull');
+                        connection_check.show_disconnected_warning('power_off');
+                    });
+            }
+
+            restart(){
+                popup.header = 'Restart';
+                popup.message = 'Restarting all connected LED strips. Please wait...';
+                popup.buttons = [];
+                popup.show();
+                axios
+                    .post("/restart_all_led_strips")
+                    .catch(function(error){
+                        console.log('Restart successfull');
+                        connection_check.show_disconnected_warning('restart');
+                    });
+            }
+
+            sleep(){
+                // TODO
+                console.log('Turn LED strips off, without turning Raspberry Pi off');
+            }
+        };
+        var power = new Power();
+
+
+        {% comment %} software_update.js {% endcomment %}
+        let SoftwareUpdate = class {
+            update(){
+                // check if host is connected to internet
+                // show popup
+                popup.header = '<span class="icon sync" style="background-size: 25px 25px !important;"></span> Updating software';
+                popup.message = 'Updating software. Please wait...';
+                popup.buttons = [];
+                popup.show();
+
+                axios
+                    .get('/is_online').then(
+                        function(response){
+                            axios
+                                .post('/update_all_led_strips',{timeout:120})
+                                .then(function (response) {software_update.restart_services();})
+                                .catch(
+                                    function (error) {
+                                        console.log(error);
+                                        popup.header = 'An error occured';
+                                        popup.message = error;
+                                        popup.buttons = [];
+                                        popup.show();
+                                    }
+                                );
+                        }
+                    ).catch(
+                        function (error) {
+                            console.log(error);
+                            software_update.no_internet_connection();
+                        }
+                );
+            }
+
+            no_internet_connection(){
+                popup.header = '<span class="icon error" style="background-size: 25px 25px !important;"></span> Software update failed';
+                popup.message = 'The LED strip is not connected to the internet.<br>Please connect to a Wi-Fi with internet access - and try again.';
+                popup.buttons = [
+                    {
+                        'style':'primary',
+                        'text':'Connect to Wi-Fi',
+                        'icon':'wifi_online',
+                        'onclick':'wifi.show_networks()'
+                    }
+                ];
+                popup.show();
+            }
+
+            restart_services(){
+                popup.header = 'Restarting services';
+                popup.message = 'Restarting software services. Please wait...';
+                popup.buttons = [];
+                popup.show();
+
+                axios
+                    .post('/restart_services_all_led_strips',{timeout:120})
+                    .then(function (response) {
+                        console.log('Update complete');
+                        console.log(response.data);
+                        software_update.update_complete();
+                    }
+                    ).catch(
+                        function (error) {
+                            console.log(error);
+                            popup.header = 'An error occured';
+                            popup.message = error;
+                            popup.buttons = [];
+                            popup.show();
+                        }
+                    );
+            }
+
+            update_complete(){
+                popup.header = '<span class="icon success" style="background-size: 25px 25px !important;"></span> Update complete';
+                popup.message = 'The LED strip software on all connected LED strips is updated.';
+                popup.buttons = [
+                    {
+                        'style':'primary',
+                        'text':'Ok',
+                        'onclick':'popup.hide()'
+                    }
+                ];
+                popup.show();
+            }
+        };
+        var software_update = new SoftwareUpdate();
+
+
+        {% comment %} wifi.js {% endcomment %}
+        let WiFi = class {
+            constructor() {
+                this.network=null;
+                this.cta=null;
+                this.i=0;
+            }
+
+            show_networks(){
+                popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks';
+                popup.message = 'Loading...';
+                popup.buttons = [];
+                popup.show();
+
+                var self = this;
+                axios
+                    .get('/wifi_networks_nearby')
+                    .then(function(response){
+                        popup.message = '';
+
+                        // if not connected to any wifi, show list of wifis with "Connect" buttons
+                        if (response.data.networks[0].current_wifi==false || response.data.networks[0].is_default_wifi==true){
+                            popup.message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
+                            for (this.i = 0; this.i < response.data.networks.length; this.i++) {
+                                self.network = response.data.networks[this.i];
+                                self.cta = 'connect';
+                                popup.message += self.get_wifi_div();
+                            }
+                            popup.message+= '</div>';
+                        }
+                        // else show connected wifi at the top, "Disconnect" button and list other wifis WITH NO "Connect" buttons
+                        else {
+                            self.network = response.data.networks[0];
+                            self.cta = 'disconnect';
+                            popup.message += self.get_wifi_div();
+
+                            popup.message+= '<div id="other_wifis">';
+                            popup.message+= '<div class="divider_line"></div>';
+
+                            // show all remaining wifis
+                            popup.message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
+                            
+                            for (this.i = 1; this.i < response.data.networks.length; this.i++) {
+                                self.network = response.data.networks[this.i];
+                                self.cta = null;
+                                popup.message += self.get_wifi_div();
+                            }
+                            popup.message+= '</div>';
+
+                            popup.message+= '</div>';
+
+                            // also add hidden default wifi network (which will be visible when user disconnects from wifi)
+                            popup.message+= '<div id="default_wifi" style="display: none">';
+                            self.network = response.data.default_wifi;
+                            self.cta = null;
+                            popup.message += self.get_wifi_div();
+                            popup.message+= '</div>';
+                        }
+
+                        popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks';
+                        popup.buttons = [];
+                        popup.show();
+                    })
+                    .catch(function(error){
+                        console.log(error);
+                        connection_check.show_disconnected_warning();
+                    });
+                }
+
+            get_wifi_div(){
+                // create the div block for a wifi network in the list
+                var div = '';
+                if (this.cta!=null){
+                    div += '<div class="wifi_network" id="'+this.network.essid+'">';
+                } else {
+                    div += '<div class="wifi_network opacity_50" id="'+this.network.essid+'">';
+                }
+
+                
+                // show if connected to wifi
+                div += '<div class="inline_block text_max_width_40_percent">';
+                if (this.network.current_wifi==true){
+                    div += '<span class="icon true" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span>';
+                }else{
+                    div += '<span style="padding-left:35px"></span>';
+                }
+                div += this.network.essid;
+                div += '</div>';
+                
+                div += '<div class="right_aligned inline_block">';
+                // show encryption and signal strength
+                if (this.network.encryption!='off'){
+                    div += '<span class="icon lock"></span>';
+                }
+                if (this.network.signal_strength>=50){
+                    div += '<span class="icon wifi_three_bars"></span>';
+                } else if (this.network.signal_strength>=30){
+                    div += '<span class="icon wifi_two_bars"></span>';
+                } else{
+                    div += '<span class="icon wifi_one_bar"></span>';
+                }
+                
+                // show CTAs
+                if (this.cta=='disconnect'){
+                    div += '<a data-button-type="wifi_disconnect_button" onclick="wifi.disconnect(\''+this.network.essid+'\')" class="cta primary with_icon close">Disconnect</a>';
+                } else if (this.cta=='connect'){
+                    if (this.network.encryption=='off'){
+                        div += '<a data-button-type="wifi_connect_button" id="'+this.network.essid+'_connect_button" onclick="wifi.connect(\''+this.network.essid+'\',null,null)" class="cta primary with_icon true">Connect</a>';
+                    } else {
+                        div += '<a data-button-type="wifi_connect_button" id="'+this.network.essid+'_connect_button" onclick="wifi.ask_for_password(\''+this.network.essid+'\',\''+this.network.encryption+'\')" class="cta primary with_icon true">Connect</a>';
+                    }
+                }
+                div += '</div>';
+                
+                div += '</div>';
+
+                return div;
+            }
+
+            connect(essid,password,encryption){
+                if (essid!=null){
+                    popup.header = 'Connecting to...';
+                    popup.message = document.getElementById(essid).outerHTML;
+                    popup.message += '<br>Please wait...';
+                    popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
+                    popup.buttons = [];
+                    popup.show();
+
+                    axios
+                        .post('/connect_to_wifi_all_led_strips',{
+                            'essid':essid,
+                            'password':password, // TODO yeah yeah, this.i know. Don't worry, password will be submitted only if you are on the "TheGlowingStripes" wifi. And if anyone has a better suggestion on how to safely submit the wifi password on the local wifi without ssl issues, let me know
+                            'encryption':encryption
+                        })
+                        .catch(function(error){
+                            console.log(error);
+                            popup.header = 'Connected to new Wi-Fi';
+                            popup.message = 'You can access the LED strips now by connecting your device to:<br>';
+                            popup.message+= document.getElementById(essid).outerHTML;
+                            popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
+                            popup.buttons = [];
+                            popup.show();
+                        });
+                }
+            }
+
+            ask_for_password(essid,encryption){
+                if (essid!=null && encryption!=null){
+                    popup.header = 'Enter Wi-Fi password for...';
+
+                    // remove connect button
+                    document.getElementById(essid+'_connect_button').outerHTML = '';
+
+                    // show wifi details to 
+                    popup.message = document.getElementById(essid).outerHTML;
+
+                    // show 
+                    popup.message+='<div>';
+                    popup.message+='<input oninput="wifi.show_connect_button()" class="input_field" id="wifipassword" type="password" placeholder="Enter the Wi-Fi password here">';
+
+                    popup.message+='<div class="right_aligned inline_block">';
+                    popup.message+='<a id="connect_to_wifi_button" style="display: none" onclick="wifi.connect(\''+essid+'\',document.getElementById(\'wifipassword\').value,\''+encryption+'\')" class="cta primary">Connect</a>';
+                    popup.message+='</div>';
+                    
+                    popup.message+='</div>';
+
+                    popup.buttons = [];
+                    popup.show();
+
+                    setTimeout(function(){
+                        var wifipasswordfield = document.getElementById('wifipassword');
+                        wifipasswordfield.focus();
+                        wifipasswordfield.select();
+                    },200);
+                    
+
+                }
+            }
+
+            show_connect_button(){
+                if (document.getElementById('wifipassword').value.length > 0){
+                    document.getElementById('connect_to_wifi_button').style.removeProperty('display');
+                } else {
+                    document.getElementById('connect_to_wifi_button').style.display='none';
+                }
+                
+            }
+
+            disconnect(essid){
+                // show new popup and send disconnect request
+                popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Disconnecting from ...';
+                // hide "Disconnect" button
+                document.getElementById('popup_message').getElementsByClassName('cta primary')[0].outerHTML='';
+
+                // replace "other wifis" div with "Please wait..."
+                document.getElementById('other_wifis').outerHTML='Please wait...';
+                
+                popup.message = document.getElementById('popup_message').innerHTML;
+                popup.show();
+
+                // send disconnect request
+                // TODO testing
+                axios
+                    .post('/disconnect_from_wifi_all_led_strips',{
+                        'essid':essid
+                    },{timeout:10})
+                    .catch(function(error){
+                        console.log(error);
+                        popup.header = 'Disconnected from Wi-Fi';
+                        popup.message = 'You can access the LED strips now by connecting your device to:<br>';
+                        popup.message+= document.getElementById('default_wifi').innerHTML;
+                        popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
+                        popup.buttons = [];
+                        popup.show();
+                    });
+            }
+
+        };
+        var wifi = new WiFi();
+
+
+        {% comment %} leds.js {% endcomment %}
+        var intr;
+
+        // colors from figma design file
+        let possible_setup_colors = [
+            [231, 191, 88], // brown
+            [18, 37, 212], // dark blue
+            [0, 229, 92], // green
+            [255, 92, 0], // orange
+            [250, 255, 0], // yellow
+            [56, 207, 255], // bright blue
+            [255, 0, 168], // pink
+            [255, 0, 0], // red
+        ];
+
+        let used_setup_colors = [];
+
+        let LEDstrip = class {
+            constructor(id,
+                name,
+                last_animation,
+                num_of_leds,
+                setup_color = null,
+                brightness = 0.97,
+                start_point = 0,
+                animation_up_and_down = true,
+                animation_direction = 'up',
+                debug = false
+            ) {
+                this.id = id;
+                this.name = name;
+                this.last_animation = last_animation;
+                this.unsubmitted_mode_change = {
+                    'id':null,
+                    'name':null,
+                    'based_on':null,
+                    'customization':null
+                };
+                this.num_of_leds = num_of_leds;
+                this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">';
+
+                // to generate animation preview
+                this.time_passed = 0;
+                this.brightness = brightness;
+                this.start_point = start_point;
+                this.animation_up_and_down = animation_up_and_down;
+                this.animation_direction = animation_direction;
+                // get setup_color
+                if (setup_color == null) {
+                    this.setup_color = this.get_setup_color();
+                } else {
+                    this.setup_color = setup_color;
+                }
+                this.leds = Array(this.num_of_leds).fill(this.setup_color);
+
+                this.debug = debug;
+            }
+            // Getter
+            get num_of_parts() {
+                return this.num_of_leds/15;
+            }
+
+            get_setup_color() {
+                if (this.debug) {
+                    console.log('LEDstrip().get_setup_color()');
+                }
+                for (const color_num in possible_setup_colors) {
+                    if (!used_setup_colors.includes(possible_setup_colors[color_num])) {
+                        used_setup_colors.push(possible_setup_colors[color_num]);
+                        return possible_setup_colors[color_num];
+                    }
+                }
+                return [255, 255, 255];
+
+            }
+
+            check_mode_changed(){
+                if (document.getElementById('mode_selector').value!=this.last_animation.id || document.getElementById('mode_selector').value=='1111111111'){
+                    // save values of new animation
+                    this.unsubmitted_mode_change.id = document.getElementById('mode_selector').selectedOptions[0].value;
+                    this.unsubmitted_mode_change.name = document.getElementById('mode_selector').selectedOptions[0].text;
+                    this.unsubmitted_mode_change.based_on = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on');
+                    this.unsubmitted_mode_change.customization = JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'));
+
+
+                    // show buttons to apply or undo change 
+                    document.getElementById('undo_changes_button').classList.remove('display_none');
+                    document.getElementById('apply_changes_button').classList.remove('display_none');
+                } else {
+                    this.unsubmitted_mode_change.id = null;
+                    this.unsubmitted_mode_change.name = null;
+                    this.unsubmitted_mode_change.based_on = null;
+                    this.unsubmitted_mode_change.customization = null;
+
+                    document.getElementById('undo_changes_button').classList.add('display_none');
+                    document.getElementById('apply_changes_button').classList.add('display_none');
+                }
+            }
+
+            apply_changes(){
+                // send request to change mode
+                var self = this;
+                axios
+                    .post('/mode',{
+                        'changes': [{
+                            'led_strip_ids': [self.id],
+                            'new_animation': self.unsubmitted_mode_change
+                        }]
+                    })
+                    .then(function (response) {
+                        var processed_led_strips = response.data.processed_led_strips;
+                        
+                        // update led strips with the new animation
+                        var i;
+                        for (i = 0; i < processed_led_strips.length; i++) {
+                            var id = processed_led_strips[i].id;
+                            led_strips[id].last_animation = processed_led_strips[i].new_animation;
+
+                            // also apply changes to selected led mode in frontend
+                            document.getElementById('mode_selector').selectedOptions[0].value = processed_led_strips[i].new_animation.id;
+                            document.getElementById('mode_selector').selectedOptions[0].text = processed_led_strips[i].new_animation.name;
+                            document.getElementById('mode_selector').selectedOptions[0].text = processed_led_strips[i].new_animation.name;
+                            if (processed_led_strips[i].new_animation.based_on){
+                                document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-based-on',processed_led_strips[i].new_animation.based_on);
+                            } else {
+                                document.getElementById('mode_selector').selectedOptions[0].removeAttribute('data-based-on');
+                            }
+                            document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(processed_led_strips[i].new_animation.customization));
+                        }
+                    });
+                
+                this.last_animation=this.unsubmitted_mode_change;
+                this.undo_changes();
+            }
+
+            undo_changes(){
+                // reset selected animation to current animation
+                var mode_selector = document.getElementById('mode_selector');
+                var options = mode_selector.options;
+                for (var counter = 0;true;counter++){
+                    if (options[counter].value==this.last_animation.id){
+                        mode_selector.selectedIndex=counter;
+                        break;
+                    }
+                }
+                
+                this.unsubmitted_mode_change = {
+                    'id':null,
+                    'name':null,
+                    'based_on':null,
+                    'customization':null
+                };
+
+                document.getElementById('undo_changes_button').classList.add('display_none');
+                document.getElementById('apply_changes_button').classList.add('display_none');
+            }
+
+            connect() {
+                if (this.debug) {
+                    console.log('LEDstrip().connect()');
+                }
+                // create LED strip inside DIV block
+
+                // generate LED strip parts
+                let num_of_parts_counter = 0;
+                let total_num_of_leds = 0;
+                let r, g, b;
+                this.html += '<div id="'+this.id+'_led_strip_parts">';
+                while (num_of_parts_counter < this.num_of_parts) {
+                    this.html += '<div class="led_strip_part">';
+
+                    let num_of_leds = 0;
+                    while (num_of_leds < 15) {
+                        r = this.leds[total_num_of_leds][0];
+                        g = this.leds[total_num_of_leds][1];
+                        b = this.leds[total_num_of_leds][2];
+                        this.html += '<div class="led" style="background: rgb(' + r + ',' + g + ',' + b + ');';
+                        this.html += 'box-shadow: 0 0px 35px 0 rgb(' + r + ',' + g + ',' + b + ');';
+                        this.html += '" id="' + this.id + '-' + total_num_of_leds + '"></div>';
+                        num_of_leds++;
+                        total_num_of_leds++;
+                    }
+
+                    this.html += '</div>';
+                    num_of_parts_counter++;
+                }
+                this.html += '</div>';
+
+                this.html += '<div class="led_strip_base"></div>';
+                this.html += '</div>';
+
+                // attatch LED strip to div
+                document.getElementsByClassName('leds_preview_block')[0].innerHTML = document.getElementsByClassName('leds_preview_block')[0].innerHTML + this.html;
+
+                // update number of LEDs
+                document.getElementById('num_strips').innerText = num_of_led_strips;
+
+                if (num_of_led_strips == 1) {
+                    document.getElementById('text_strips').innerText = 'strip';
+                } else {
+                    document.getElementById('text_strips').innerText = 'strips';
+                }
+
+                // send new color to strip
+                axios
+                    .post('/mode', {
+                        'changes': [{
+                            'led_strip_ids': [this.id],
+                            'new_animation': {
+                                'id': '0000000000',
+                                'name': 'Setup mode',
+                                'customization':{
+                                    'rgb_colors': [this.setup_color]
+                                }
+                            }
+                        }]
+                    });
+            }
+
+
+            disconnect(inside_div) {
+                if (this.debug) {
+                    console.log('LEDstrip().disconnect()');
+                }
+                // remove LED strip from DIV block
+            }
+
+            make_shorter() {
+                if (this.debug) {
+                    console.log('LEDstrip().make_shorter()');
+                }
+                // remove LED strip part
+            }
+
+            make_longer() {
+                if (this.debug) {
+                    console.log('LEDstrip().make_longer()');
+                }
+                // add LED strip part
+            }
+
+            move_up() {
+                if (this.debug) {
+                    console.log('LEDstrip().move_up()');
+                }
+                // move LED stip position up
+            }
+
+            move_down() {
+                if (this.debug) {
+                    console.log('LEDstrip().move_down()');
+                }
+                // move LED stip position down
+            }
+
+            move_right() {
+                if (this.debug) {
+                    console.log('LEDstrip().move_right()');
+                }
+                // move LED stip position right
+            }
+
+            move_left() {
+                if (this.debug) {
+                    console.log('LEDstrip().move_left()');
+                }
+                // move LED stip position left
+            }
+
+            write_led(number,rgb){
+                var selected_led = document.getElementById(this.id + '-' + number);
+                if (selected_led) {
+                    if (this.debug) {
+                        console.log('... selected_led found ...');
+                    }
+                    selected_led.style.background = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+                    selected_led.style.boxShadow = '0 0px 35px 0 rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+                    if (this.debug) {
+                        console.log('... selected_led style changed ...');
+                    }
+                }
+            }
+
+
+            get_led(led_number) {
+                if (this.debug) {
+                    console.log('LEDstrip().get_led()');
+                }
+                led_number = led_number + this.start_point;
+                if (led_number < 0) {
+                    led_number = this.num_of_leds + led_number;
+                }
+                return led_number;
+            }
+
+
+            off() {
+                if (this.debug) {
+                    console.log('LEDstrip().off()');
+                }
+                for (const led_number_off_counter in [...Array(this.num_of_leds).keys()]) {
+                    this.write_led(led_number_off_counter,[0,0,0]);
+                }
+            }
+
+            on(num = null) {
+                if (this.debug) {
+                    console.log('LEDstrip().on()');
+                }
+                if (isNaN(num)) {
+                    for (const led_number_on_counter in [...Array(this.num_of_leds).keys()]) {
+                        this.write_led(led_number_on_counter,[255, 255, 255]);
+                    }
+                } else {
+                    num = this.get_led(num);
+                    this.write_led(num,[255, 255, 255]);
+                }
+
+                this.write();
+            }
+
+            rainbow_animation(limit = null) {
+                if (this.debug) {
+                    console.log('LEDstrip().rainbow_animation()');
+                }
+                // turn LEDs rainbow
+                let counter = 0;
+                let rainbow_color;
+                // while (true) {
+
+                this.time_passed += 0.06;
+                for (var rainbow_led_counter in [...Array(this.num_of_leds).keys()]) {
+                    // rainbow_led_counter = this.get_led(rainbow_led_counter)
+                    rainbow_color = this.rainbow_color(this.time_passed, rainbow_led_counter,
+                        this.brightness);
+                    this.write_led(rainbow_led_counter,rainbow_color);
+                }
+
+                // if (this.animation_up_and_down) {
+                //     this.brightness, this.animation_direction = this.change_brightness(
+                //         this.brightness, this.animation_direction)
+                // }
+
+                // counter += 1
+                // if (limit && counter == limit) {
+                //     break
+                // }
+                // }
+            }
+
+            rainbow_color(t, rainbow_color_num, brightness) {
+                if (this.debug) {
+                    console.log('LEDstrip().rainbow_color()');
+                }
+                var a = [0.5, 0.5, 0.5];
+                var b = [0.5, 0.5, 0.5];
+                var c = [1.0, 1.0, 1.0];
+                var d = [0.00, 0.33, 0.67];
+
+                var k = t + 0.05 * rainbow_color_num;
+
+                var r = a[0] + b[0] * Math.cos(6.28318 * (c[0] * k + d[0]));
+                var g = a[1] + b[1] * Math.cos(6.28318 * (c[1] * k + d[1]));
+                b = a[2] + b[2] * Math.cos(6.28318 * (c[2] * k + d[2]));
+
+                r = Math.round(255.0 * r * brightness);
+                g = Math.round(255.0 * g * brightness);
+                b = Math.round(255.0 * b * brightness);
+
+                return [(r < 255) ? r : 255, (g < 255) ? g : 255, (b < 255) ? b : 255];
+            }
+
+            change_brightness(brightness, direction) {
+                if (this.debug) {
+                    console.log('LEDstrip().change_brightness()');
+                }
+                if (direction == 'up') {
+                    brightness = brightness + 0.025;
+                } else {
+                    brightness = brightness - 0.025;
+                }
+
+                if (brightness <= 0.1) {
+                    direction = 'up';
+                } else if (brightness >= 0.7) {
+                    direction = 'down';
+                }
+
+                return brightness, direction;
+            }
+        };
+
+
+        {% comment %} control.js {% endcomment %}
+        var control;
+        var connected_led_strips = {};
+        var web_control_config = {};
+        var num_of_led_strips = 0;
+        var led_strips = {};
+        var led_animations = {};
+        var selected_led_strip_id = null;
+        var processed_led_strips = [];
+
+        let Control = class {
+            constructor(sync_all) {
+                this.sync_all = sync_all;
+                this.multi_select = false;
+                this.main_window_new_html = '';
+                this.i=0;
+            }
+
+            get main_window_content() {
+                return document.getElementsByClassName('main_window_content')[0];
+            }
+
+            get first_led_strip() {
+                return led_strips[0];
+            }
+
+            fadeout_main_window() {
+                this.main_window_content.style.opacity = 0;
+            }
+
+            fadein_main_window() {
+                this.main_window_new_html = '';
+                this.main_window_content.style.opacity = 1;
+            }
+
+            clear_main_window() {
+                this.fadeout_main_window();
+                this.main_window_content.innerHTML = '';
+            }
+
+            load_buildup() {
+                this.clear_main_window();
+
+                this.main_window_new_html = `
+                <span id="num_strips" class="num_of_connected_leds darkmode">0</span> LED <span id="text_strips">strips</span> connected.<br>
+                <span id="ready_to_glow"></span>
+                `;
+                this.main_window_content.innerHTML = this.main_window_new_html;
+
+                this.fadein_main_window();
+            }
+
+            load_led_strips() {
+                // load json of connected_led_strips and create objects
+                intr = setInterval(function () {
+                    console.log('Searching for LED strips...');
+
+                    axios
+                        .get("/connected_led_strips.json")
+                        .then(function (response) {
+                            connected_led_strips = response.data.connected_led_strips;
+                            num_of_led_strips = connected_led_strips.length;
+                            
+                            // make sure to process every led strip only once, instead of making a lot of request to the same LED strip (resulting in glitchy blinking)
+                            var counter;
+                            for (counter = 0; counter < num_of_led_strips; counter++) {
+                                if (!processed_led_strips.includes(connected_led_strips[counter])){
+                                    // TODO switch led strip mode to setup mode (to hopefully prevent glitchy glowing up)
+                                    var random_color = [
+                                        Math.round(Math.random()*255),
+                                        Math.round(Math.random()*255),
+                                        Math.round(Math.random()*255)
+                                    ];
+                                    axios
+                                        .post("http://"+connected_led_strips[counter]+"/mode",{
+                                            "new_animation": {
+                                                "id":"0000000000",
+                                                "name":"Setup mode",
+                                                "rgb_color":random_color
+                                            }
+                                        })
+                                        .then(function(led_strip_data){
+                                            // get full details from led strips
+                                            // check if LED strip already exists, only add if it doesn't exist yet
+                                            if (!document.getElementById(led_strip_data.data.id)) {
+                                                led_strips[led_strip_data.data.id] = new LEDstrip(
+                                                    led_strip_data.data.id,
+                                                    led_strip_data.data.name,
+                                                    led_strip_data.data.last_animation,
+                                                    led_strip_data.data.num_of_leds
+                                                );
+                                                led_strips[led_strip_data.data.id].connect();
+                                            }
+                                            processed_led_strips.push(connected_led_strips[counter]);
+                                        });
+                                }
+                        }
+
+                            // show "ready to glow?" if at least one LED strip connected
+                            if (document.getElementById('ready_to_glow')) {
+                                if (num_of_led_strips > 0) {
+                                    document.getElementById('ready_to_glow').innerHTML = `
+                                    Ready to <span class="glow_text">glow</span>?<br>
+                                    <br>
+                                    <a id="buildup_complete_button" class="cta primary with_icon true" onclick="control.load_control()">
+                                        Buildup complete
+                                    </a>
+                                `;
+                                } else {
+                                    document.getElementById('ready_to_glow').innerHTML = '';
+                                }
+                            }
+
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .finally(function () {
+                            // always executed
+                        });
+
+                }, 1000);
+
+            }
+
+            load_control() {
+                // break loop if "Buildup complete" button is pressed
+                clearInterval(intr);
+
+                this.clear_main_window();
+
+                // switch back to previous LED mode
+                axios
+                    .post("/restore_all_led_strips");
+
+                // TODO switch back preview to previous LED mode
+                num_of_led_strips = Object.keys(led_strips).length;
+                selected_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
+                
+                for (this.i = 0; this.i < num_of_led_strips; this.i++) {
+                    led_strips[[Object.keys(led_strips)[this.i]]].rainbow_animation();
+
+                }
+
+                var first_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
+
+                // show main control interface
+                var control_object = this;
+                axios
+                    .get("/led_animations")
+                    .then(function (response) {
+                        led_animations = response.data;
+
+                        axios
+                            .get("/web_control_config")
+                            .then(function (response) {
+
+                                web_control_config = response.data;
+
+                                control_object.main_window_new_html += '<div class="left_aligned_maincontent">';
+
+                                //// show "all x LED strips" or name of single LED strip, depending on current mix
+                                control_object.main_window_new_html += '<div>';
+                                if ('name' in web_control_config.current_mix) {
+                                    //// show name of mix
+                                    control_object.main_window_new_html += '<span class="icon mix">' + web_control_config.current_mix.name + '</span>';
+
+                                    //// show "edit name" -> edit mix name
+                                    control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'mix\',\'' + web_control_config.current_mix.id + '\')" ';
+                                    control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>';
+
+                                } else if (num_of_led_strips > 1 && web_control_config.sync_all == true) {
+                                    control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds darkmode">';
+                                    control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips"> strips</span>';
+
+                                } else {
+                                    //// show name and  "edit name" if single LED strip selected
+                                    
+                                    control_object.main_window_new_html += '<spam class="led_strip_name">'+led_strips[first_led_strip_id].name+'</spam>';
+                                    control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'led_strip\',\'' + led_strips[first_led_strip_id].id + '\')" ';
+                                    control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>';
+
+                                }
+                                control_object.main_window_new_html += '</div>';
+
+
+                                //// show last used mode for all LED strips or mode of last selected led strip (depending on current mix)
+                                control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips.'+led_strips[first_led_strip_id].id+'.check_mode_changed()" data-current-led-strip-id="'+led_strips[first_led_strip_id].id+'" class="mode_selector">';
+
+                                //// show all custom modes
+                                control_object.main_window_new_html += '<optgroup label="Custom animations">';
+                                
+                                var counter;
+                                for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
+                                    control_object.main_window_new_html += '<option data-based-on="'+('based_on' in led_animations.led_animations.custom[counter] ? led_animations.led_animations.custom[counter].based_on:'');
+                                    // if "led_animations.led_animations.custom[counter].unsaved_customization", then show those unsaved customization and save button
+                                    if (led_animations.led_animations.custom[counter].unsaved_customization){
+                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].unsaved_customization).replaceAll('"',"'");
+                                    }else{
+                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
+                                    }
+                                    // add data-default-customization
+                                    control_object.main_window_new_html += '" data-default-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
+                                    control_object.main_window_new_html += '" value="' + led_animations.led_animations.custom[counter].id + '"';
+
+                                    // mark mode as selected if thats the case in "current mix"
+                                    if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.custom[counter].id) {
+                                        control_object.main_window_new_html += ' selected';
+                                    }
+                                    control_object.main_window_new_html += '>';
+                                    control_object.main_window_new_html += led_animations.led_animations.custom[counter].name + '</option>';
+                                }
+                                control_object.main_window_new_html += '</optgroup>';
+
+                                //// show all default modes
+                                control_object.main_window_new_html += '<optgroup label="Default animations">';
+                                
+                                for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
+                                    // exclude Setup mode
+                                    if (led_animations.led_animations.default[counter].id != "0000000000") {
+                                        // if "led_animations.led_animations.default[counter].unsaved_customization", then show those unsaved customization and save button
+                                        if (led_animations.led_animations.default[counter].unsaved_customization){
+                                            control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization).replaceAll('"',"'");
+                                            
+                                            // also safe id of animation with unsaved changes to led strip
+                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
+                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization));
+                                        } else {
+                                            control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
+                                        }
+                                        // add data-default-customization
+                                        control_object.main_window_new_html += '" data-default-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
+                                        control_object.main_window_new_html += '" value="' + led_animations.led_animations.default[counter].id + '"';
+
+                                        // mark mode as selected if thats the case in "current mix"
+                                        if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.default[counter].id) {
+                                            control_object.main_window_new_html += ' selected';
+                                        }
+                                        control_object.main_window_new_html += '>';
+                                        control_object.main_window_new_html += led_animations.led_animations.default[counter].name + '</option>';
+                                    }
+                                }
+                                control_object.main_window_new_html += '</optgroup>';
+
+                                control_object.main_window_new_html += '</select>';
+
+                                //// add "customize animation" button
+                                control_object.main_window_new_html += '<a id="open_animation_customizer_button" onclick="animation_customizer.open()" class="button_customize_animation customize right_positioned"></a>';
+
+                                //// show "sync all" and "multi select" from current mix
+                                if (num_of_led_strips > 1) {
+                                    control_object.main_window_new_html += '<div>';
+
+                                    control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all';
+                                    control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"';
+                                    if (web_control_config.sync_all) {
+                                        control_object.main_window_new_html += ' checked="checked"';
+                                    }
+                                    control_object.main_window_new_html += '><span class="checkmark"></span></label>';
+
+                                    control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select';
+                                    control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"';
+                                    if (web_control_config.multi_select) {
+                                        control_object.main_window_new_html += ' checked="checked"';
+                                    }
+                                    control_object.main_window_new_html += '><span class="checkmark"></span></label>';
+
+                                    control_object.main_window_new_html += '</div>';
+                                }
+
+
+                                control_object.main_window_new_html += '<div>';
+                                control_object.main_window_new_html += '<div class="fixed_bottom_left">';
+
+                                //// show "save mix" button
+                                if (num_of_led_strips > 1) {
+                                    control_object.main_window_new_html += '<a id="save_mix_button" class="cta darkmode with_icon save">Save mix</a>';
+                                }
+
+                                control_object.main_window_new_html += '</div>';
+
+                                // show undo and apply button (hidden, only visible if change is made)
+                                control_object.main_window_new_html += '<div class="fixed_bottom_right">';
+                                control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+first_led_strip_id+'.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
+                                control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips.'+first_led_strip_id+'.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
+                                control_object.main_window_new_html += '</div>';
+
+                                control_object.main_window_new_html += '</div>';
+
+                                control_object.main_window_content.innerHTML = control_object.main_window_new_html;
+
+                                control_object.fadein_main_window();
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+
+
+
+                // show mixes (if they exist)
+            }
+        };
+
+        function boot() {
+            axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
+            control = new Control();
+            control.load_buildup();
+            control.load_led_strips();
+        }
+
+
+        {% comment %} connection_check.js {% endcomment %}
+        let ConnectionCheck = class {
+            constructor() {
+                this.disconnect_context=null;
+                this.connect_check_interval=null;
+                this.online_check_interval=null;
+            }
+
+            check_if_host_connected_again(){
+                this.connect_check_interval = setInterval(function () {
+                    axios
+                        .get('http://theglowingstripes.local')
+                        .then(function(response){
+                            clearInterval(connection_check.connect_check_interval);
+                            connection_check.show_connected_again_info();
+                        })
+                        .catch(function(error){
+                            console.log('Host still disconnected...');
+                        });
+                },1000);
+            }
+
+
+            show_disconnected_warning(context=null){
+                // fade out LED strip, hide LED strip control interface, hide all buttons and saved mixes show "Disconnected from Host" warning
+                document.getElementsByClassName('leds_preview_block')[0].style.top='50px';
+                document.getElementsByClassName('leds_preview_block')[0].style.opacity='0';
+
+                document.getElementsByClassName('main_window_content')[0].style.height = '0px';
+                document.getElementsByClassName('main_window_content')[0].style.opacity = '0';
+                setTimeout(function(){
+                    document.getElementsByClassName('main_window_content')[0].style.display='none';
+                },200);
+
+                document.getElementsByClassName('header_overlay')[0].style.display = 'none';
+
+                document.getElementsByClassName('mixes')[0].style.display = 'none';
+
+                document.getElementById('software_update_button').style.display = 'none';
+                document.getElementById('power_button').style.display = 'none';
+                document.getElementById('show_wifi_networks_button').style.display = 'none';
+
+                document.getElementById('disconnected_info').innerHTML = 'Disconnected from "The Glowing Stripes Project"<br>In case this is not supposed to happen: check the battery status of the LED strips and if you are connected to the correct Wi-Fi.';
+                
+                this.check_if_host_connected_again();
+            }
+
+            show_connected_again_info(){
+                // Fade in LED strip, show LED strip control interface
+                document.getElementsByClassName('leds_preview_block')[0].style.removeProperty('top');
+                document.getElementsByClassName('leds_preview_block')[0].style.removeProperty('opacity');
+
+                document.getElementsByClassName('main_window_content')[0].style.removeProperty('display');
+                setTimeout(function(){
+                    document.getElementsByClassName('main_window_content')[0].style.removeProperty('height');
+                    document.getElementsByClassName('main_window_content')[0].style.removeProperty('opacity');
+                },200);
+
+                document.getElementsByClassName('header_overlay')[0].style.removeProperty('display');
+
+                document.getElementsByClassName('mixes')[0].style.removeProperty('display');
+
+                document.getElementById('software_update_button').style.removeProperty('display');
+                document.getElementById('power_button').style.removeProperty('display');
+                document.getElementById('show_wifi_networks_button').style.removeProperty('display');
+
+                document.getElementById('disconnected_info').innerHTML = '';
+            }
+        };
+        var connection_check = new ConnectionCheck();
+
+
+        {% comment %} customizer/field.js {% endcomment %}
+        let CustomizerField = class {
+            constructor(
+                name,
+                options_list,
+                selected_option,
+                default_options,
+                onchange_event,
+                sub_field_html=null,
+                input_placeholder=null,
+                default_input_value=null
+            ) {
+                // options_list example for select:
+                // [
+                // {
+                //    "name":"10%",
+                //    "value":0.1
+                // },
+                // {
+                //    "name":"20%",
+                //    "value":0.2
+                // }
+                // ]
+                // options_list example for checkbox:
+                // [
+                // {
+                //    "name":"Section 1",
+                //    "checked":true
+                // },
+                // {
+                //    "name":"Section 2",
+                //    "checked":true
+                // }
+                // ]
+                this.name = name;
+                this.options_list = this.process_options_list(options_list);
+                this.selected_option = selected_option;
+                this.default_options = default_options;
+                this.onchange_event = onchange_event;
+                this.sub_field_html = sub_field_html;
+                this.input_placeholder = input_placeholder;
+                this.default_input_value=default_input_value;
+                this.i=0;
+
+                this.html = '<div name="field"><div class="main_field" name="main_field">';
+            }
+
+            process_options_list(options_list){
+                if (options_list){
+                    if (typeof(options_list)=='string' && options_list.includes('ms')){
+                        // process "100ms-5000ms" info
+                        var options_list_start = parseInt(options_list.split('-')[0].replace(' ','').replace('ms',''));
+                        var options_list_end = parseInt(options_list.split('-')[1].replace(' ','').replace('ms',''));
+
+                        // generate steps in between
+                        var step = options_list_start;
+                        options_list = [];
+                        for (this.i = 1; step<=options_list_end; this.i++) {
+                            options_list[this.i] = {
+                                'name':step.toString()+' ms',
+                                'value':step
+                            };
+                            step+=100;
+                        } 
+                    }
+                    
+                    else if (typeof(options_list[1]) == 'number'){
+                        if (options_list[1]<1 && options_list[1]>0){
+                            // generate percentage list
+                            for (this.i = 0; this.i < options_list.length; this.i++) {
+                                options_list[this.i] = {
+                                    'name':(options_list[this.i]*100).toString()+'%',
+                                    'value':options_list[this.i]
+                                };
+                            }
+
+                        } else {
+                            for (this.i = 0; this.i < options_list.length; this.i++) {
+                                options_list[this.i] = {
+                                    'name':options_list[this.i].toString(),
+                                    'value':options_list[this.i]
+                                };
+                            }
+                        }
+                    }
+                }
+                return options_list;
+            }
+
+            add_name_div(){
+                this.html+='<div class="field_name">'+this.name+'</div>';
+            }
+
+            add_subfield(){
+                this.html+='<div id="'+this.name.toLowerCase()+'_subfield" class="subfield">'+this.sub_field_html+'</div>';
+            }
+
+            get_input_field(){
+                this.add_name_div();
+
+                this.html+='<input oninput="'+this.onchange_event+'" class="input_field" ';
+                this.html+='type="text" placeholder="'+this.input_placeholder+'"';
+                if (this.default_input_value){
+                    this.html+=' value="'+this.default_input_value+'"';
+                }
+                this.html+='>';
+
+                // close field div
+                this.html+='</div>';
+
+                return this.html;
+            }
+
+            get_select_field(){
+                this.add_name_div();
+
+                if (this.options_list){
+                    // generate select field
+                    this.html+='<select onchange="'+this.onchange_event+'" name="customizer_select_fields" data-default="'+this.default_options+'" class="customize_field_selector">';
+                    for (this.i = 0; this.i < this.options_list.length; this.i++) {
+                        if (this.i in this.options_list){
+                            this.html += '<option value="' + this.options_list[this.i].value + '"';
+                            // mark as selected if thats the case 
+                            if (this.options_list[this.i].value == this.selected_option) {
+                                this.html += ' selected';
+                            }
+                            this.html += '>'+this.options_list[this.i].name + '</option>';
+                        }
+                    }
+                    this.html+='</select>';
+
+                    // close main field
+                    this.html+='</div>';
+
+                    // generate field under select field
+                    if (this.sub_field_html!=null){
+                        this.add_subfield();
+                    }
+
+                    // close field div
+                    this.html+='</div>';
+                }
+                return this.html;
+            }
+
+            get_checkbox_field(){
+                this.add_name_div();
+
+                // generate checkboxes
+                if (this.options_list){
+                    this.html += '<div class="sections_block">';
+                    for (this.i = this.options_list.length-1; this.i >=0; this.i--) {
+                        // see if checkbox is checked by default
+                        var default_checked = false;
+                        if (this.default_options.indexOf(this.options_list[this.i]) >= 0) {
+                            default_checked = true;
+                        }
+                        
+                        this.html += '<label class="checkbox block">'+this.options_list[this.i];
+                        this.html += '<input onchange="'+this.onchange_event+'" data-default="'+toString(default_checked)+'" name="customizable_checkbox_fields" type="checkbox"';
+                        if (this.selected_option.indexOf(this.options_list[this.i]) >= 0) {
+                            this.html += ' checked="checked"';
+                        }
+                        this.html += '><span class="checkmark"></span></label>';
+                    }
+                    this.html += '</div>';
+
+                    // generate field under checkbox field
+                    if (this.sub_field_html){
+                        this.add_subfield();
+                    }
+
+                    // close field div
+                    this.html+='</div>';
+                }
+
+                return this.html;
+            }
+        };
+
+
+        {% comment %} customizer/brightness.js {% endcomment %}
+        let BrightnessCustomizer = class {
+            get selected_options(){
+                if ('brightness' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.brightness){
+                    return animation_customizer.updated_animation.customization.brightness;
+                } else {
+                    return null;
+                }
+            }
+
+            get default_options(){
+                if ('brightness' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.brightness){
+                    return animation_customizer.based_on_animation.customization.brightness;
+                } else {
+                    return null;
+                }
+            }
+
+            get_brightness_field(){
+                this.field = new CustomizerField(
+                    'Brightness',
+                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                    this.selected_options,
+                    this.default_options,
+                    'brightness_customizer.change_brightness_select(this.value)'
+                );
+                return this.field.get_select_field();
+            }
+
+            change_brightness_select(new_selected){
+                new_selected = parseFloat(new_selected);
+                animation_customizer.updated_animation.customization.brightness = new_selected;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+                
+                // TODO update preview animation
+            }
+        };
+        var brightness_customizer = new BrightnessCustomizer();
+
+
+        {% comment %} customizer/colors.js {% endcomment %}
+        let ColorsCustomizer = class {
+            constructor() {
+                this.i=0;
+            }
+
+            get selected_options(){
+                return animation_customizer.updated_animation.customization.colors_selected;
+            }
+
+            get default_options(){
+                return animation_customizer.based_on_animation.customization.colors_selected;
+            }
+
+            get selected_colors(){
+                return animation_customizer.updated_animation.customization.rgb_colors;
+            }
+
+            get selected_colors_default(){
+                return animation_customizer.based_on_animation.customization.rgb_colors;
+            }
+
+            get num_random_colors(){
+                if ('num_random_colors' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.num_random_colors){
+                    return animation_customizer.updated_animation.customization.num_random_colors;
+                } else {
+                    return null;
+                }
+            }
+
+            get num_random_colors_default(){
+                if ('num_random_colors' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.num_random_colors){
+                    return animation_customizer.based_on_animation.customization.num_random_colors;
+                } else {
+                    return null;
+                }
+            }
+
+            get_colors_field(animation_id){
+
+                // if animation is "color" => 1 color min, 1 max
+                if (animation_id=='9jwnqn8v3i'){
+                    this.min_num_colors = 1; // relevant for .remove_color() function
+                    this.max_num_colors = 1; // relevant for .add_color() function
+                }
+                // if animation is "transition" => 2 colors min, 10 max
+                else if (animation_id=='7u9tjpd0gi'){
+                    this.min_num_colors = 2;
+                    this.max_num_colors = 10;
+                }
+                else {
+                    this.min_num_colors = 1;
+                    this.max_num_colors = 10;
+                }
+                
+                // generate the field thats displayed under the select button
+                this.update_subfield();
+
+                this.field = new CustomizerField(
+                    'Colors',
+                    [
+                        {
+                            'name':'Manual',
+                            'value':'manual'
+                        },
+                        {
+                            'name':'Random',
+                            'value':'random'
+                        }
+                    ],
+                    this.selected_options,
+                    this.default_options,
+                    'colors_customizer.change_colors_select(this.value)',
+                    this.subfield_html
+                );
+                return this.field.get_select_field();
+            }
+
+            componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            
+
+            convert_rgb_to_hex(rgb){
+                return "#" + this.componentToHex(rgb[0]) + this.componentToHex(rgb[1]) + this.componentToHex(rgb[2]);
+            }
+
+            convert_hex_to_rgb(hex){
+                var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? [
+                    parseInt(result[1], 16),
+                    parseInt(result[2], 16),
+                    parseInt(result[3], 16)
+                ] : null;
+            }
+
+            update_subfield(){
+                if (this.selected_options == 'manual'){
+                    this.generate_manual_colors_subfield();
+                } else {
+                    this.generate_random_colors_subfield();
+                }
+            }
+
+            change_colors_select(new_selected){
+                animation_customizer.updated_animation.customization.colors_selected = new_selected;
+                this.update_subfield();
+                document.getElementById('colors_subfield').innerHTML=this.subfield_html;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+            }
+
+            generate_manual_colors_subfield(){
+                // generate "manual" subfield_html
+                this.subfield_html = '<div class="all_colors" id="all_colors">';
+                // if this.selected_colors == 'random', generate random colors
+                if (this.selected_colors=='random'){
+                    animation_customizer.updated_animation.customization.rgb_colors = [];
+                    var color_counter;
+                    for (color_counter=0;color_counter<this.num_random_colors;color_counter+=1){
+                        animation_customizer.updated_animation.customization.rgb_colors.push([
+                            Math.round(Math.random()*255),
+                            Math.round(Math.random()*255),
+                            Math.round(Math.random()*255)
+                        ]);
+                    }
+                }
+                var i;
+
+                // for every min_num_color, create random color field input field
+                for (i = 0; i < this.selected_colors.length; i++){
+                    this.subfield_html+='<input type="color" onchange="colors_customizer.change_color('+i+',this.value)" value="'+this.convert_rgb_to_hex(this.selected_colors[i])+'" class="color_selector">';
+                }
+                this.subfield_html+='</div>';
+
+                // "remove_color_button"
+                this.subfield_html+='<div class="remove_color_button';
+                if (this.selected_colors.length>this.min_num_colors){
+                    this.subfield_html+='" onclick="colors_customizer.remove_color()"></div>';
+                } else {
+                    this.subfield_html+=' display_none" onclick="colors_customizer.remove_color()"></div>';
+                }
+
+                // "add_color_button"
+                this.subfield_html+='<div class="add_color_button';
+                if (this.selected_colors.length<this.max_num_colors){
+                    this.subfield_html+='" onclick="colors_customizer.add_color()"></div>';
+                } else {
+                    this.subfield_html+=' display_none" onclick="colors_customizer.add_color()"></div>';
+                }
+
+                
+            }
+
+            generate_random_colors_subfield(){
+                this.sub_field = new CustomizerField(
+                    'How many',
+                    [1,2,3,4,5,6,7,8,9,10],
+                    this.num_random_colors,
+                    this.num_random_colors_default,
+                    'colors_customizer.change_num_of_random_colors(this.value)'
+                );
+                this.subfield_html = this.sub_field.get_select_field();
+            }
+
+            add_color(){
+                if (this.selected_colors.length<this.max_num_colors){
+                    // add a new random color to this.selected_colors
+                    var new_color = [
+                        Math.round(Math.random()*255),
+                        Math.round(Math.random()*255),
+                        Math.round(Math.random()*255)
+                    ];
+                    animation_customizer.updated_animation.customization.rgb_colors.push(new_color);
+
+                    if (document.getElementById('all_colors')){
+                        // show another color field with a random color
+                        var new_color_html = '<input type="color" onchange="colors_customizer.change_color('+(this.selected_colors.length-1)+',this.value)" value="'+this.convert_rgb_to_hex(new_color)+'" class="color_selector">';
+                        // place new_color_html before remove and add button and after existing colors
+                        document.getElementById('all_colors').innerHTML = document.getElementById('all_colors').innerHTML + new_color_html;
+
+                        // show "remove_color_button"
+                        document.getElementsByClassName('remove_color_button')[0].classList.remove('display_none');
+
+                        // hide "add_color" button if maximum level reached
+                        if (this.selected_colors.length==this.max_num_colors){
+                            document.getElementsByClassName('add_color_button')[0].classList.add('display_none');
+                        }
+                    }
+
+                    // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                    animation_customizer.check_for_changes();
+
+                    // TODO update the preview animation
+                } else{
+                    console.log('add_color failed. Cannot go higher then max_num_colors.');
+                }
+            }
+
+            remove_color(){
+                if (this.selected_colors.length>this.min_num_colors){
+                    // remove last color in selected_colors
+                    animation_customizer.updated_animation.customization.rgb_colors.pop();
+
+                    if (document.getElementById('all_colors')){
+                        // remove last "color_selector" from 'all_colors' div block (preview list)
+                        var all_colors = document.getElementById('all_colors');
+                        all_colors.removeChild(all_colors.lastElementChild);
+
+                        // hide "remove_color" button if minimum level reached
+                        if (this.selected_colors.length==this.min_num_colors){
+                            document.getElementsByClassName('remove_color_button')[0].classList.add('display_none');
+                        }
+
+                        // show "add_color" button again if not longer maximum level
+                        if (this.selected_colors.length<this.max_num_colors){
+                            document.getElementsByClassName('add_color_button')[0].classList.remove('display_none');
+                        }
+                    }
+
+                    // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                    animation_customizer.check_for_changes();
+
+                    // TODO update the preview animation
+
+                } else{
+                    console.log('remove_color failed. Cannot go lower then min_num_colors.');
+                }
+                
+            }
+
+            change_color(num_in_list,new_color_hex){
+                // convert hex into R,G,B values and save
+                animation_customizer.updated_animation.customization.rgb_colors[num_in_list] = this.convert_hex_to_rgb(new_color_hex);
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+
+                // TODO update preview animation
+            }
+
+            change_num_of_random_colors(new_num){
+                new_num = parseInt(new_num);
+                // if new num_rando_colors is higher then previously, use "add_color", if lower, "remove_color"
+                if (new_num > this.num_random_colors){
+                    this.random_colors_difference = new_num - this.num_random_colors;
+                    for (this.i = 0; this.i < this.random_colors_difference; this.i++) {
+                        this.add_color();
+                    }
+
+                } else if (this.num_random_colors > new_num){
+                    this.random_colors_difference = this.num_random_colors - new_num;
+                    for (this.i = 0; this.i < this.random_colors_difference; this.i++) {
+                        this.remove_color();
+                    }
+
+                }
+
+                animation_customizer.updated_animation.customization.num_random_colors = new_num;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+            }
+        };
+        var colors_customizer = new ColorsCustomizer();
+
+
+        {% comment %} customizer/direction.js {% endcomment %}
+        let DirectionCustomizer = class {
+            get selected_options(){
+                if ('start' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.start){
+                    return animation_customizer.updated_animation.customization.start;
+                } else {
+                    return null;
+                }
+            }
+
+            get default_options(){
+                if ('start' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.start){
+                    return animation_customizer.based_on_animation.customization.start;
+                } else {
+                    return null;
+                }
+            }
+
+            get possible_directions(){
+                if ('possible_directions' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.possible_directions){
+                    var directions = animation_customizer.updated_animation.customization.possible_directions;
+                    var directions_output = [];
+                    if (directions.indexOf('start') >= 0){
+                        directions_output.push({
+                            'name':'Bottom to top',
+                            'value':'start'
+                        });
+                    }
+                    if (directions.indexOf('end') >= 0){
+                        directions_output.push({
+                            'name':'Top to bottom',
+                            'value':'end'
+                        });
+                    }
+                    if (directions.indexOf('start + end') >= 0){
+                        directions_output.push({
+                            'name':'From both sides',
+                            'value':'start + end'
+                        });
+                    }
+                    if (directions.indexOf('center') >= 0){
+                        directions_output.push({
+                            'name':'From center',
+                            'value':'center'
+                        });
+                    }
+                    return directions_output;
+                } else {
+                    return null;
+                }
+                
+            }
+
+            get_direction_field(){
+                this.field = new CustomizerField(
+                    'Direction',
+                    this.possible_directions,
+                    this.selected_options,
+                    this.default_options,
+                    'direction_customizer.change_direction_select(this.value)'
+                );
+                return this.field.get_select_field();
+            }
+
+            change_direction_select(new_selected){
+                animation_customizer.updated_animation.customization.start = new_selected;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+                
+                // TODO update preview animation
+            }
+        };
+        var direction_customizer = new DirectionCustomizer();
+
+
+        {% comment %} customizer/height.js {% endcomment %}
+        let HeightCustomizer = class {
+            get selected_options(){
+                if ('max_height' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.max_height){
+                    return animation_customizer.updated_animation.customization.max_height;
+                } else {
+                    return null;
+                }
+            }
+
+            get default_options(){
+                if ('max_height' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.max_height){
+                    return animation_customizer.based_on_animation.customization.max_height;
+                } else {
+                    return null;
+                }
+            }
+
+            get_height_field(){
+                this.field = new CustomizerField(
+                    'Height',
+                    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                    this.selected_options,
+                    this.default_options,
+                    'height_customizer.change_height_select(this.value)'
+                );
+                return this.field.get_select_field();
+            }
+
+            change_height_select(new_selected){
+                new_selected = parseFloat(new_selected);
+                animation_customizer.updated_animation.customization.max_height = new_selected;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+
+                // TODO update preview animation
+            }
+        };
+        var height_customizer = new HeightCustomizer();
+
+
+        {% comment %} customizer/sections.js {% endcomment %}
+        let SectionsCustomizer = class {
+            constructor() {
+                this.i=0;
+                this.subfield_html='';
+            }
+
+            get sections(){
+                this.sections_list = [];
+                for (this.i=1;this.i<=led_strips[selected_led_strip_id].num_of_parts;this.i++){
+                    this.sections_list.push(`Section ${this.i}`);
+                }
+                return this.sections_list;
+            }
+            
+            get selected_options(){
+                return animation_customizer.updated_animation.customization.sections_selected;
+            }
+
+            get default_options(){
+                return animation_customizer.based_on_animation.customization.sections_selected;
+            }
+
+            get selected_sections(){
+                if ('sections' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.sections){
+                    // replace 'all' with real sections
+                    if (animation_customizer.updated_animation.customization.sections=='all'){
+                        return this.sections;
+                    } else {
+                        return animation_customizer.updated_animation.customization.sections;
+                    }
+                } else {
+                    return null;
+                }
+            }
+
+            get_sections_field(){
+                // generate the field thats displayed under the select button
+                this.update_subfield();
+
+                this.field = new CustomizerField(
+                    'Sections',
+                    [   
+                        {
+                            'name':'All',
+                            'value':'all'
+                        },
+                        {
+                            'name':'Random',
+                            'value':'random'
+                        },
+                        {
+                            'name':'Manual',
+                            'value':'manual'
+                        }
+                    ],
+                    this.selected_options,
+                    this.default_options,
+                    'sections_customizer.change_sections_select(this.value)',
+                    this.subfield_html
+                );
+                return this.field.get_select_field();
+            }
+
+            update_subfield(){
+                if (this.selected_options == 'manual'){
+                    this.generate_manual_sections_subfield();
+                } else {
+                    this.subfield_html = '';
+                }
+            }
+
+            generate_manual_sections_subfield(){
+                this.sub_field = new CustomizerField(
+                    'Sections',
+                    ['Section 4','Section 3','Section 2','Section 1'],
+                    this.selected_sections,
+                    'sections_customizer.change_section(this)'
+                );
+                this.subfield_html = this.sub_field.get_checkbox_field();
+            }
+
+            change_sections_select(new_selected){
+                animation_customizer.updated_animation.customization.sections_selected = new_selected;
+                // if new_selected=='all' or 'random', save that info also in .sections
+                if (new_selected=='all'||new_selected=='random'){
+                    animation_customizer.updated_animation.customization.sections = new_selected;
+                }
+
+                this.update_subfield();
+                document.getElementById('sections_subfield').innerHTML=this.subfield_html;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+            }
+
+            change_section(checkbox){
+                var section_name = checkbox.parentElement.innerText;
+                // replace 'all' or 'random' with real sections
+                if (animation_customizer.updated_animation.customization.sections=='all' || animation_customizer.updated_animation.customization.sections=='random'){
+                    animation_customizer.updated_animation.customization.sections = this.sections;
+                }
+                if (checkbox.checked==false){
+                    // remove from list if now unchecked 
+                    animation_customizer.updated_animation.customization.sections = animation_customizer.updated_animation.customization.sections.filter(section => section!=section_name);
+
+                } else {
+                    // else add to list, if list != 'all' and entry not already added
+                    if (animation_customizer.updated_animation.customization.sections!='all' && animation_customizer.updated_animation.customization.sections.indexOf(section_name)<0){
+                        animation_customizer.updated_animation.customization.sections.push(section_name);
+                    }
+
+                }
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+            }
+        };
+        var sections_customizer = new SectionsCustomizer();
+
+
+        {% comment %} customizer/timing.js {% endcomment %}
+        let TimingCustomizer = class {
+            constructor() {
+                this.i=0;
+            }
+
+            get selected_options(){
+                return animation_customizer.updated_animation.customization.timing_selected;
+            }
+
+            get default_options(){
+                return animation_customizer.based_on_animation.customization.timing_selected;
+            }
+
+            get duration_ms(){
+                return animation_customizer.updated_animation.customization.duration_ms;
+            }
+
+            get duration_ms_default(){
+                return animation_customizer.based_on_animation.customization.duration_ms;
+            }
+
+            get pause_ms(){
+                if ('pause_ms' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.pause_ms!=null){
+                    return animation_customizer.updated_animation.customization.pause_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get pause_ms_default(){
+                if ('pause_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_ms!=null){
+                    return animation_customizer.based_on_animation.customization.pause_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get pause_a_ms(){
+                if ('pause_a_ms' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.pause_a_ms!=null){
+                    return animation_customizer.updated_animation.customization.pause_a_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get pause_a_ms_default(){
+                if ('pause_a_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_a_ms!=null){
+                    return animation_customizer.based_on_animation.customization.pause_a_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get pause_b_ms(){
+                if ('pause_b_ms' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.pause_b_ms!=null){
+                    return animation_customizer.updated_animation.customization.pause_b_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get pause_b_ms_default(){
+                if ('pause_b_ms' in animation_customizer.based_on_animation.customization && animation_customizer.based_on_animation.customization.pause_b_ms!=null){
+                    return animation_customizer.based_on_animation.customization.pause_b_ms;
+                } else {
+                    return null;
+                }
+            }
+
+            get_timing_field(){
+                // generate the field thats displayed under the select button
+                this.update_subfield();
+
+                this.field = new CustomizerField(
+                    'Timing',
+                    [
+                        {
+                            'name':'Manual',
+                            'value':'manual'
+                        },
+                        {
+                            'name':'Tap to BPM',
+                            'value':'bpm'
+                        },{
+                            'name':'Microphone input',
+                            'value':'microphone'
+                        }
+                    ],
+                    this.selected_options,
+                    this.default_options,
+                    'timing_customizer.change_timing_select(this.value)',
+                    this.subfield_html
+                );
+                return this.field.get_select_field();
+            }
+
+            update_subfield(){
+                if (this.selected_options == 'bpm') {
+                    this.generate_bpm_timing_subfield();
+                } else if (this.selected_options == 'microphone') {
+                    this.generate_microphone_timing_subfield();
+                } else {
+                    this.generate_manual_timing_subfield();
+                }
+            }
+
+            change_timing_select(new_selected){
+                animation_customizer.updated_animation.customization.timing_selected = new_selected;
+                this.update_subfield();
+                document.getElementById('timing_subfield').innerHTML=this.subfield_html;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+            }
+
+            generate_bpm_timing_subfield(){
+                // info message on the left side, button on the right side
+                this.message = 'Press the “Tap” button or “T” on your keyboard continously for 5 seconds in your disired timing. This will adapt the animation duration and pause.';
+                this.subfield_html = '<div id="subfield_message">'+this.message+'</div><a class="cta primary with_icon tap" id="tap_to_bpm_button" onclick="timing_customizer.start_timing_tap_to_bpm()">Tap</a>';
+            }
+
+            generate_microphone_timing_subfield(){
+                this.message = '“Microphone input” will use the microphone connected to the LED strip, NOT your computers microphone';
+                this.subfield_html = this.message;
+            }
+
+            generate_manual_timing_subfield(){
+                // get duration and pause fields
+                this.subfield_html = '';
+                this.duration_ms_field = new CustomizerField(
+                    'Duration',
+                    '100ms-10000ms',
+                    this.duration_ms,
+                    this.duration_ms_default,
+                    'timing_customizer.change_duration(this.value)'
+                );
+                this.subfield_html += this.duration_ms_field.get_select_field();
+
+                if (this.pause_ms!=null){
+                    console.log('Start generating pause_ms');
+                    this.pause_ms_field = new CustomizerField(
+                        'Pause',
+                        '0ms-10000ms',
+                        this.pause_ms,
+                        this.pause_ms_default,
+                        'timing_customizer.change_pause(this.value)'
+                    );
+                    this.subfield_html += this.pause_ms_field.get_select_field();
+                }
+
+                if (this.pause_a_ms!=null){
+                    console.log('Start generating pause_a_ms');
+                    this.pause_a_ms_field = new CustomizerField(
+                        'Pause A',
+                        '0ms-10000ms',
+                        this.pause_a_ms,
+                        this.pause_a_ms_default,
+                        'timing_customizer.change_pause(this.value,\'pause_a\')'
+                    );
+                    this.subfield_html += this.pause_a_ms_field.get_select_field();
+                }
+
+                if (this.pause_b_ms!=null){
+                    console.log('Start generating pause_b_ms');
+                    this.pause_b_ms_field = new CustomizerField(
+                        'Pause B',
+                        '0ms-10000ms',
+                        this.pause_a_ms,
+                        this.pause_a_ms_default,
+                        'timing_customizer.change_pause(this.value,\'pause_b\')'
+                    );
+                    this.subfield_html += this.pause_b_ms_field.get_select_field();
+                }
+                
+            }
+
+            change_duration(new_duration){
+                new_duration = parseInt(new_duration);
+                animation_customizer.updated_animation.customization.duration_ms = new_duration;
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+
+                // TODO update preview animation
+            }
+
+            change_pause(new_pause,which_pause=null){
+                new_pause = parseInt(new_pause);
+                if (which_pause=='pause_a'){
+                    animation_customizer.updated_animation.customization.pause_a_ms = new_pause;
+                } else if (which_pause=='pause_b'){
+                    animation_customizer.updated_animation.customization.pause_b_ms = new_pause;
+                } else {
+                    animation_customizer.updated_animation.customization.pause_ms = new_pause;
+                }
+
+                // check if settings are different now in comparison to current animation, if yes, show "apply"/"save animation"/"update" buttons
+                animation_customizer.check_for_changes();
+
+                // TODO update preview animation
+            }
+
+            start_timing_tap_to_bpm(){
+                // prevent triggering multiple times
+                var tap_to_bpm_button = document.getElementById("tap_to_bpm_button");
+                tap_to_bpm_button.onclick = '';
+
+                var duration_ms_counter_list = [];
+                var duration_ms_counter = 0;
+                var duration_s_counter = 5;
+                var pause_ms_counter_list = [];
+                var pause_ms_counter = 0;
+
+                // count every 100ms
+                var duration_ms_counter_interval = setInterval(function(){
+                    duration_ms_counter += 100;
+                }, 100);
+
+                // show update every second
+                var duration_ms = this.duration_ms;
+                var pause_ms = this.pause_ms;
+                var pause_a_ms = this.pause_a_ms;
+                var pause_b_ms = this.pause_b_ms;
+
+                var pause_ms_counter_interval;
+                var tap_to_bpm_interval = setInterval(function(){
+                    duration_s_counter -= 1;
+                    if (duration_s_counter>0){
+                        // replace message text every second, to show remaining time
+                        document.getElementById("subfield_message").innerText = duration_s_counter+' second'+(duration_s_counter!=1 ? 's': '')+' remaining';
+                    } else {
+                        clearInterval(tap_to_bpm_interval);
+                        clearInterval(duration_ms_counter_interval);
+                        clearInterval(pause_ms_counter_interval);
+
+                        // calculate duration_ms
+                        var duration_ms_total = 0;
+                        for(this.i = 0; this.i < duration_ms_counter_list.length; this.i++) {
+                            duration_ms_total += duration_ms_counter_list[this.i];
+                        }
+                        duration_ms = duration_ms_total / duration_ms_counter_list.length;
+                        animation_customizer.updated_animation.customization.duration_ms = duration_ms;
+
+                        // calculate pause_ms
+                        var pause_ms_total = 0;
+                        for(this.i = 0; this.i < pause_ms_counter_list.length; this.i++) {
+                            pause_ms_total += pause_ms_counter_list[this.i];
+                        }
+                        pause_ms = pause_ms_total / pause_ms_counter_list.length;
+                        animation_customizer.updated_animation.customization.pause_ms = pause_ms;
+
+                        // if pause_a_ms and pause_b_ms, also set them to pause_ms
+                        if (pause_a_ms!=null && pause_b_ms!=null){
+                            pause_a_ms = pause_ms;
+                            pause_b_ms = pause_ms;
+                            animation_customizer.updated_animation.customization.pause_a_ms = pause_a_ms;
+                            animation_customizer.updated_animation.customization.pause_b_ms = pause_b_ms;
+                        }
+
+                        // show duration_ms and pause_ms and edit button
+                        var subfield_html = '<div>Duration '+duration_ms+'ms</div>';
+                        subfield_html += '<div>Pause '+pause_ms+'ms</div>';
+                        subfield_html += '<div class="cta secondary with_icon edit" onclick="timing_customizer.change_timing_select(\'bpm\')">Edit</div>';
+                        document.getElementById('timing_subfield').innerHTML = subfield_html;
+                    }
+                    
+                }, 1000);
+
+
+                // count pause when not pressed
+                var mouseup_hander = function() {
+                    // stop counting and add duration to list
+                    duration_ms_counter_list.push(duration_ms_counter);
+                    clearInterval(duration_ms_counter_interval);
+                    duration_ms_counter = 0;
+
+                    pause_ms_counter_interval = setInterval(function(){
+                        pause_ms_counter += 100;
+                    }, 100);
+                };
+                var mousedown_hander = function() {
+                    // stop counting and add pause to list
+                    pause_ms_counter_list.push(pause_ms_counter);
+                    clearInterval(pause_ms_counter_interval);
+                    pause_ms_counter = 0;
+
+                    duration_ms_counter_interval = setInterval(function(){
+                        duration_ms_counter += 100;
+                    }, 100);
+                };
+
+                // make keyboard press also trigger
+                tap_to_bpm_button.addEventListener("mouseup", mouseup_hander,false);
+                tap_to_bpm_button.addEventListener("keyup", event => {
+                    if (event.key == 't') {
+                        mouseup_hander();
+                    }
+                });
+                tap_to_bpm_button.addEventListener("mousdown", mousedown_hander,false);
+                tap_to_bpm_button.addEventListener("keydown", event => {
+                    if (event.key == 't') {
+                        mousedown_hander();
+                    }
+                });
+            }
+        };
+        var timing_customizer = new TimingCustomizer();
+
+
+        {% comment %} animation_customizer.js {% endcomment %}
+        var reset_mode_and_not_applied_yet = false;
+        let AnimationCustomizer = class {
+            constructor() {
+                this.animation_id = null;
+                this.animation_custom = false;
+                this.animation_fields = null;
+                this.customizable_fields = {
+                    '9jwnqn8v3i':{
+                        'name':'Color',
+                        'fields':[
+                            'colors',
+                            'brightness',
+                            'sections'
+                        ]
+                    },
+                    'b943uee3y7':{
+                        'name':'Rainbow',
+                        'fields':[
+                            'timing',
+                            'brightness'
+                        ]
+                    },
+                    '8hsylal9v7':{
+                        'name':'Beats',
+                        'fields':[
+                            'colors',
+                            'timing',
+                            'direction',
+                            'brightness',
+                            'height'
+                        ]
+                    },
+                    'leta9ed5fc':{
+                        'name':'Moving dot',
+                        'fields':[
+                            'colors',
+                            'timing',
+                            'direction',
+                            'brightness'
+                        ]
+                    },
+                    'kack2555kd':{
+                        'name':'Light Up',
+                        'fields':[
+                            'colors',
+                            'timing',
+                            'brightness',
+                            'sections'
+                        ]
+                    },
+                    '7u9tjpd0gi':{
+                        'name':'Transition',
+                        'fields':[
+                            'colors',
+                            'timing',
+                            'brightness',
+                            'sections'
+                        ]
+                    }
+                };
+            }
+
+            open(){
+                // use details from select field/select options, not "last_animation" - to enable changing modes which aren't active at the moment
+                // show customizing fields, based on animation type 
+                this.animation_id = document.getElementById('mode_selector').selectedOptions[0].value;
+                this.animation_name = document.getElementById('mode_selector').selectedOptions[0].text;
+                this.animation_custom = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on')?true:false;
+                this.animation_fields= this.customizable_fields[this.animation_id].fields;
+                this.animation = {
+                    'id':this.animation_id,
+                    'name':this.animation_name,
+                    'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+                    'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'))
+                };
+
+                // save current animation to make it easy to detect changes
+                this.original_animation = JSON.parse(JSON.stringify(this.animation));
+                this.updated_animation = JSON.parse(JSON.stringify(this.animation));
+                this.based_on_animation = {
+                    'id':this.animation_id,
+                    'name':this.animation_name,
+                    'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+                    'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-default-customization').replaceAll("'",'"'))
+                };
+
+                // update popup headline
+                popup.header = 'Customize "'+this.animation_name+'"';
+                popup.message = '';
+
+                // add fields
+                if (this.animation_fields.indexOf('colors') >= 0){
+                    popup.message += colors_customizer.get_colors_field(this.animation_id);
+                }
+                if (this.animation_fields.indexOf('timing') >= 0){
+                    popup.message += timing_customizer.get_timing_field();
+                }
+                if (this.animation_fields.indexOf('direction') >= 0){
+                    popup.message += direction_customizer.get_direction_field();
+                }
+                if (this.animation_fields.indexOf('brightness') >= 0){
+                    popup.message += brightness_customizer.get_brightness_field();
+                }
+                if (this.animation_fields.indexOf('height') >= 0){
+                    popup.message += height_customizer.get_height_field();
+                }
+                if (this.animation_fields.indexOf('sections') >= 0){
+                    popup.message += sections_customizer.get_sections_field();
+                }
+                    
+
+                // show "Save new", "Update" and "Apply" button, depending on if edited mode is a default or custom mode (default modes cannot be updated)
+                popup.buttons = [
+                    {
+                        'style':'secondary',
+                        'id':'save_mode_button',
+                        'hide':((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)||reset_mode_and_not_applied_yet==true)?false:true,
+                        'icon':'save',
+                        'text':'Save new',
+                        'onclick':'animation_customizer.open_save_field()'
+                    }
+                ];
+
+                // show reset animation button for animations which have unsaved changes
+                // TODO see if animation has customized details
+                if ((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)){
+                    popup.buttons.push({
+                        'style':'secondary',
+                        'id':'reset_mode_button',
+                        'hide':false,
+                        'icon':'undo',
+                        'text':'Reset',
+                        'onclick':'animation_customizer.reset_mode()'
+                    });
+                }
+
+                // if a custom mode is beeing updated, add update button
+                if (this.animation_custom==true){
+                    popup.buttons.push({
+                        'style':'secondary',
+                        'id':'update_mode_button',
+                        'hide':true,
+                        'icon':'sync',
+                        'text':'Update',
+                        'onclick':'animation_customizer.update_mode()'
+                    });
+                }
+
+                popup.buttons.push(
+                    {
+                        'style':'primary',
+                        'id':'apply_changed_mode_button',
+                        'hide':reset_mode_and_not_applied_yet==true?false:true,
+                        'icon':'true',
+                        'text':'Apply',
+                        'onclick':'animation_customizer.apply()'
+                    }
+                );
+
+                // make popup background non transparent
+                document.getElementById('popup').style.background = 'rgba(0,0,0,1)';
+
+                // limit max width
+                document.getElementById('popup_content').style.maxWidth ='400px';
+
+                // get first led strip preview and place it in popup placeholder on the left
+                document.getElementById('customized_led_animation_preview').classList.remove('display_none');
+                document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id+'_led_strip_parts').innerHTML;
+
+                // show popup
+                popup.show();
+                
+            }
+
+            close(){
+                // make popup background partial trasparent again
+                document.getElementById('popup').style.removeProperty('background');
+
+                document.getElementById('popup_content').style.removeProperty('max-width');
+
+                document.getElementById('customized_led_animation_preview').classList.add('display_none');
+                document.getElementById('customized_led_animation_preview_stripes').innerHTML='';
+            }
+
+            get has_changed(){
+                // see if animation settings have been changed in comparison to original
+                return JSON.stringify(this.original_animation.customization)!=JSON.stringify(this.updated_animation.customization);
+            }
+
+            get equals_default(){
+                // see if animation settings are the same like the default setting for the animation
+                return JSON.stringify(this.based_on_animation.customization)==JSON.stringify(this.original_animation.customization);
+            }
+
+            check_for_changes(){
+                // if changes exist, show "apply","update","save" button
+                if (this.has_changed==true){
+                    // show buttons
+                    if (document.getElementById('save_mode_button')){
+                        document.getElementById('save_mode_button').classList.remove('display_none');
+                    }
+                    if (document.getElementById('update_mode_button')){
+                        document.getElementById('update_mode_button').classList.remove('display_none');
+                    }
+                    if (document.getElementById('apply_changed_mode_button')){
+                        document.getElementById('apply_changed_mode_button').classList.remove('display_none');
+                    }
+                } else {
+                    // hide buttons
+                    if (!led_strips[selected_led_strip_id].unsubmitted_mode_change.id || led_strips[selected_led_strip_id].unsubmitted_mode_change.id!=this.animation_id){
+                        if (document.getElementById('save_mode_button')){
+                            document.getElementById('save_mode_button').classList.add('display_none');
+                        }
+                        if (document.getElementById('update_mode_button')){
+                            document.getElementById('update_mode_button').classList.add('display_none');
+                        }
+                    }
+                    if (document.getElementById('apply_changed_mode_button')){
+                        document.getElementById('apply_changed_mode_button').classList.add('display_none');
+                    }
+                }
+            }
+
+            apply(changes_saved=false){
+                reset_mode_and_not_applied_yet = false;
+                // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
+                led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
+                led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+                led_strips[selected_led_strip_id].apply_changes();
+                
+                // update original_animation
+                this.original_animation.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+
+                // hide interface
+                popup.hide();
+
+                // if changes unsaved, mark this in led strip, to show "Save" and "Reset" button correctly
+                if (changes_saved==false){
+                    led_strips[selected_led_strip_id].unsubmitted_mode_change.id = this.animation_id;
+                }
+            }
+
+
+            // save new mode
+            open_save_field(){
+                // TODO replace headline
+                popup.header = 'Save customized mode';
+                popup.message = '';
+
+                // show name input field (onchange: check if name already exists, if true for custom: show "Update" and "Update & Apply" buttons, if true for default: hide "Save" and "Save & Apply")
+                var animation_name_field = new CustomizerField(
+                    'Name',
+                    null,
+                    null,
+                    null,
+                    'brightness_customizer.change_brightness_select(this.value)',
+                    null,
+                    'Enter a new animation name'
+                );
+                return this.field.get_select_field();
+
+                // show "Back" button (.open()), "Save" (.save_mode()) and "Save & Apply" (.save_mode();.apply())
+            }
+
+            save_mode(){
+                // TODO get name from name input field & send "save_new_mode" request to server, to save mode across all connected led strips
+
+                // show main customizer interface again via .open()
+            }
+
+            reset_mode(){
+                document.getElementById('reset_mode_button').classList.add('display_none');
+
+                var counter;
+                for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
+                    if (this.animation_id == led_animations.led_animations.custom[counter].id) {
+                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.custom[counter].customization));
+                        
+                        // update original_animation
+                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.custom[counter]));
+                        break;
+                    }
+                }
+
+                for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
+                    if (this.animation_id == led_animations.led_animations.default[counter].id) {
+                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.default[counter].customization));
+                        
+                        // update original_animation
+                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
+                        break;
+                    }
+                }
+
+                this.check_for_changes();
+
+                led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
+                led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+                
+                // reset shown customizations to default values
+                var select_fields = document.getElementsByName('customizer_select_fields');
+                select_fields.forEach(field => 
+                    field.value = field.getAttribute('data-default')
+                    );
+
+                var checkboxes = document.getElementsByName('customizable_checkbox_fields');
+                checkboxes.forEach(box => 
+                    box.checked = field.getAttribute('data-default')=='true'?true:false
+                    );
+
+                reset_mode_and_not_applied_yet=true;
+            }
+
+            update_mode(){
+                // TODO
+            }
+
+            back_to_edit(){
+                // TODO
+            }
+        };
+        var animation_customizer = new AnimationCustomizer();
+
+
+        </script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes"/>
