@@ -10,7 +10,7 @@
         <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
         <link rel="shortcut icon" href="favicons/favicon.ico" type="image/x-icon">
         
-        {% comment %} TODO embedd all .css as inline - to reduce needed requests {% endcomment %}
+        //  TODO embedd all .css as inline - to reduce needed requests
         <style>
         /* lexend-deca-regular - latin */
         @font-face {
@@ -1530,7 +1530,7 @@
 
         
         
-        {% comment %} popup.js {% endcomment %}
+        //  popup.js
         let Popup = class {
             constructor(header='', message='', buttons=[]) {
                 this.header = header;
@@ -1645,7 +1645,7 @@
         var popup = new Popup();
 
 
-        {% comment %} power.js {% endcomment %}
+        //  power.js
         let Power = class {
             show_options(){
                 popup.header = 'Power options';
@@ -1710,7 +1710,7 @@
         var power = new Power();
 
 
-        {% comment %} software_update.js {% endcomment %}
+        //  software_update.js
         let SoftwareUpdate = class {
             update(){
                 // check if host is connected to internet
@@ -1798,7 +1798,7 @@
         var software_update = new SoftwareUpdate();
 
 
-        {% comment %} wifi.js {% endcomment %}
+        //  wifi.js
         let WiFi = class {
             constructor() {
                 this.network=null;
@@ -2019,7 +2019,7 @@
         var wifi = new WiFi();
 
 
-        {% comment %} leds.js {% endcomment %}
+        //  leds.js
         var intr;
 
         // colors from figma design file
@@ -2412,7 +2412,7 @@
         };
 
 
-        {% comment %} control.js {% endcomment %}
+        //  control.js
         var control;
         var connected_led_strips = {};
         var web_control_config = {};
@@ -2470,7 +2470,7 @@
                     console.log('Searching for LED strips...');
 
                     axios
-                        .get("/connected_led_strips.json")
+                        .get("/connected_led_strips")
                         .then(function (response) {
                             connected_led_strips = response.data.connected_led_strips;
                             num_of_led_strips = connected_led_strips.length;
@@ -2727,7 +2727,7 @@
         }
 
 
-        {% comment %} connection_check.js {% endcomment %}
+        //  connection_check.js
         let ConnectionCheck = class {
             constructor() {
                 this.disconnect_context=null;
@@ -2799,7 +2799,7 @@
         var connection_check = new ConnectionCheck();
 
 
-        {% comment %} customizer/field.js {% endcomment %}
+        //  customizer/field.js
         let CustomizerField = class {
             constructor(
                 name,
@@ -2980,7 +2980,7 @@
         };
 
 
-        {% comment %} customizer/brightness.js {% endcomment %}
+        //  customizer/brightness.js
         let BrightnessCustomizer = class {
             get selected_options(){
                 if ('brightness' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.brightness){
@@ -3022,7 +3022,7 @@
         var brightness_customizer = new BrightnessCustomizer();
 
 
-        {% comment %} customizer/colors.js {% endcomment %}
+        //  customizer/colors.js
         let ColorsCustomizer = class {
             constructor() {
                 this.i=0;
@@ -3291,7 +3291,7 @@
         var colors_customizer = new ColorsCustomizer();
 
 
-        {% comment %} customizer/direction.js {% endcomment %}
+        //  customizer/direction.js
         let DirectionCustomizer = class {
             get selected_options(){
                 if ('start' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.start){
@@ -3367,7 +3367,7 @@
         var direction_customizer = new DirectionCustomizer();
 
 
-        {% comment %} customizer/height.js {% endcomment %}
+        //  customizer/height.js
         let HeightCustomizer = class {
             get selected_options(){
                 if ('max_height' in animation_customizer.updated_animation.customization && animation_customizer.updated_animation.customization.max_height){
@@ -3409,7 +3409,7 @@
         var height_customizer = new HeightCustomizer();
 
 
-        {% comment %} customizer/sections.js {% endcomment %}
+        //  customizer/sections.js
         let SectionsCustomizer = class {
             constructor() {
                 this.i=0;
@@ -3530,7 +3530,7 @@
         var sections_customizer = new SectionsCustomizer();
 
 
-        {% comment %} customizer/timing.js {% endcomment %}
+        //  customizer/timing.js
         let TimingCustomizer = class {
             constructor() {
                 this.i=0;
@@ -3840,7 +3840,7 @@
         var timing_customizer = new TimingCustomizer();
 
 
-        {% comment %} animation_customizer.js {% endcomment %}
+        //  animation_customizer.js
         var reset_mode_and_not_applied_yet = false;
         let AnimationCustomizer = class {
             constructor() {

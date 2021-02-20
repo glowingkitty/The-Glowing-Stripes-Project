@@ -55,7 +55,7 @@ let Control = class {
             console.log('Searching for LED strips...');
 
             axios
-                .get("/connected_led_strips.json")
+                .get("/connected_led_strips")
                 .then(function (response) {
                     connected_led_strips = response.data.connected_led_strips;
                     num_of_led_strips = connected_led_strips.length;

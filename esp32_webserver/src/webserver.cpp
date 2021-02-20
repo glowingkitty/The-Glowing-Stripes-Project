@@ -15,6 +15,7 @@
 #include <string>
 #include <stdio.h>
 #include "strip_config.h"
+#include "AsyncJson.h"
 using namespace std;
 
 const char* wifi_ssid;
@@ -297,6 +298,7 @@ void signup_led_strip(){
         
         String json;
         serializeJson(led_strip_info, json);
+        Serial.println(json);
         int httpResponseCode = http.POST(json);   //TODO Send the actual POST request
         if(httpResponseCode>0){
             String response = http.getString();                       //Get the response to the request
@@ -425,6 +427,17 @@ void start_server(){
         json = String();
     });
 
+    server.on("/connected_led_strips", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /connected_led_strips");
+        Serial.println("");
+        String output;
+        serializeJson(led_strips, output);
+        request->send(200, "application/json", "{\"connected_led_strips\":"+output+"}");
+    });
+
     server.on("/mode", HTTP_POST, [](AsyncWebServerRequest *request){
         Serial.println("");
         Serial.print("|| Core ");
@@ -438,9 +451,9 @@ void start_server(){
             StaticJsonDocument<700> new_led_mode;
             DeserializationError error = deserializeJson(new_led_mode, message);
             if (error){
-                Serial.print(F("Failed to read body from /mode POST request"));
+                Serial.print(F("DeserializationError when reading body from /mode POST request"));
                 Serial.println(error.c_str());
-                request->send(500, "application/json", "{\"success\":false}");
+                request->send(500, "application/json", "{\"error\":\"DeserializationError when reading body from /mode POST request\"}");
             } else {
                 // change mode based on POST request
                 update_animation(new_led_mode["0"],new_led_mode["1"]);
@@ -450,38 +463,25 @@ void start_server(){
                 request->send(200, "application/json", "{\"success\":true}");
             }
         } else {
-            message = "No message sent";
-            request->send(500, "application/json", "{\"success\":false}");
+            Serial.println("Request has no 'body' parameter. Return 500 response.");
+            request->send(500, "application/json", "{\"error\":\"Request has no 'body' parameter\"}");
         }
     });
 
-    server.on("/signup_led_strip", HTTP_POST, [](AsyncWebServerRequest *request){
+    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/signup_led_strip", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        // TODO resulting json is a mess... 
+        StaticJsonDocument<850> led_strip_config = json.as<JsonObject>();
         Serial.println("");
         Serial.print("|| Core ");
         Serial.print(xPortGetCoreID());
         Serial.print(" || /signup_led_strip");
         Serial.println("");
         // get json data from post request and add led strip to "led_strips"
-        String message;
-        if (request->hasParam("body", true)) {
-            message = request->getParam("body", true)->value();
-            StaticJsonDocument<850> led_strip_config;
-            DeserializationError error = deserializeJson(led_strip_config, message);
-            if (error){
-                Serial.print(F("Failed to read body from /signup_led_strip POST request"));
-                Serial.println(error.c_str());
-                request->send(500, "application/json", "{\"success\":false}");
-            } else {
-                led_strips.add(led_strip_config);
-                Serial.println("Signed up LED strip");
-                led_strip_config.clear();
-                request->send(200, "application/json", "{\"success\":true}");
-            }
-        } else {
-            message = "No message sent";
-            request->send(500, "application/json", "{\"success\":false}");
-        }
+        led_strips.add(led_strip_config);
+        Serial.println("Signed up LED strip");
+        request->send(200, "application/json", "{\"success\":true}");
     });
+    server.addHandler(handler);
 
     server.onNotFound(notFound);
 

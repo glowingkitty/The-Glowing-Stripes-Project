@@ -14,8 +14,11 @@ def hostname_resolves(hostname):
 
 print("Start updating all LED strips...")
 
+# process LED strip chips first 
+
 # backup /data/stripe_config.json to /data/stripe_config.json
-copyfile("./data/stripe_config.json", "./data/stripe_config_backup.json")
+copyfile("./esp32_webserver/data/stripe_config.json", "./esp32_webserver/data/stripe_config_backup.json")
+copyfile("./esp32_leds/data/stripe_config.json", "./esp32_leds/data/stripe_config_backup.json")
 
 # for every json file in /stripe_configs:
 success = []
@@ -28,16 +31,16 @@ for filename in [x for x in os.listdir("./stripe_configs") if x.endswith(".json"
         led_strip_id = data["0"]
         led_strip_name = data["1"]
 
-    # check if domain is online (led_strip__<id>.local)
-    if hostname_resolves("led_strip__"+led_strip_id+".local"):
-        print("LED strip '"+led_strip_name+"' ("+led_strip_id+") online. Start OTA update...")
+    # check if domain is online (led_strip__<id>__server.local)
+    if hostname_resolves("led_strip__"+led_strip_id+"__server.local"):
+        print("Web server for '"+led_strip_name+"' ("+led_strip_id+") online. Start OTA update...")
         # if yes:
         # copy json file to /data/stripe_config.json
-        copyfile("./stripe_configs/"+filename, "./data/stripe_config.json")
+        copyfile("./stripe_configs/"+filename, "./esp32_webserver/data/stripe_config.json")
 
-        os.system("pio run -t uploadfs --upload-port led_strip__"+led_strip_id+".local")
+        os.system("cd esp32_webserver && pio run -t uploadfs --upload-port led_strip__"+led_strip_id+"__server.local")
         time.sleep(10)
-        os.system("pio run -t upload --upload-port led_strip__"+led_strip_id+".local")
+        os.system("cd esp32_webserver && pio run -t upload --upload-port led_strip__"+led_strip_id+"__server.local")
         success.append(led_strip_name+"' ("+led_strip_id+")")
         print("LED strip '"+led_strip_name+"' ("+led_strip_id+") updated!")
     else:
