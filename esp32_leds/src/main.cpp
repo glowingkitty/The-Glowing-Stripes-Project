@@ -2,8 +2,6 @@
 #include "neopixel.h"
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
-#include "ota_update.h"
-#include "wifi_connection.h"
 #include "strip_config.h"
 
 HardwareSerial Receiver(2); // Define a Serial port instance called 'Receiver' using serial port 2
@@ -15,22 +13,24 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 
 void Task1code( void * pvParameters ){
-  Serial.print("Task1 running on core ");
-  Serial.println(xPortGetCoreID());
   start_leds();
-  
 }
 
 void Task2code( void * pvParameters ){
-  Serial.print("Task2 running on core ");
-  Serial.println(xPortGetCoreID());
-
-  start_wifi();
-  start_ota();
+  String new_stripe_config = "";
 
   for(;;){
-    handle_ota();
-    delay(1000);
+    // update stripe_config.json based on Receiver.read
+    while (Receiver.available()) {
+      new_stripe_config += char(Receiver.read());
+    }
+
+    if (new_stripe_config!=""){
+      Serial.println("Received new stripe_config.json via Serial: ");
+      Serial.println(new_stripe_config);
+      update_stripe_config_based_on_string(new_stripe_config);
+      new_stripe_config = "";
+    }
   }
 }
 
@@ -71,8 +71,5 @@ void setup() {
 
 
 void loop() {
-  while (Receiver.available()) {
-    // update stripe_config.json based on Receiver.read
-    update_stripe_config_based_on_string(String(char(Receiver.read())));
-  }
+  delay(500);
 }

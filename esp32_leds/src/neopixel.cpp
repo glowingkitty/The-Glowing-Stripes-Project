@@ -5,6 +5,8 @@ using namespace std;
 #include <math.h>
 #include "strip_config.h"
 #include <algorithm>
+#include "ota_update.h"
+#include "wifi_connection.h"
 
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
@@ -62,6 +64,16 @@ void start_leds(){
         // reload strip config on every loop
         led_strip_info.clear();
         StaticJsonDocument<850> led_strip_info = load_strip_config();
+
+        // check if strip should prepare for update, if so - stop animation loop, start wifi and OTA
+        if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()==true){
+            Serial.println("Received 'Prepare for software update' command. Turning LEDs off, starting WIFI and starting OTA update...");
+            // turn leds off
+            leds.fill(leds.Color(0,0,0));
+            leds.show();
+            break;
+        }
+
         String new_animation_id = led_strip_info["4"].as<String>();
 
         // detect if animation has changed - if true, update colors
@@ -69,9 +81,9 @@ void start_leds(){
             // set colors, which are looped over - so every time an animation repeats, it repeats with new colors
             rgb_colors.clear();
 
-            if (led_strip_info["5"]["b"]=="random"){
+            if (led_strip_info["5"].containsKey("b")==false || led_strip_info["5"]["b"]=="random"){
                 // generate random colors 
-                int num_random_colors = led_strip_info["5"]["c"].as<int>();
+                int num_random_colors = led_strip_info["5"].containsKey("c") ? led_strip_info["5"]["c"].as<int>() : 5;
                 generate_random_colors(num_random_colors);
             }
             else {
@@ -568,6 +580,16 @@ void start_leds(){
         counter_current_color+=1;
         previous_animation_id = led_strip_info["4"].as<String>();
     }
+
+    // if "prepare_for_software_update": activate wifi and OTA
+    start_wifi();
+    start_ota();
+
+    for(;;){
+        handle_ota();
+        delay(1000);
+    }
+
 }
 
 

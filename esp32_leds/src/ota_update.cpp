@@ -31,6 +31,10 @@ void start_ota(){
       })
       .onEnd([]() {
         Serial.println("\nEnd");
+        // remove "u" from stripe_config.json (to prevent update loop)
+        StaticJsonDocument<850> led_strip_info = load_strip_config();
+        led_strip_info.remove("u");
+        update_stripe_config(led_strip_info);
       })
       .onProgress([](unsigned int progress, unsigned int total) {
         // start LED update animation 
