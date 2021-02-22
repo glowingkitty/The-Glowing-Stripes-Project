@@ -4,6 +4,12 @@
 #include <Adafruit_NeoPixel.h>
 #include "ota_update.h"
 #include "wifi_connection.h"
+#include "strip_config.h"
+
+HardwareSerial Receiver(2); // Define a Serial port instance called 'Receiver' using serial port 2
+
+#define Receiver_Txd_pin 17
+#define Receiver_Rxd_pin 16
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -31,6 +37,9 @@ void Task2code( void * pvParameters ){
 
 void setup() {
     Serial.begin(115200);
+
+    // setup serial for receiving new mode
+    Receiver.begin(115200, SERIAL_8N1, Receiver_Txd_pin, Receiver_Rxd_pin);
 
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
@@ -62,5 +71,8 @@ void setup() {
 
 
 void loop() {
-    delay(500);
+  while (Receiver.available()) {
+    // update stripe_config.json based on Receiver.read
+    update_stripe_config_based_on_string(String(char(Receiver.read())));
+  }
 }
