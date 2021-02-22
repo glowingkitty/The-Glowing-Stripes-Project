@@ -115,7 +115,13 @@ void start_leds(){
         
 
         // define sections which should glow up
-        bool all_sections = (led_strip_info["5"]["j"].as<String>()=="all") ? true : false;
+        bool all_sections {true};
+        if (led_strip_info.containsKey("5") && led_strip_info["5"].containsKey("j")){
+            if (led_strip_info["5"]["j"].as<String>()!="all"){
+                all_sections = !all_sections;
+            }
+        }
+
         vector<int> section_leds;
         if (all_sections==false) {
             // if section random - generate random section number
@@ -471,7 +477,8 @@ void start_leds(){
         else if (new_animation_id == "tra") {
             Serial.println("Glow transition...");
             // transition from previous to new color in x steps
-            int num_of_steps = 255;
+            // TODO transition stops without an error.... fix it. Issue maybe num_of_steps? or brightness? or both?
+            int num_of_steps = 50;
 
             int target_r = rgb_colors[counter_current_color][0];
             int target_g = rgb_colors[counter_current_color][1];
