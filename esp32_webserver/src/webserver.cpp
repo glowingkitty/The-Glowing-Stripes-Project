@@ -510,17 +510,35 @@ void start_server(){
     });
 
     AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/signup_led_strip", [](AsyncWebServerRequest *request, JsonVariant &json) {
-        // TODO FIX: resulting json is a mess... 
-        StaticJsonDocument<850> led_strip_config = json.as<JsonObject>();
         Serial.println("");
         Serial.print("|| Core ");
         Serial.print(xPortGetCoreID());
         Serial.print(" || /signup_led_strip");
         Serial.println("");
-        // get json data from post request and add led strip to "led_strips"
-        led_strips.add(led_strip_config);
-        Serial.println("Signed up LED strip");
-        request->send(200, "application/json", "{\"success\":true}");
+
+        StaticJsonDocument<800> led_strip_config;
+        DeserializationError error = deserializeJson(led_strip_config, json.as<String>());
+        if (error){
+            Serial.print(F("DeserializationError"));
+            Serial.println(error.c_str());
+            request->send(500, "application/json", "{\"error\":\"DeserializationError\"}");
+        } else {
+            // if the LED strip id ("0") already exists, remove existing version first
+            for (int i = 0; i < led_strips.size();i++){
+                if (led_strips[i]["0"]==led_strip_config["0"]){
+                    led_strips.remove(i);
+                    break;
+                }
+            }
+            
+            // add new LED strip data
+            led_strips.add(led_strip_config);
+            
+            Serial.println("Signed up LED strip:");
+            Serial.println(json.as<String>());
+            led_strip_config.clear();
+            request->send(200, "application/json", "{\"success\":true}");
+        }
     });
     server.addHandler(handler);
 
