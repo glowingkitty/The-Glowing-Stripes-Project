@@ -476,40 +476,90 @@ void start_server(){
         request->send(200, "application/json", "{\"connected_led_strips\":"+output+"}");
     });
 
-    // TODO add /forward_changes to first update led strip infos in "led_strips" JSONarray of host, then forward changes to /mode path of each individual LED strip
+    AsyncCallbackJsonWebHandler* forward_changes_handler = new AsyncCallbackJsonWebHandler("/forward_changes", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /forward_changes");
+        Serial.println("");
 
-    // TODO turn /mode into AsyncCallbackJsonWebHandler* handler, after fixing /signup_led_strip
-    server.on("/mode", HTTP_POST, [](AsyncWebServerRequest *request){
+        JsonArray updates = json["updates"].as<JsonArray>();
+        // for every update
+        for (int e = 0; e < updates.size();e++){
+            // for every led_strip in "ids"
+            JsonArray ids = updates[e]["ids"].as<JsonArray>();
+            for (int a = 0; a < ids.size();a++){
+                // check if the id exist on the host server
+                for (int i = 0; i < led_strips.size();i++){
+                    if (led_strips[i]["0"].as<String>() == ids[a].as<String>()){
+                        // if found, forward change to IP address of LED strip
+                        String led_strip_id = led_strips[i]["0"].as<String>();
+                        String led_strip_ip_address = led_strips[i]["6"].as<String>();
+
+                        // if the ip is 0.0.0.0 (the host), update host, else make post request
+                        if (led_strip_ip_address=="0.0.0.0"){
+                            // update id of last animation
+                            led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
+                            // update customizations of last animation
+                            led_strips[i]["5"] = updates[e]["new_animation"]["5"].as<JsonObject>();
+
+                            // send updated LED strip info (with new animation)
+                            String serialized_json;
+                            serializeJson(led_strips[i], serialized_json);
+                            Sender.println(serialized_json);
+                            
+                            Serial.println("Updated LED strip "+led_strip_id);
+                            Serial.println(serialized_json);
+
+                        } else {
+                            HTTPClient http;
+                            http.begin("http://"+led_strip_ip_address+"/mode");
+                            http.addHeader("Content-Type", "application/json");
+                            
+                            int httpResponseCode = http.POST(updates[e].as<String>());
+                            if(httpResponseCode==200){
+                                // if response is successfull update led_strip entry in led_strips
+                                // update id of last animation
+                                led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
+                                // update customizations of last animation
+                                led_strips[i]["5"] = updates[e]["new_animation"]["5"].as<JsonObject>();
+                                Serial.println("Updated LED strip "+led_strip_id);
+                            } else {
+                                Serial.println("Failed to update LED strip "+led_strip_id);
+                                Serial.println("httpResponseCode:");
+                                Serial.println(httpResponseCode);
+                                Serial.println("response:");
+                                String response = http.getString();
+                                Serial.println(response);
+                            }
+                            http.end();
+                        }
+                        
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+
+    AsyncCallbackJsonWebHandler* mode_handler = new AsyncCallbackJsonWebHandler("/mode", [](AsyncWebServerRequest *request, JsonVariant &json) {
         Serial.println("");
         Serial.print("|| Core ");
         Serial.print(xPortGetCoreID());
         Serial.print(" || /mode");
         Serial.println("");
-        // get json data from post request and update led strip mode
-        String message;
-        if (request->hasParam("body", true)) {
-            message = request->getParam("body", true)->value();
-            StaticJsonDocument<700> new_led_mode;
-            DeserializationError error = deserializeJson(new_led_mode, message);
-            if (error){
-                Serial.print(F("DeserializationError when reading body from /mode POST request"));
-                Serial.println(error.c_str());
-                request->send(500, "application/json", "{\"error\":\"DeserializationError when reading body from /mode POST request\"}");
-            } else {
-                // change mode based on POST request
-                update_animation(new_led_mode["0"],new_led_mode["1"]);
-                
-                Serial.println("Changed LED strip mode for {} to {}");
-                new_led_mode.clear();
-                request->send(200, "application/json", "{\"success\":true}");
-            }
-        } else {
-            Serial.println("Request has no 'body' parameter. Return 500 response.");
-            request->send(500, "application/json", "{\"error\":\"Request has no 'body' parameter\"}");
-        }
+
+        // change mode based on POST request
+        update_animation(json["0"].as<String>(),json["1"].as<JsonObject>());
+        
+        Serial.println("Changed LED strip mode for "+json["0"].as<String>()+" to "+json["1"].as<String>());
+        request->send(200, "application/json", "{\"success\":true}");
     });
 
-    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/signup_led_strip", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    AsyncCallbackJsonWebHandler* signup_led_strip_handler = new AsyncCallbackJsonWebHandler("/signup_led_strip", [](AsyncWebServerRequest *request, JsonVariant &json) {
         Serial.println("");
         Serial.print("|| Core ");
         Serial.print(xPortGetCoreID());
@@ -540,7 +590,9 @@ void start_server(){
             request->send(200, "application/json", "{\"success\":true}");
         }
     });
-    server.addHandler(handler);
+    server.addHandler(forward_changes_handler);
+    server.addHandler(mode_handler);
+    server.addHandler(signup_led_strip_handler);
 
     server.onNotFound(notFound);
 

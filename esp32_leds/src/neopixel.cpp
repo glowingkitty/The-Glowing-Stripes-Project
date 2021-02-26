@@ -225,6 +225,10 @@ void start_leds(){
                     // add brightness + brightness going up and down if pause after animation
                     leds.setPixelColor(i, Wheel);
                 }
+
+                // TODO if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
+
+
                 leds.show();
                 delay(delay_step);
 
