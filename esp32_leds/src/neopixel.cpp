@@ -11,6 +11,11 @@ using namespace std;
 int counter_current_color = 0;
 vector<vector<int>> rgb_colors;
 
+bool skip_remaining_animation {false};
+bool received_stop_animation_command {false};
+bool stopped_animation {false};
+
+
 void generate_random_colors(int num_random_colors){
     Serial.println("");
     Serial.print("|| Core ");
@@ -33,6 +38,18 @@ void generate_random_colors(int num_random_colors){
 
 
 //////////////////////////////////////
+
+void stop_animation(Adafruit_NeoPixel leds){
+    if (stopped_animation==false){
+        // TODO decrease brightness of last LED state step by step (quickly)
+
+
+        // then turn LEDs off
+        leds.fill(leds.Color(0,0,0));
+        leds.show();
+        stopped_animation = true;
+    }
+}
 
 void start_leds(){
     Serial.println("");
@@ -61,6 +78,11 @@ void start_leds(){
 
     // start animation loop
     for(;;){
+
+        // reset stop_animation
+        skip_remaining_animation = false;
+        stopped_animation = false;
+
         // reload strip config on every loop
         led_strip_info.clear();
         StaticJsonDocument<850> led_strip_info = load_strip_config();
@@ -184,14 +206,21 @@ void start_leds(){
         // Color
         if (new_animation_id == "col"){
             Serial.println("Glow color...");
-            // glow in selected or random color, without transition
-            leds.fill(leds.Color(
-                        round(rgb_colors[0][0]*max_brightness),
-                        round(rgb_colors[0][1]*max_brightness),
-                        round(rgb_colors[0][2]*max_brightness)
-                    ));
-            leds.show();
-            delay(500);
+            // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
+            if (received_stop_animation_command){
+                stop_animation(leds);
+            } else {
+                // glow in selected or random color, without transition
+                leds.fill(leds.Color(
+                            round(rgb_colors[0][0]*max_brightness),
+                            round(rgb_colors[0][1]*max_brightness),
+                            round(rgb_colors[0][2]*max_brightness)
+                        ));
+            
+                leds.show();
+                delay(500);
+            }
+            
         }
         // Rainbow
         else if (new_animation_id == "rai"){
@@ -209,6 +238,12 @@ void start_leds(){
             // based on "rainbowCycle" from https://learn.adafruit.com/florabrella/test-the-neopixel-strip
             uint16_t i, j;
             for(j=0; j<steps; j++) {
+                // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
+                if (received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+
                 for(i=0; i< num_leds; i++) {
                     byte WheelPos = ((i * 256 / num_leds) + j) & 255;
                     uint32_t Wheel;
@@ -225,9 +260,6 @@ void start_leds(){
                     // add brightness + brightness going up and down if pause after animation
                     leds.setPixelColor(i, Wheel);
                 }
-
-                // TODO if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
-
 
                 leds.show();
                 delay(delay_step);
@@ -265,6 +297,12 @@ void start_leds(){
 
             int delay_step = ((duration_ms/num_leds)/2);
             for(int i=0; i<num_leds; i++) {
+                // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
+                if (received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+                
                 if (start=="end"){
                     leds.setPixelColor(num_leds-i, leds.Color(
                         round(rgb_colors[counter_current_color][0]*brightness),
@@ -310,6 +348,11 @@ void start_leds(){
             }
 
             for(int i=num_leds; i>=0; i--) {
+                if (skip_remaining_animation==true || received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+
                 if (start=="end"){
                     leds.setPixelColor(num_leds-i, leds.Color(0,0,0));
                 }
@@ -329,6 +372,7 @@ void start_leds(){
                 leds.show();
                 delay(delay_step);
             }
+            
             delay(pause_a_ms);
 
         }
@@ -339,7 +383,16 @@ void start_leds(){
             // move forward
             if ((start=="start" && switch_direction==false) || (start=="end" && switch_direction==true)){
                 for(int start_point=0; start_point<(num_leds+5); start_point++) {
+                    if (skip_remaining_animation==true || received_stop_animation_command){
+                        stop_animation(leds);
+                        break;
+                    }
                     for(int i=0; i<num_leds; i++) {
+                        if (skip_remaining_animation==true || received_stop_animation_command){
+                            stop_animation(leds);
+                            break;
+                        }
+                        
                         float dot_visibility;
                         if (i==start_point){
                             dot_visibility = 1.0;
@@ -373,7 +426,16 @@ void start_leds(){
             // move backward
             else {
                 for(int start_point=num_leds; start_point>-6; start_point--) {
+                    if (skip_remaining_animation==true || received_stop_animation_command){
+                        stop_animation(leds);
+                        break;
+                    }
                     for(int i=0; i<num_leds; i++) {
+                        if (skip_remaining_animation==true || received_stop_animation_command){
+                            stop_animation(leds);
+                            break;
+                        }
+                        
                         float dot_visibility;
                         if (i==start_point){
                             dot_visibility = 1.0;
@@ -419,6 +481,11 @@ void start_leds(){
 
             // light up
             for (float max_brightness=0;max_brightness<=brightness;max_brightness+=(brightness/brightness_steps)){
+                if (skip_remaining_animation==true || received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+
                 if (max_brightness>1){
                     max_brightness = 1;
                 }
@@ -447,6 +514,11 @@ void start_leds(){
             }
             // light down
             for (float max_brightness=brightness;max_brightness>=0;max_brightness-=(brightness/brightness_steps)){
+                if (skip_remaining_animation==true || received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+
                 if (max_brightness<0){
                     max_brightness = 0;
                 }
@@ -496,6 +568,11 @@ void start_leds(){
 
             
             for(int i=0; i<num_of_steps; i++) {
+                if (received_stop_animation_command){
+                    stop_animation(leds);
+                    break;
+                }
+                
                 start_r += by_step_change_r;
                 start_g += by_step_change_g;
                 start_b += by_step_change_b;

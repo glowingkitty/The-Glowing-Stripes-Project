@@ -4,6 +4,9 @@
 #include <Adafruit_NeoPixel.h>
 #include "strip_config.h"
 
+extern bool skip_remaining_animation;
+extern bool received_stop_animation_command;
+
 HardwareSerial Receiver(2); // Define a Serial port instance called 'Receiver' using serial port 2
 
 #define Receiver_Txd_pin 17
@@ -30,7 +33,6 @@ void Task2code( void * pvParameters ){
   for(;;){
     // update stripe_config.json based on Receiver.read
     while (Receiver.available()) {
-      // TODO auto stop existing animation - and transition it out by decreasing brightness (options: create file to trigger stop or stop task directly)
       new_stripe_config += char(Receiver.read());
     }
 
@@ -39,6 +41,10 @@ void Task2code( void * pvParameters ){
       Serial.println(new_stripe_config);
       update_stripe_config_based_on_string(new_stripe_config);
       new_stripe_config = "";
+
+      // TODO still causes some short glitching - should get fixed
+      skip_remaining_animation = true;
+      received_stop_animation_command = true;
     }
   }
 }
@@ -81,21 +87,4 @@ void setup() {
 
 void loop() {
   delay(500);
-  // String new_stripe_config = "";
-
-  // //TODO gets ignored...
-  // for(;;){
-  //   Serial.println("Another loop...");
-  //   // update stripe_config.json based on Receiver.read
-  //   while (Receiver.available()) {
-  //     new_stripe_config += char(Receiver.read());
-  //   }
-
-  //   if (new_stripe_config!=""){
-  //     Serial.println("Received new stripe_config.json via Serial: ");
-  //     Serial.println(new_stripe_config);
-  //     update_stripe_config_based_on_string(new_stripe_config);
-  //     new_stripe_config = "";
-  //   }
-  // }
 }
