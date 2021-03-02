@@ -74,7 +74,7 @@ void start_leds(){
     Serial.println("name:                           "+ led_strip_info["1"].as<String>());
     Serial.println("num_of_leds:                    "+ led_strip_info["2"].as<String>());
     Serial.println("last_animation_id:              "+ led_strip_info["4"].as<String>());
-    Serial.println("last_animation_customization:   "+ led_strip_info["5"].as<String>());
+    Serial.println("last_animation_customization:   "+ led_strip_info["7"].as<String>());
 
     // start animation loop
     for(;;){
@@ -103,18 +103,18 @@ void start_leds(){
             // set colors, which are looped over - so every time an animation repeats, it repeats with new colors
             rgb_colors.clear();
 
-            if (led_strip_info["5"].containsKey("b")==false || led_strip_info["5"]["b"]=="random"){
+            if (led_strip_info["7"].containsKey("b")==false || led_strip_info["7"]["b"]=="random"){
                 // generate random colors 
-                int num_random_colors = led_strip_info["5"].containsKey("c") ? led_strip_info["5"]["c"].as<int>() : 5;
+                int num_random_colors = led_strip_info["7"].containsKey("c") ? led_strip_info["7"]["c"].as<int>() : 5;
                 generate_random_colors(num_random_colors);
             }
             else {
                 // get predefined colors
-                for(int i = 0; i<led_strip_info["5"]["b"].size();i++){
+                for(int i = 0; i<led_strip_info["7"]["b"].size();i++){
                     vector<int> color;
-                    color.push_back(led_strip_info["5"]["b"][i][0]);
-                    color.push_back(led_strip_info["5"]["b"][i][1]);
-                    color.push_back(led_strip_info["5"]["b"][i][2]);
+                    color.push_back(led_strip_info["7"]["b"][i][0]);
+                    color.push_back(led_strip_info["7"]["b"][i][1]);
+                    color.push_back(led_strip_info["7"]["b"][i][2]);
                     rgb_colors.push_back(color);
                 }
             }
@@ -126,20 +126,20 @@ void start_leds(){
         
 
         // get customization settings for animation | if they don't exist use default settings
-        int duration_ms = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("f") ? led_strip_info["5"]["f"].as<int>() :200 : 200;
-        int pause_a_ms = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("g") ? led_strip_info["5"]["g"].as<int>() :0 : 0;
-        float max_brightness = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("d") ? led_strip_info["5"]["d"].as<float>() : 1.0 : 1.0;
+        int duration_ms = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("f") ? led_strip_info["7"]["f"].as<int>() :200 : 200;
+        int pause_a_ms = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("g") ? led_strip_info["7"]["g"].as<int>() :0 : 0;
+        float max_brightness = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("d") ? led_strip_info["7"]["d"].as<float>() : 1.0 : 1.0;
         // check if brightness is not fixed
-        bool brightness_fixed = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("m") ? led_strip_info["5"]["m"].as<bool>() : true : true;
+        bool brightness_fixed = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("m") ? led_strip_info["7"]["m"].as<bool>() : true : true;
         float brightness = brightness_fixed==false ? 0 : max_brightness;
         
-        String start = led_strip_info.containsKey("5") ? led_strip_info["5"].containsKey("k") ? led_strip_info["5"]["k"].as<String>() : "start" : "start";
+        String start = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("k") ? led_strip_info["7"]["k"].as<String>() : "start" : "start";
         
 
         // define sections which should glow up
         bool all_sections {true};
-        if (led_strip_info.containsKey("5") && led_strip_info["5"].containsKey("j")){
-            if (led_strip_info["5"]["j"].as<String>()!="all"){
+        if (led_strip_info.containsKey("7") && led_strip_info["7"].containsKey("j")){
+            if (led_strip_info["7"]["j"].as<String>()!="all"){
                 all_sections = !all_sections;
             }
         }
@@ -147,7 +147,7 @@ void start_leds(){
         vector<int> section_leds;
         if (all_sections==false) {
             // if section random - generate random section number
-            if (led_strip_info["5"]["j"].as<String>()=="random"){
+            if (led_strip_info["7"]["j"].as<String>()=="random"){
                 int section = (rand() % 4 + 1);
 
                 if (section==1){
@@ -173,8 +173,8 @@ void start_leds(){
             }
 
             // for every section, add leds to section_leds which should glow up
-            for(int i = 0; i<led_strip_info["5"]["j"].size();i++){
-                int section = led_strip_info["5"]["j"][i].as<int>();
+            for(int i = 0; i<led_strip_info["7"]["j"].size();i++){
+                int section = led_strip_info["7"]["j"][i].as<int>();
                 if (section==1){
                     for (int processed_leds = 0; processed_leds<15; processed_leds++){
                         section_leds.push_back(processed_leds);
@@ -629,13 +629,13 @@ void start_leds(){
             int g = 0;
             int b = 0;
 
-            if (led_strip_info["5"]["o"]=="filesystem"){
+            if (led_strip_info["7"]["o"]=="filesystem"){
                 g = 255;
             } else {
                 b = 255;
             }
 
-            int num_leds_to_glow = round(num_leds*led_strip_info["5"]["p"].as<float>());
+            int num_leds_to_glow = round(num_leds*led_strip_info["7"]["p"].as<float>());
             for(int i=num_leds; i>=0; i--) {
                 if (i < num_leds_to_glow){
                     leds.setPixelColor(i, leds.Color(r,g,b));

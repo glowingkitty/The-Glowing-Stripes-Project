@@ -10,7 +10,6 @@
         <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
         <link rel="shortcut icon" href="favicons/favicon.ico" type="image/x-icon">
         
-        //  TODO embedd all .css as inline - to reduce needed requests
         <style>
         /* lexend-deca-regular - latin */
         @font-face {
@@ -792,8 +791,8 @@
             margin-top: 40px;
             max-width: 600px;
             height: 500px;
-            text-align: center;
-            position: relative;
+            align-items: flex-end;
+            display: flex;
             -webkit-transition: all 200ms ease;
             transition: all 200ms ease;
         }
@@ -809,8 +808,7 @@
             display: inline-block;
             padding-right: 20px;
             padding-left: 20px;
-            position: relative;
-            top: 0;
+            flex: auto;
             -webkit-transition: all 200ms ease;
             transition: all 200ms ease;
         }
@@ -2020,7 +2018,7 @@
 
 
         //  leds.js
-        var intr;
+        var check_led_strips;
 
         // colors from figma design file
         let possible_setup_colors = [
@@ -2058,8 +2056,7 @@
                     'customization':null
                 };
                 this.num_of_leds = num_of_leds;
-                this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">';
-
+                this.html;
                 // to generate animation preview
                 this.time_passed = 0;
                 this.brightness = brightness;
@@ -2123,7 +2120,7 @@
                 var self = this;
                 axios
                     .post('/forward_changes',{
-                        // TODO self.unsubmitted_mode_change.based_on + use numbers instead of names "4", "5" etc.
+                        // TODO self.unsubmitted_mode_change.based_on + use numbers instead of names "4", "7" etc.
                         'updates': [{
                             'ids': [self.id],
                             'new_animation': self.unsubmitted_mode_change
@@ -2182,6 +2179,7 @@
                     console.log('LEDstrip().connect()');
                 }
                 // create LED strip inside DIV block
+                this.html = '<div class="led_strip" id="' + this.id + '" name="' + this.name + '">';
 
                 // generate LED strip parts
                 let num_of_parts_counter = 0;
@@ -2214,15 +2212,6 @@
                 // attatch LED strip to div
                 document.getElementsByClassName('leds_preview_block')[0].innerHTML = document.getElementsByClassName('leds_preview_block')[0].innerHTML + this.html;
 
-                // update number of LEDs
-                document.getElementById('num_strips').innerText = num_of_led_strips;
-
-                if (num_of_led_strips == 1) {
-                    document.getElementById('text_strips').innerText = 'strip';
-                } else {
-                    document.getElementById('text_strips').innerText = 'strips';
-                }
-
                 // start Setup mode on LED strip
                 axios
                     .post('/forward_changes', {
@@ -2236,14 +2225,24 @@
                             }
                         }]
                     });
+
+                // add led strip to led_strips
+                led_strips.push(this);
             }
 
 
-            disconnect(inside_div) {
+            disconnect() {
                 if (this.debug) {
                     console.log('LEDstrip().disconnect()');
                 }
-                // remove LED strip from DIV block
+                // remove LED strip from DIV block with class="leds_preview_block"
+                document.getElementById(this.id).outerHTML = "";
+
+                // remove LED strip from led_strips list (via filter?)
+                led_strips.filter(function(value,index,arr){
+                    return value.id != this.id;
+                })
+                
             }
 
             make_shorter() {
@@ -2420,7 +2419,6 @@
         var led_strips = [];
         var led_animations = [];
         var selected_led_strip_id = null;
-        var processed_led_strips = [];
 
         let Control = class {
             constructor(sync_all) {
@@ -2452,90 +2450,111 @@
                 this.main_window_content.innerHTML = '';
             }
 
-            load_buildup() {
+            load_setup_menu() {
                 this.clear_main_window();
 
                 this.main_window_new_html = `
-                <span id="num_strips" class="num_of_connected_leds darkmode">0</span> LED <span id="text_strips">strips</span> connected.<br>
-                <span id="ready_to_glow"></span>
-                `;
+                    <span id="num_strips" class="num_of_connected_leds darkmode">`+num_of_led_strips+`</span> LED <span id="text_strips">strip`+(num_of_led_strips!=1?`s`:``)+`</span> connected.<br>
+                    <span id="ready_to_glow">
+                        Ready to <span class="glow_text">glow</span>?<br>
+                        <br>
+                        <a id="buildup_complete_button" class="cta primary with_icon true" onclick="control.load_control()">
+                            Buildup complete
+                        </a>
+                    </span>
+                    `;
                 this.main_window_content.innerHTML = this.main_window_new_html;
 
                 this.fadein_main_window();
             }
 
             load_led_strips() {
-                // load json of connected_led_strips and create objects
-                intr = setInterval(function () {
-                    console.log('Searching for LED strips...');
+                // let this continue to run in the background, to check if led strip newly connected, disconnected or host offline
+                check_led_strips = setInterval(function () {
+                    console.log('Check if connected LED strips changed...');
 
                     axios
                         .get("/connected_led_strips")
                         .then(function (response) {
-                            connected_led_strips = response.data.connected_led_strips;
-                            num_of_led_strips = connected_led_strips.length;
-                            
-                            var counter;
-                            for (counter = 0; counter < num_of_led_strips; counter++) {
-                                if (!processed_led_strips.includes(connected_led_strips[counter]["0"])){
-                                    console.log("Process LED strip:");
-                                    console.log(connected_led_strips[counter]);
+                            var now_connected_led_strips = response.data.connected_led_strips;
+                            var now_num_of_led_strips = response.data.connected_led_strips.length;
+                            var added_led_strips = 0;
+                            var removed_led_strips = 0;
 
-                                    // TODO create LED strip and execute .connect() function
+                            // for every led strip in now_connected_led_strips, check if led_strip was already setup 
+                            var counter;
+                            for (counter = 0; counter < now_num_of_led_strips; counter++){
+                                if (now_connected_led_strips[counter]["s"]==false){
+                                    console.log("Process new LED strip:");
+                                    console.log(now_connected_led_strips[counter]);
+
+                                    // create LED strip and execute .connect() function
                                     var led_strip = new LEDstrip(
-                                        connected_led_strips[counter]["0"],
-                                        connected_led_strips[counter]["1"],
+                                        now_connected_led_strips[counter]["0"],
+                                        now_connected_led_strips[counter]["1"],
                                         {
-                                            "id":connected_led_strips[counter]["4"],
-                                            "name":null,//TODO
-                                            "based_on":null,//TODO
-                                            "customization":connected_led_strips[counter]["5"],//TODO
+                                            "id":now_connected_led_strips[counter]["4"],
+                                            "name":now_connected_led_strips[counter]["5"],
+                                            "based_on_animation_id":now_connected_led_strips[counter]["6"],
+                                            "customization":now_connected_led_strips[counter]["7"],
                                         },
-                                        connected_led_strips[counter]["2"],
+                                        now_connected_led_strips[counter]["2"],
                                     );
                                     led_strip.connect();
-                                    led_strips.push(led_strip);
-
-                                    processed_led_strips.push(led_strip["id"]);
-                                }
-                        }
-
-                            // show "ready to glow?" if at least one LED strip connected
-                            if (document.getElementById('ready_to_glow')) {
-                                if (num_of_led_strips > 0) {
-                                    document.getElementById('ready_to_glow').innerHTML = `
-                                    Ready to <span class="glow_text">glow</span>?<br>
-                                    <br>
-                                    <a id="buildup_complete_button" class="cta primary with_icon true" onclick="control.load_control()">
-                                        Buildup complete
-                                    </a>
-                                `;
-                                } else {
-                                    document.getElementById('ready_to_glow').innerHTML = '';
+                                    added_led_strips+=1;
                                 }
                             }
 
+                            // for every led strip in previous num_of_connected_leds, check if led strip is removed (not in now_connected_led_strips)
+                            for (counter = 0; counter < num_of_led_strips; counter++){
+                                var still_connected = false;
+                                var now_counter;
+                                var led_strip_id = connected_led_strips[counter]["0"];
+                                for (now_counter = 0; now_counter < now_num_of_led_strips;now_counter++){
+                                    if (led_strip_id == now_connected_led_strips[counter]["0"]){
+                                        still_connected = true;
+                                        break
+                                    }
+                                }
+
+                                // if led_strip not connected anymore - disconnect it
+                                if (still_connected==false){
+                                    var stripe_counter;
+                                    for (stripe_counter = 0; stripe_counter < led_strips.length; stripe_counter++){
+                                        if (led_strips[stripe_counter].id==led_strip_id){
+                                            led_strips[stripe_counter].disconnect();
+                                            removed_led_strips+=1;
+                                            break
+                                        }
+                                    }
+                                }
+
+                                
+                            }
+
+                            // update connected_led_strip list
+                            connected_led_strips = now_connected_led_strips;
+                            num_of_led_strips = now_num_of_led_strips;
+
+                            console.log("Added "+added_led_strips+" LED strips.")
+                            console.log("Removed "+removed_led_strips+" LED strips.")
+
+                            // show "ready to glow?" menu if at least one LED strip is new
+                            if (added_led_strips > 0) {
+                                control.load_setup_menu();
+                            }
                         })
                         .catch(function (error) {
                             console.log(error);
+                            // TODO if timeout exceeded because server is offline, hide led strips and show "host offline" - and check for host online again
                         })
-                        .finally(function () {
-                            // always executed
-                        });
 
                 }, 1000);
 
             }
 
             load_control() {
-                // break loop if "Buildup complete" button is pressed
-                clearInterval(intr);
-
                 this.clear_main_window();
-
-                // switch back to previous LED mode
-                axios
-                    .post("/restore_all_led_strips");
 
                 // TODO switch back preview to previous LED mode
                 num_of_led_strips = Object.keys(led_strips).length;
@@ -2712,7 +2731,6 @@
         function boot() {
             axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
             control = new Control();
-            control.load_buildup();
             control.load_led_strips();
         }
 

@@ -37,8 +37,10 @@ AsyncWebServer server(80);
 // 2:num_of_leds
 // 3:num_of_sections
 // 4:last_animation_id
-// 5:last_animation_customization
-// 6:ip_address
+// 5:last_animation_name
+// 6:last_animation_based_on_animation_id
+// 7:last_animation_customization
+// 8:ip_address
 
 //// led_animations.json fields - around 930bytes with default content:
 // 0:id
@@ -62,6 +64,7 @@ AsyncWebServer server(80);
 // n:max_height
 // o:update_type
 // p:update_progress
+// 4:based_on_animation_id (for custom animations)
 
 DynamicJsonDocument connected_led_strips(2048); // equals about 30 LED strips (70bytes per LED strip)
 JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
@@ -89,10 +92,18 @@ boolean connect_to_ssid(String ssid,String password){
     WiFi.begin(ssid.c_str(), password.c_str());
     delay(500);
 
+    int status_counter = 0;
+
     // if that fails, return false (causing a restart)
     while (WiFi.status() != WL_CONNECTED) {
-        Serial.println("Failed to connect to wifi '"+ssid+"'. Restarting...");
-        ESP.restart();
+        delay(500);
+        status_counter+=1;
+        Serial.println("...");
+        if (status_counter==6){
+            Serial.println("Failed to connect to wifi '"+ssid+"'. Restarting...");
+            ESP.restart();
+        }
+        
     }
     Serial.println("");
     Serial.print("Connected LED strip to Wifi: ");
@@ -120,7 +131,7 @@ boolean connect_to_wifi(){
         // try to connect to one of the known wifis in wifi_credentials.json
         if (SPIFFS.exists("/wifi_credentials.json")){
             Serial.println("Wifi credientias found");
-            StaticJsonDocument<60> wifi_credentials;
+            StaticJsonDocument<120> wifi_credentials;
             File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
             if(!wifi_credentials_file){
                 Serial.println("Failed to open wifi_credentials for reading");
@@ -184,7 +195,7 @@ boolean host_is_online(){
     return false;
 }
 
-void update_animation(String id,StaticJsonDocument<500> customizations){
+void update_animation(String id, String name, String based_on_id, StaticJsonDocument<500> customizations){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
@@ -205,7 +216,11 @@ void update_animation(String id,StaticJsonDocument<500> customizations){
             Serial.println("Loaded stripe_config.json");
             led_strip_info_file.close();
             led_strip_info["4"] = id;
-            led_strip_info["5"] = customizations;
+            led_strip_info["5"] = name;
+            if (based_on_id!=""){
+                led_strip_info["6"] = based_on_id;
+            }
+            led_strip_info["7"] = customizations;
 
             SPIFFS.remove("/stripe_config.json");
 
@@ -290,8 +305,10 @@ void signup_led_strip(){
     // make POST request to webserver to submit information like ip address and details
     StaticJsonDocument<850> led_strip_info = load_strip_config();
     
-    led_strip_info["6"] = WiFi.localIP().toString();
-    Serial.println("ip_address:  "+ led_strip_info["6"].as<String>());
+    led_strip_info["8"] = WiFi.localIP().toString();
+    // set Setup as false (default)
+    led_strip_info["s"] = false;
+    Serial.println("ip_address:  "+ led_strip_info["8"].as<String>());
 
     // make post request
     if(role == "client" && WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
@@ -494,14 +511,19 @@ void start_server(){
                     if (led_strips[i]["0"].as<String>() == ids[a].as<String>()){
                         // if found, forward change to IP address of LED strip
                         String led_strip_id = led_strips[i]["0"].as<String>();
-                        String led_strip_ip_address = led_strips[i]["6"].as<String>();
+                        String led_strip_ip_address = led_strips[i]["8"].as<String>();
+
+                        // make sure to remove "setup" before submitting it to LED strip
+                        if (led_strips[i].containsKey("s")){
+                            led_strips[i].remove("s");
+                        }
 
                         // if the ip is 0.0.0.0 (the host), update host, else make post request
                         if (led_strip_ip_address=="0.0.0.0"){
                             // update id of last animation
                             led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
                             // update customizations of last animation
-                            led_strips[i]["5"] = updates[e]["new_animation"]["5"].as<JsonObject>();
+                            led_strips[i]["7"] = updates[e]["new_animation"]["7"].as<JsonObject>();
 
                             // send updated LED strip info (with new animation)
                             String serialized_json;
@@ -522,7 +544,7 @@ void start_server(){
                                 // update id of last animation
                                 led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
                                 // update customizations of last animation
-                                led_strips[i]["5"] = updates[e]["new_animation"]["5"].as<JsonObject>();
+                                led_strips[i]["7"] = updates[e]["new_animation"]["7"].as<JsonObject>();
                                 Serial.println("Updated LED strip "+led_strip_id);
                             } else {
                                 Serial.println("Failed to update LED strip "+led_strip_id);
@@ -553,7 +575,12 @@ void start_server(){
         Serial.println("");
 
         // change mode based on POST request
-        update_animation(json["0"].as<String>(),json["1"].as<JsonObject>());
+        update_animation(
+            json["0"].as<String>(),
+            json["1"].as<String>(),
+            json.containsKey("2") ? json["2"].as<String>() : "",
+            json["3"].as<JsonObject>()
+        );
         
         Serial.println("Changed LED strip mode for "+json["0"].as<String>()+" to "+json["1"].as<String>());
         request->send(200, "application/json", "{\"success\":true}");
@@ -582,14 +609,16 @@ void start_server(){
             }
             
             // add new LED strip data
+            // make sure "setup" is added (but not saved to file)
             led_strips.add(led_strip_config);
             
             Serial.println("Signed up LED strip:");
-            Serial.println(json.as<String>());
+            Serial.println(led_strip_config.as<String>());
             led_strip_config.clear();
             request->send(200, "application/json", "{\"success\":true}");
         }
     });
+
     server.addHandler(forward_changes_handler);
     server.addHandler(mode_handler);
     server.addHandler(signup_led_strip_handler);
