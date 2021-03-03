@@ -241,6 +241,9 @@ void update_animation(String id, String name, String based_on_id, StaticJsonDocu
             String serialized_json;
             serializeJson(led_strip_info, serialized_json);
             Sender.println(serialized_json);
+            
+            Serial.println("Sent new stripe_config.json via Serial to other ESP:");
+            Serial.println(serialized_json);
         }
     }
     

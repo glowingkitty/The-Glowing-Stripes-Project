@@ -32,7 +32,7 @@ void Task2code( void * pvParameters ){
 
   for(;;){
     // update stripe_config.json based on Receiver.read
-    while (Receiver.available()) {
+    while (Receiver.available()>0) {
       new_stripe_config += char(Receiver.read());
     }
 
@@ -68,7 +68,7 @@ void setup() {
                       &Task2,      /* Task handle to keep track of created task */
                       1);          /* pin task to core 1 */
 
-    delay(500); 
+    delay(100); 
 
 
     //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
