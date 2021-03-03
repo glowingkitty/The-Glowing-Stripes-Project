@@ -27,6 +27,7 @@ HardwareSerial Sender(2);
 const char* glowing_stripes_ssid = "TheGlowingStripes";
 const char* glowing_stripes_password = "letsglow";
 string role;
+String host_ip_address;
 
 AsyncWebServer server(80);
 
@@ -321,11 +322,9 @@ void signup_led_strip(){
         String json;
         serializeJson(led_strip_info, json);
         Serial.println(json);
-        int httpResponseCode = http.POST(json);   //TODO Send the actual POST request
-        if(httpResponseCode>0){
-            String response = http.getString();                       //Get the response to the request
-            Serial.println(httpResponseCode);   //Print return code
-            Serial.println(response);           //Print request answer
+        int httpResponseCode = http.POST(json);
+        if(httpResponseCode==200){
+            Serial.println("Signed up this LED strip to host");
         }else{
         
             Serial.print("Error on sending POST: ");
@@ -338,7 +337,8 @@ void signup_led_strip(){
     } else if (role == "host"){
         // if led strip isn't connected to wifi - because its the host, add led strip directly to list of signed up led strips
         led_strips.add(led_strip_info);
-        Serial.println("Signed up LED strip");
+        host_ip_address = led_strip_info["8"].as<String>();
+        Serial.println("Signed up this LED strip as host. IP address: "+host_ip_address);
     } else {
         Serial.println("Error in signup_led_strip(), couldnt sign up LED strip.");
     }
@@ -518,19 +518,27 @@ void start_server(){
                             led_strips[i].remove("s");
                         }
 
-                        // if the ip is 0.0.0.0 (the host), update host, else make post request
-                        if (led_strip_ip_address=="0.0.0.0"){
+                        // if the ip is the host ip, update host, else make post request
+                        if (led_strip_ip_address==host_ip_address){
                             // update id of last animation
                             led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
+                            // update name of last animation
+                            led_strips[i]["5"] = updates[e]["new_animation"]["5"].as<String>();
+                            // update based_on_id of last animation
+                            if (updates[e]["new_animation"].containsKey("6")){
+                                led_strips[i]["6"] = updates[e]["new_animation"]["6"].as<String>();
+                            }
                             // update customizations of last animation
-                            led_strips[i]["7"] = updates[e]["new_animation"]["7"].as<JsonObject>();
+                            if (updates[e]["new_animation"].containsKey("7")){
+                                led_strips[i]["7"] = updates[e]["new_animation"]["7"].as<JsonObject>();
+                            }
 
                             // send updated LED strip info (with new animation)
                             String serialized_json;
                             serializeJson(led_strips[i], serialized_json);
                             Sender.println(serialized_json);
                             
-                            Serial.println("Updated LED strip "+led_strip_id);
+                            Serial.println("Updated LED strip "+led_strip_id+" via Serial.");
                             Serial.println(serialized_json);
 
                         } else {
@@ -545,9 +553,9 @@ void start_server(){
                                 led_strips[i]["4"] = updates[e]["new_animation"]["4"].as<String>();
                                 // update customizations of last animation
                                 led_strips[i]["7"] = updates[e]["new_animation"]["7"].as<JsonObject>();
-                                Serial.println("Updated LED strip "+led_strip_id);
+                                Serial.println("Updated LED strip "+led_strip_id+" via POST request.");
                             } else {
-                                Serial.println("Failed to update LED strip "+led_strip_id);
+                                Serial.println("Failed to update LED strip "+led_strip_id+" via POST request.");
                                 Serial.println("httpResponseCode:");
                                 Serial.println(httpResponseCode);
                                 Serial.println("response:");
