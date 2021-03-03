@@ -27,24 +27,23 @@ void Task2code( void * pvParameters ){
   Serial.println("");
   // setup serial for receiving new mode
   Receiver.begin(115200, SERIAL_8N1, Receiver_Txd_pin, Receiver_Rxd_pin);
-  
-  String new_stripe_config = "";
 
   for(;;){
     // update stripe_config.json based on Receiver.read
-    while (Receiver.available()>0) {
-      new_stripe_config += char(Receiver.read());
-    }
+    String new_stripe_config = "";
+    if(Receiver.available()){
+      new_stripe_config = Receiver.readStringUntil('\n');
 
-    if (new_stripe_config!=""){
-      Serial.println("Received new stripe_config.json via Serial: ");
-      Serial.println(new_stripe_config);
-      update_stripe_config_based_on_string(new_stripe_config);
-      new_stripe_config = "";
+      if (new_stripe_config.startsWith("{")){
+        Serial.println("Received new stripe_config.json via Serial: ");
+        Serial.println(new_stripe_config);
+        update_stripe_config_based_on_string(new_stripe_config);
 
-      // TODO still causes some short glitching - should get fixed
-      skip_remaining_animation = true;
-      received_stop_animation_command = true;
+        // TODO still causes some short glitching - should get fixed
+        skip_remaining_animation = true;
+        received_stop_animation_command = true;
+      }
+      
     }
   }
 }
