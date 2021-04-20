@@ -88,24 +88,17 @@ boolean wifi_is_nearby(String wifi_ssid, int number_of_nearby_wifis){
 }
 
 boolean connect_to_ssid(String ssid,String password){
+    Serial.println("Connecting...");
     delay(2000);
-
     WiFi.begin(ssid.c_str(), password.c_str());
-    delay(500);
-
-    int status_counter = 0;
+    delay(10000);
 
     // if that fails, return false (causing a restart)
     while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        status_counter+=1;
-        Serial.println("...");
-        if (status_counter==6){
-            Serial.println("Failed to connect to wifi '"+ssid+"'. Restarting...");
-            ESP.restart();
-        }
-        
+        Serial.println("Failed to connect to wifi '"+ssid+"'. Restarting...");
+        ESP.restart();
     }
+
     Serial.println("");
     Serial.print("Connected LED strip to Wifi: ");
     Serial.print(ssid);
