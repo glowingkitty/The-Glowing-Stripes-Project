@@ -1,7 +1,7 @@
 #include <ArduinoOTA.h>
 #include "HttpsOTAUpdate.h"
 
-static const char *url = "https://github.com/glowingkitty/The-Glowing-Stripes-Project/blob/master/esp32_webserver/firmware.bin"; //state url of your firmware image
+static const char *url = "https://raw.githubusercontent.com/glowingkitty/The-Glowing-Stripes-Project/master/esp32_webserver/firmware.bin"; //state url of your firmware image
 
 static const char *server_certificate =   "-----BEGIN CERTIFICATE-----\n"
 "MIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs\n"
