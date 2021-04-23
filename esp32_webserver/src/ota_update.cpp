@@ -1,5 +1,21 @@
+#include <Arduino.h>
 #include <ArduinoOTA.h>
 #include "HttpsOTAUpdate.h"
+#include "ArduinoJson.h"
+#include <HTTPClient.h>
+#include <ESPmDNS.h>
+#include "stripe_config.h"
+#include "serial.h"
+#include "device_role.h"
+
+StaticJsonDocument<850> led_strip_info = load_strip_config();
+String stripe_id = led_strip_info["0"].as<String>();
+
+DynamicJsonDocument firmware_updates_status(1024);
+
+/////////////////////////////
+/// OTA
+/////////////////////////////
 
 static const char *url = "https://raw.githubusercontent.com/glowingkitty/The-Glowing-Stripes-Project/master/esp32_webserver/firmware.bin"; //state url of your firmware image
 
@@ -29,6 +45,8 @@ static const char *server_certificate =   "-----BEGIN CERTIFICATE-----\n"
 
 static HttpsOTAStatus_t otastatus;
 
+bool ota_in_progress {false};
+
 void HttpEvent(HttpEvent_t *event)
 {
     switch(event->event_id) {
@@ -55,20 +73,55 @@ void HttpEvent(HttpEvent_t *event)
     }
 }
 
-void start_ota(){
-    HttpsOTA.onHttpEvent(HttpEvent);
-    Serial.println("Starting OTA");
-    HttpsOTA.begin(url, server_certificate); 
+void update_firmware_status(String stripe_id, String new_status){
+    if(device_is_client()){
+        HTTPClient http;   
+        
+        IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+        http.begin("http://"+serverIp.toString()+"/new_firmware_update_status");
+        http.addHeader("Content-Type", "application/json");
+        int httpResponseCode = http.POST("{\"led_strip_id\":\""+stripe_id+"\",\"status\":\""+new_status+"\"}");
+        if(httpResponseCode==200){
+            Serial.println("Updated firmware status for "+stripe_id);
+        }else{
+            Serial.print("Error on sending POST: ");
+            Serial.println(httpResponseCode);
+        }
+        http.end();  //Free resources
+        return;
 
-    Serial.println("Please Wait it takes some time ...");
-
+    } 
+    
+    // if this LED strip is the host, update the local list of firmware_updates_status
+    firmware_updates_status[stripe_id] = new_status;
 }
 
-void handle_ota(){
-    otastatus = HttpsOTA.status();
-    if(otastatus == HTTPS_OTA_SUCCESS) { 
-        Serial.println("Firmware written successfully. To reboot device, call API ESP.restart() or PUSH restart button on device");
-    } else if(otastatus == HTTPS_OTA_FAIL) { 
-        Serial.println("Firmware Upgrade Fail");
+void check_ota_status(){
+    // update webserver ESP32 firmware
+    if (ota_in_progress){
+        otastatus = HttpsOTA.status();
+        if(otastatus == HTTPS_OTA_SUCCESS) { 
+            Serial.println("Firmware update successfull. Rebooting device...");
+            update_firmware_status(stripe_id,"not_updating");
+            ESP.restart();
+        } else if(otastatus == HTTPS_OTA_FAIL) { 
+            Serial.println("Firmware update failed");
+            update_firmware_status(stripe_id,"updated_failed");
+            ESP.restart();
+        }
+    }
+
+    // once LEDs ESP32 confirms update is complete, continue with webserver ESP32 update
+    else if(led_esp_available()){
+        String command = led_esp_received_message();
+        if (command.startsWith("firmware_update_success")){
+            Serial.println("Updating firmware for webserver ESP32...");
+            HttpsOTA.onHttpEvent(HttpEvent);
+            HttpsOTA.begin(url, server_certificate); 
+            ota_in_progress = true;
+        } else if (command.startsWith("firmware_update_failed")){
+            // if error returned, skip webserver update and change firmware_update_status to error
+            update_firmware_status(stripe_id,"updated_failed");
+        }
     }
 }

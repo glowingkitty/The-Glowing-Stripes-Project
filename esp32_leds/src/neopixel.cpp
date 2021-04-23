@@ -40,7 +40,7 @@ void generate_random_colors(int num_random_colors){
 //////////////////////////////////////
 
 void stop_animation(Adafruit_NeoPixel leds){
-    if (stopped_animation==false){
+    if (!stopped_animation){
         // TODO decrease brightness of last LED state step by step (quickly)
 
 
@@ -88,11 +88,12 @@ void start_leds(){
         StaticJsonDocument<850> led_strip_info = load_strip_config();
 
         // check if strip should prepare for update, if so - stop animation loop, start wifi and OTA
-        if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()==true){
+        if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()){
             Serial.println("Received 'Prepare for software update' command. Turning LEDs off, starting WIFI and starting OTA update...");
             // turn leds off
             leds.fill(leds.Color(0,0,0));
             leds.show();
+            delay(500);
             break;
         }
 
@@ -103,7 +104,7 @@ void start_leds(){
             // set colors, which are looped over - so every time an animation repeats, it repeats with new colors
             rgb_colors.clear();
 
-            if (led_strip_info["7"].containsKey("b")==false || led_strip_info["7"]["b"]=="random"){
+            if (!led_strip_info["7"].containsKey("b") || led_strip_info["7"]["b"]=="random"){
                 // generate random colors 
                 int num_random_colors = led_strip_info["7"].containsKey("c") ? led_strip_info["7"]["c"].as<int>() : 5;
                 generate_random_colors(num_random_colors);
@@ -131,7 +132,7 @@ void start_leds(){
         float max_brightness = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("d") ? led_strip_info["7"]["d"].as<float>() : 1.0 : 1.0;
         // check if brightness is not fixed
         bool brightness_fixed = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("m") ? led_strip_info["7"]["m"].as<bool>() : true : true;
-        float brightness = brightness_fixed==false ? 0 : max_brightness;
+        float brightness = !brightness_fixed ? 0 : max_brightness;
         
         String start = led_strip_info.containsKey("7") ? led_strip_info["7"].containsKey("k") ? led_strip_info["7"]["k"].as<String>() : "start" : "start";
         
@@ -145,7 +146,7 @@ void start_leds(){
         }
 
         vector<int> section_leds;
-        if (all_sections==false) {
+        if (!all_sections) {
             // if section random - generate random section number
             if (led_strip_info["7"]["j"].as<String>()=="random"){
                 int section = (rand() % 4 + 1);
@@ -265,7 +266,7 @@ void start_leds(){
                 delay(delay_step);
 
                 // increase brightness if brightness not fixed
-                if (brightness_fixed==false){
+                if (!brightness_fixed){
                     if (switch_direction){
                         brightness-=brightness_step;
                     } else {
@@ -284,7 +285,7 @@ void start_leds(){
 
             }
             
-            if (brightness_fixed==false){
+            if (!brightness_fixed){
                 delay(pause_a_ms);
             }
         }
@@ -348,7 +349,7 @@ void start_leds(){
             }
 
             for(int i=num_leds; i>=0; i--) {
-                if (skip_remaining_animation==true || received_stop_animation_command){
+                if (skip_remaining_animation || received_stop_animation_command){
                     stop_animation(leds);
                     break;
                 }
@@ -381,14 +382,14 @@ void start_leds(){
             Serial.println("Glow moving dot...");
             int delay_step = (duration_ms/num_leds);
             // move forward
-            if ((start=="start" && switch_direction==false) || (start=="end" && switch_direction==true)){
+            if ((start=="start" && !switch_direction) || (start=="end" && switch_direction)){
                 for(int start_point=0; start_point<(num_leds+5); start_point++) {
-                    if (skip_remaining_animation==true || received_stop_animation_command){
+                    if (skip_remaining_animation || received_stop_animation_command){
                         stop_animation(leds);
                         break;
                     }
                     for(int i=0; i<num_leds; i++) {
-                        if (skip_remaining_animation==true || received_stop_animation_command){
+                        if (skip_remaining_animation || received_stop_animation_command){
                             stop_animation(leds);
                             break;
                         }
@@ -426,12 +427,12 @@ void start_leds(){
             // move backward
             else {
                 for(int start_point=num_leds; start_point>-6; start_point--) {
-                    if (skip_remaining_animation==true || received_stop_animation_command){
+                    if (skip_remaining_animation || received_stop_animation_command){
                         stop_animation(leds);
                         break;
                     }
                     for(int i=0; i<num_leds; i++) {
-                        if (skip_remaining_animation==true || received_stop_animation_command){
+                        if (skip_remaining_animation || received_stop_animation_command){
                             stop_animation(leds);
                             break;
                         }
@@ -481,7 +482,7 @@ void start_leds(){
 
             // light up
             for (float max_brightness=0;max_brightness<=brightness;max_brightness+=(brightness/brightness_steps)){
-                if (skip_remaining_animation==true || received_stop_animation_command){
+                if (skip_remaining_animation || received_stop_animation_command){
                     stop_animation(leds);
                     break;
                 }
@@ -514,7 +515,7 @@ void start_leds(){
             }
             // light down
             for (float max_brightness=brightness;max_brightness>=0;max_brightness-=(brightness/brightness_steps)){
-                if (skip_remaining_animation==true || received_stop_animation_command){
+                if (skip_remaining_animation || received_stop_animation_command){
                     stop_animation(leds);
                     break;
                 }
@@ -621,43 +622,6 @@ void start_leds(){
             delay(pause_a_ms);
         }
         
-        // Software update
-        else if (new_animation_id == "upd"){
-            Serial.println("Show software update progress...");
-            // show progress in leds
-            int r = 0;
-            int g = 0;
-            int b = 0;
-
-            if (led_strip_info["7"]["o"]=="filesystem"){
-                g = 255;
-            } else {
-                b = 255;
-            }
-
-            int num_leds_to_glow = round(num_leds*led_strip_info["7"]["p"].as<float>());
-            for(int i=num_leds; i>=0; i--) {
-                if (i < num_leds_to_glow){
-                    leds.setPixelColor(i, leds.Color(r,g,b));
-                } else {
-                    leds.setPixelColor(i, leds.Color(0,0,0));
-                }
-            }
-        }
-
-        // Error
-        else if (new_animation_id == "err"){
-            // show blinking red leds for warning
-            for(float brightness=0; brightness<=1.0; brightness+=0.1) {
-                leds.fill(leds.Color(round(255*brightness),0,0));
-                delay(10);
-            }
-            for(float brightness=1.0; brightness>=0; brightness-=0.1) {
-                leds.fill(leds.Color(round(255*brightness),0,0));
-                delay(10);
-            }
-        }
-
         else {
             Serial.println("No animation selected. Turn LEDs off.");
             leds.fill(leds.Color(0,0,0));
@@ -669,12 +633,11 @@ void start_leds(){
         previous_animation_id = led_strip_info["4"].as<String>();
     }
 
-    // if "prepare_for_software_update": activate wifi and OTA
     start_wifi();
     start_ota();
 
     for(;;){
-        handle_ota();
+        check_ota_status();
         delay(1000);
     }
 

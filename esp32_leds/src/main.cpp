@@ -3,14 +3,10 @@
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
 #include "strip_config.h"
+#include "serial.h"
 
 extern bool skip_remaining_animation;
 extern bool received_stop_animation_command;
-
-HardwareSerial Receiver(2); // Define a Serial port instance called 'Receiver' using serial port 2
-
-#define Receiver_Txd_pin 17
-#define Receiver_Rxd_pin 16
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -20,19 +16,11 @@ void Task1code( void * pvParameters ){
 }
 
 void Task2code( void * pvParameters ){
-  Serial.println("");
-  Serial.print("|| Core ");
-  Serial.print(xPortGetCoreID());
-  Serial.print(" || Start Receiver...");
-  Serial.println("");
-  // setup serial for receiving new mode
-  Receiver.begin(115200, SERIAL_8N1, Receiver_Txd_pin, Receiver_Rxd_pin);
+  init_serial_to_web_esp();
 
   for(;;){
-    // update stripe_config.json based on Receiver.read
-    String new_stripe_config = "";
-    if(Receiver.available()){
-      new_stripe_config = Receiver.readStringUntil('\n');
+    if(web_esp_available()){
+      String new_stripe_config = web_esp_received_message();
 
       if (new_stripe_config.startsWith("{")){
         Serial.println("Received new stripe_config.json via Serial: ");

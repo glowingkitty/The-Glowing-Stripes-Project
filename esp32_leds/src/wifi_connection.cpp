@@ -113,7 +113,7 @@ void start_wifi(){
     Serial.print(" || start_wifi()");
     Serial.println("");
 
-    if (connect_to_wifi()==false){
+    if (!connect_to_wifi()){
         Serial.println("Failed to connect to any wifi. Restarting...");
         ESP.restart();
     }

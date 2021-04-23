@@ -14,61 +14,24 @@
 #include "ArduinoJson.h"
 #include <string>
 #include <stdio.h>
-#include "strip_config.h"
 #include "AsyncJson.h"
 #include <tuple>
+#include "ota_update.h"
+#include "serial.h"
+#include "device_role.h"
+#include "stripe_config.h"
+
 using namespace std;
-
-HardwareSerial Sender(2);
-
-#define Sender_Txd_pin 17
-#define Sender_Rxd_pin 16
 
 const char* glowing_stripes_ssid = "TheGlowingStripes";
 const char* glowing_stripes_password = "letsglow";
-string role;
 String host_ip_address;
 
 AsyncWebServer server(80);
 
-//// stripe_config.json fields - around 70bytes when fields are filled:
-// p:data_pin
-// 0:id
-// 1:name
-// 2:num_of_leds
-// 3:num_of_sections
-// 4:last_animation_id
-// 5:last_animation_name
-// 6:last_animation_based_on_animation_id
-// 7:last_animation_customization
-// 8:ip_address
-
-//// led_animations.json fields - around 930bytes with default content:
-// 0:id
-// 1:name
-// 2:neopixel_plus_function
-// 3:customization
-//// customization settings:
-// a:colors_selected
-// b:rgb_colors
-// c:num_random_colors
-// d:brightness
-// e:timing_selected
-// f:duration_ms
-// g:pause_a_ms
-// h:pause_b_ms
-// i:sections_selected
-// j:sections
-// k:start
-// l:possible_directions
-// m:brightness_fixed
-// n:max_height
-// o:update_type
-// p:update_progress
-// 4:based_on_animation_id (for custom animations)
-
-DynamicJsonDocument connected_led_strips(2048); // equals about 30 LED strips (70bytes per LED strip)
+DynamicJsonDocument connected_led_strips(2048);
 JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
+
 
 /////////////////////////////
 /// Wifi
@@ -121,52 +84,53 @@ boolean connect_to_wifi(){
         Serial.println("no networks found. connect_to_wifi() failed.");
         WiFi.scanDelete();
         return false;
-    } else {
-        // try to connect to one of the known wifis in wifi_credentials.json
-        if (SPIFFS.exists("/wifi_credentials.json")){
-            Serial.println("Wifi credientias found");
-            StaticJsonDocument<120> wifi_credentials;
-            File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
-            if(!wifi_credentials_file){
-                Serial.println("Failed to open wifi_credentials for reading");
-            }else {
-                DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
-                if (error){
-                    Serial.println("Failed to read wifi_credentials_file.");
-                } else {
-                    Serial.println("Loaded wifi_credentials.json");
+    }
 
-                    wifi_credentials_file.close();
+    // try to connect to one of the known wifis in wifi_credentials.json
+    if (SPIFFS.exists("/wifi_credentials.json")){
+        Serial.println("Wifi credientias found");
+        StaticJsonDocument<120> wifi_credentials;
+        File wifi_credentials_file = SPIFFS.open("/wifi_credentials.json");
+        if(!wifi_credentials_file){
+            Serial.println("Failed to open wifi_credentials for reading");
+        }else {
+            DeserializationError error = deserializeJson(wifi_credentials, wifi_credentials_file);
+            if (error){
+                Serial.println("Failed to read wifi_credentials_file.");
+            } else {
+                Serial.println("Loaded wifi_credentials.json");
 
-                    // check if wifi_credentials is a single wifi network
-                    if (wifi_credentials.containsKey("0") && wifi_credentials.containsKey("1")){
-                        // check if wifi is online
-                        if (wifi_is_nearby(wifi_credentials["0"],n)){
-                            // if wifi is online, connect to it
-                            return connect_to_ssid(wifi_credentials["0"].as<String>(),wifi_credentials["1"].as<String>());
-                        }
+                wifi_credentials_file.close();
+
+                // check if wifi_credentials is a single wifi network
+                if (wifi_credentials.containsKey("0") && wifi_credentials.containsKey("1")){
+                    // check if wifi is online
+                    if (wifi_is_nearby(wifi_credentials["0"],n)){
+                        // if wifi is online, connect to it
+                        return connect_to_ssid(wifi_credentials["0"].as<String>(),wifi_credentials["1"].as<String>());
                     }
+                }
 
-                    // else check for every single wifi in wifi_credentials, if its online & connect to it
-                    for (int i = 0; i < wifi_credentials.size();i++){
-                        if (wifi_is_nearby(wifi_credentials[i]["0"],n)){
-                            // if wifi is online, connect to it
-                            return connect_to_ssid(wifi_credentials[i]["0"].as<String>(),wifi_credentials[i]["1"].as<String>());
-                        }
+                // else check for every single wifi in wifi_credentials, if its online & connect to it
+                for (int i = 0; i < wifi_credentials.size();i++){
+                    if (wifi_is_nearby(wifi_credentials[i]["0"],n)){
+                        // if wifi is online, connect to it
+                        return connect_to_ssid(wifi_credentials[i]["0"].as<String>(),wifi_credentials[i]["1"].as<String>());
                     }
                 }
             }
         }
-
-        // else check if default glowing_stripes_ssid is online
-        if (wifi_is_nearby(glowing_stripes_ssid,n)){
-            // if wifi is online, connect to it
-            return connect_to_ssid(glowing_stripes_ssid,glowing_stripes_password);
-        } else {
-            Serial.println("No known wifi is nearby.");
-            return false;
-        }
     }
+
+    // else check if default glowing_stripes_ssid is online
+    if (wifi_is_nearby(glowing_stripes_ssid,n)){
+        // if wifi is online, connect to it
+        return connect_to_ssid(glowing_stripes_ssid,glowing_stripes_password);
+    } 
+    
+    Serial.println("No known wifi is nearby.");
+    return false;
+
 }
 
 boolean host_is_online(){
@@ -189,94 +153,7 @@ boolean host_is_online(){
     return false;
 }
 
-void update_animation(String id, String name, String based_on_id, StaticJsonDocument<500> customizations){
-    Serial.println("");
-    Serial.print("|| Core ");
-    Serial.print(xPortGetCoreID());
-    Serial.print(" || update_animation()");
-    Serial.println("");
 
-    // Open file for writing
-    StaticJsonDocument<850> led_strip_info;
-    File led_strip_info_file = SPIFFS.open("/stripe_config.json");
-    if(!led_strip_info_file){
-        Serial.println("Failed to open stripe_config for reading");
-        led_strip_info_file.close();
-    }else {
-        DeserializationError error = deserializeJson(led_strip_info, led_strip_info_file);
-        if (error){
-            Serial.println("Failed to read led_strip_info_file.");
-        } else {
-            Serial.println("Loaded stripe_config.json");
-            led_strip_info_file.close();
-            led_strip_info["4"] = id;
-            led_strip_info["5"] = name;
-            if (based_on_id!=""){
-                led_strip_info["6"] = based_on_id;
-            }
-            led_strip_info["7"] = customizations;
-
-            SPIFFS.remove("/stripe_config.json");
-
-            // Open file for writing
-            File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
-            if (!file) {
-                Serial.println("Failed to create stripe_config.json");
-            }
-            // Serialize JSON to file
-            if (serializeJson(led_strip_info, file) == 0) {
-                Serial.println(F("Failed to write to stripe_config.json"));
-            }
-            // Close the file
-            file.close();
-
-            // Submit new stripe_config.json via serial
-            String serialized_json;
-            serializeJson(led_strip_info, serialized_json);
-            Sender.println(serialized_json);
-            
-            Serial.println("Sent new stripe_config.json via Serial to other ESP:");
-            Serial.println(serialized_json);
-        }
-    }
-    
-}
-
-
-void become_client(){
-    Serial.println("");
-    Serial.print("|| Core ");
-    Serial.print(xPortGetCoreID());
-    Serial.print(" || become_client()");
-    Serial.println("");
-
-    role = "client";
-    // remove host.txt file, if it exists
-    if (SPIFFS.exists("/host.txt")){
-        SPIFFS.remove("/host.txt");
-    }
-}
-
-void become_host(){
-    Serial.println("");
-    Serial.print("|| Core ");
-    Serial.print(xPortGetCoreID());
-    Serial.print(" || become_host()");
-    Serial.println("");
-
-    role = "host";
-    // create "host.txt" file, so ota_update.cpp knows this device is the host now - and sets the hotname to "theglowingstripes"
-    File file = SPIFFS.open("/host.txt", FILE_WRITE);
-    if(!file){
-        Serial.println("There was an error opening host.txt for writing");
-        return;
-    }
-    if(file.print("1")) {
-        Serial.println("host.txt was written");
-    }else {
-        Serial.println("host.txt write failed");
-    }
-}
 
 void start_hotspot(){
     Serial.println("");
@@ -308,7 +185,7 @@ void signup_led_strip(){
     Serial.println("ip_address:  "+ led_strip_info["8"].as<String>());
 
     // make post request
-    if(role == "client" && WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
+    if(device_is_client()){
         HTTPClient http;   
         
         IPAddress serverIp = MDNS.queryHost("theglowingstripes");
@@ -330,14 +207,13 @@ void signup_led_strip(){
         http.end();  //Free resources
         return;
 
-    } else if (role == "host"){
-        // if led strip isn't connected to wifi - because its the host, add led strip directly to list of signed up led strips
-        led_strips.add(led_strip_info);
-        host_ip_address = led_strip_info["8"].as<String>();
-        Serial.println("Signed up this LED strip as host. IP address: "+host_ip_address);
-    } else {
-        Serial.println("Error in signup_led_strip(), couldnt sign up LED strip.");
     }
+    
+    // else if device is host
+    // if led strip isn't connected to wifi - because its the host, add led strip directly to list of signed up led strips
+    led_strips.add(led_strip_info);
+    host_ip_address = led_strip_info["8"].as<String>();
+    Serial.println("Signed up this LED strip as host. IP address: "+host_ip_address);
 
 }
 
@@ -347,9 +223,6 @@ void start_wifi(){
     Serial.print(xPortGetCoreID());
     Serial.print(" || start_wifi()");
     Serial.println("");
-
-    // setup Serial for sending new mode to LED strip
-    Sender.begin(115200, SERIAL_8N1, Sender_Txd_pin, Sender_Rxd_pin);
 
     // see if host wifi is nearby (the one defined in credentials, or TheGlowingStripes wifi)
     if (connect_to_wifi()){
@@ -403,42 +276,6 @@ void start_server(){
         request->send(200, "application/json", "{\"online\":true}");
     });
 
-    server.on("/activate_ota", HTTP_GET, [](AsyncWebServerRequest *request){
-        Serial.println("");
-        Serial.print("|| Core ");
-        Serial.print(xPortGetCoreID());
-        Serial.print(" || /activate_ota");
-        Serial.println("");
-
-        // Open file for writing
-        StaticJsonDocument<850> led_strip_info;
-        File led_strip_info_file = SPIFFS.open("/stripe_config.json");
-        if(!led_strip_info_file){
-            Serial.println("Failed to open stripe_config for reading");
-            led_strip_info_file.close();
-            request->send(500, "application/json", "{\"error\":\"Failed to open stripe_config for reading\"}");
-        }else {
-            DeserializationError error = deserializeJson(led_strip_info, led_strip_info_file);
-            if (error){
-                Serial.println("Failed to read led_strip_info_file.");
-                request->send(500, "application/json", "{\"error\":\"Failed to read led_strip_info_file\"}");
-            } else {
-                Serial.println("Loaded stripe_config.json");
-                led_strip_info_file.close();
-                led_strip_info["u"] = true;
-
-                // Submit new stripe_config.json via serial
-                String serialized_json;
-                serializeJson(led_strip_info, serialized_json);
-                Sender.println(serialized_json);
-                
-                Serial.println("Sent new stripe_config.json via Serial to other ESP:");
-                Serial.println(serialized_json);
-                request->send(200, "application/json", "{\"success\":true}");
-            }
-        }
-    });
-
     server.on("/wifi_networks_nearby", HTTP_GET, [](AsyncWebServerRequest *request){
         Serial.println("");
         Serial.print("|| Core ");
@@ -489,6 +326,68 @@ void start_server(){
         request->send(200, "application/json", "{\"connected_led_strips\":"+output+"}");
     });
 
+    // Over the internet update code:
+    AsyncCallbackJsonWebHandler* update_firmware_handler = new AsyncCallbackJsonWebHandler("/update_firmware", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /update_firmware");
+        Serial.println("");
+
+        // make sure input json is led strip details with "u":true - to start update
+        if (json["0"]){
+            json["u"]=true;
+            Serial.print("Input json correct.");
+            String serialized_json;
+            serializeJson(json, serialized_json);
+            send_to_led_esp(serialized_json);
+            request->send(200, "application/json", "{\"started_update\":true}");
+        } else {
+            Serial.print("Input json missing or incomplete! Make sure all LED strip details are included.");
+            request->send(500, "application/json", "{\"started_update\":false}");
+        }
+        
+    });
+
+    AsyncCallbackJsonWebHandler* update_led_strips_handler = new AsyncCallbackJsonWebHandler("/update_led_strips", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /update_led_strips");
+        Serial.println("");
+
+        // send request to each led strip to update firmware
+        JsonArray led_strips = json["led_strips"].as<JsonArray>();
+        for (int e = 0; e < led_strips.size();e++){
+            String id = led_strips[e]["0"].as<String>();
+            String ip_address = led_strips[e]["8"].as<String>();
+            HTTPClient http;
+            http.begin("http://"+ip_address+"/update_firmware");
+            http.addHeader("Content-Type", "application/json");
+            
+            int httpResponseCode = http.POST(led_strips[e].as<String>());
+
+            if(httpResponseCode==200){
+                Serial.println("Started firmware upgrade on "+led_strips[e]["0"].as<String>());
+                update_firmware_status(id,"updating...");
+
+            } else {
+                Serial.println("Failed to update LED strip "+led_strips[e]["0"].as<String>()+" via POST request.");
+                Serial.println("httpResponseCode:");
+                Serial.println(httpResponseCode);
+                Serial.println("response:");
+                String response = http.getString();
+                Serial.println(response);
+
+                update_firmware_status(id,"failed");
+            }
+            http.end();
+            
+        }
+
+        request->send(200, "application/json", "{\"started_update\":true}");
+    });
+
     AsyncCallbackJsonWebHandler* forward_changes_handler = new AsyncCallbackJsonWebHandler("/forward_changes", [](AsyncWebServerRequest *request, JsonVariant &json) {
         Serial.println("");
         Serial.print("|| Core ");
@@ -532,7 +431,7 @@ void start_server(){
                             // send updated LED strip info (with new animation)
                             String serialized_json;
                             serializeJson(led_strips[i], serialized_json);
-                            Sender.println(serialized_json);
+                            send_to_led_esp(serialized_json);
                             
                             Serial.println("Updated LED strip "+led_strip_id+" via Serial.");
                             Serial.println(serialized_json);
@@ -623,6 +522,8 @@ void start_server(){
         }
     });
 
+    server.addHandler(update_firmware_handler);
+    server.addHandler(update_led_strips_handler);
     server.addHandler(forward_changes_handler);
     server.addHandler(mode_handler);
     server.addHandler(signup_led_strip_handler);

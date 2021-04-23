@@ -1,10 +1,12 @@
 #include <SPIFFS.h>
 #include "Arduino.h"
 #include "webserver.h"
+#include "serial.h"
 #include "ota_update.h"
 
 void setup() {
   Serial.begin(115200);
+  init_serial_to_led_esp();
 
   if (!SPIFFS.begin(true)) {
       Serial.println("An Error has occurred while mounting SPIFFS");
@@ -13,10 +15,10 @@ void setup() {
   
   start_wifi();
   start_server();
-  start_ota();
 }
 
 void loop() {
-  handle_ota();
+  check_ota_status();
+  // TODO check if ota_status from LED esp32 was received via serial
   delay(500);
 }

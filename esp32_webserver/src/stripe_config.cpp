@@ -1,8 +1,46 @@
 #include <Arduino.h>
 #include <SPIFFS.h>
 #include "ArduinoJson.h"
+#include "serial.h"
 #include <string>
 using namespace std;
+
+
+//// stripe_config.json fields - around 70bytes when fields are filled:
+// p:data_pin
+// 0:id
+// 1:name
+// 2:num_of_leds
+// 3:num_of_sections
+// 4:last_animation_id
+// 5:last_animation_name
+// 6:last_animation_based_on_animation_id
+// 7:last_animation_customization
+// 8:ip_address
+
+//// led_animations.json fields - around 930bytes with default content:
+// 0:id
+// 1:name
+// 2:neopixel_plus_function
+// 3:customization
+//// customization settings:
+// a:colors_selected
+// b:rgb_colors
+// c:num_random_colors
+// d:brightness
+// e:timing_selected
+// f:duration_ms
+// g:pause_a_ms
+// h:pause_b_ms
+// i:sections_selected
+// j:sections
+// k:start
+// l:possible_directions
+// m:brightness_fixed
+// n:max_height
+// o:update_type
+// p:update_progress
+// 4:based_on_animation_id (for custom animations)
 
 string gen_random() {
     Serial.println("");
@@ -113,3 +151,55 @@ StaticJsonDocument<850> load_strip_config(){
     return led_strip_config;
 }
 
+
+void update_animation(String id, String name, String based_on_id, StaticJsonDocument<500> customizations){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_animation()");
+    Serial.println("");
+
+    // Open file for writing
+    StaticJsonDocument<850> led_strip_info;
+    File led_strip_info_file = SPIFFS.open("/stripe_config.json");
+    if(!led_strip_info_file){
+        Serial.println("Failed to open stripe_config for reading");
+        led_strip_info_file.close();
+    }else {
+        DeserializationError error = deserializeJson(led_strip_info, led_strip_info_file);
+        if (error){
+            Serial.println("Failed to read led_strip_info_file.");
+        } else {
+            Serial.println("Loaded stripe_config.json");
+            led_strip_info_file.close();
+            led_strip_info["4"] = id;
+            led_strip_info["5"] = name;
+            if (based_on_id!=""){
+                led_strip_info["6"] = based_on_id;
+            }
+            led_strip_info["7"] = customizations;
+
+            SPIFFS.remove("/stripe_config.json");
+
+            // Open file for writing
+            File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
+            if (!file) {
+                Serial.println("Failed to create stripe_config.json");
+            }
+            // Serialize JSON to file
+            if (serializeJson(led_strip_info, file) == 0) {
+                Serial.println(F("Failed to write to stripe_config.json"));
+            }
+            // Close the file
+            file.close();
+
+            // Submit new stripe_config.json via serial
+            String serialized_json;
+            serializeJson(led_strip_info, serialized_json);
+            send_to_led_esp(serialized_json);
+            
+            Serial.println("Sent new stripe_config.json via Serial to other ESP:");
+            Serial.println(serialized_json);
+        }
+    }
+}
