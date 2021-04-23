@@ -111,7 +111,7 @@ StaticJsonDocument<850> load_strip_config(){
         led_strip_config["1"] = "LED strip";
         update_config = true;
     }
-    if (!led_strip_config["4"]){
+    if (!led_strip_config["4"]["a"]){
         Serial.println("led_strip_config.last_animation_id is null, generating last_animation_..");
 
         // read led_animations.json

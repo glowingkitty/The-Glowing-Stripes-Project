@@ -8,15 +8,23 @@ using namespace std;
 
 //// stripe_config.json fields - around 70bytes when fields are filled:
 // p:data_pin
-// 0:id
-// 1:name
-// 2:num_of_leds
-// 3:num_of_sections
-// 4:last_animation_id
-// 5:last_animation_name
-// 6:last_animation_based_on_animation_id
-// 7:last_animation_customization
-// 8:ip_address
+// "0":id <String>
+// "1":name <String>
+// "2":num_of_leds <int>
+// "3":num_of_sections <int>
+// 4:current_animation <JsonObject>
+//// a:id <String>
+//// b:name <String>
+//// c:based_on_animation_id <String>
+//// d:customization <JsonObject>
+// 5:previous_animation
+//// a:id <String>
+//// b:name <String>
+//// c:based_on_animation_id <String>
+//// d:customization <JsonObject>
+// 6:ip_address
+// s:setup_complete
+// u:start_firmware_update
 
 //// led_animations.json fields - around 930bytes with default content:
 // 0:id
@@ -101,7 +109,7 @@ StaticJsonDocument<850> load_strip_config(){
         led_strip_config["1"] = "LED strip";
         update_led_strip_config = true;
     }
-    if (!led_strip_config["4"]){
+    if (!led_strip_config["4"] || !led_strip_config["4"]["a"]){
         Serial.println("led_strip_config.last_animation_id is null, generating last_animation_..");
 
         // read led_animations.json
@@ -172,12 +180,12 @@ void update_animation(String id, String name, String based_on_id, StaticJsonDocu
         } else {
             Serial.println("Loaded stripe_config.json");
             led_strip_info_file.close();
-            led_strip_info["4"] = id;
-            led_strip_info["5"] = name;
+            led_strip_info["4"]["a"] = id;
+            led_strip_info["4"]["b"] = name;
             if (based_on_id!=""){
-                led_strip_info["6"] = based_on_id;
+                led_strip_info["4"]["c"] = based_on_id;
             }
-            led_strip_info["7"] = customizations;
+            led_strip_info["4"]["d"] = customizations;
 
             SPIFFS.remove("/stripe_config.json");
 

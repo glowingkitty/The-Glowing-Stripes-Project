@@ -73,8 +73,8 @@ void start_leds(){
     Serial.println("id:                             "+ led_strip_info["0"].as<String>());
     Serial.println("name:                           "+ led_strip_info["1"].as<String>());
     Serial.println("num_of_leds:                    "+ led_strip_info["2"].as<String>());
-    Serial.println("last_animation_id:              "+ led_strip_info["4"].as<String>());
-    Serial.println("last_animation_customization:   "+ led_strip_info["7"].as<String>());
+    Serial.println("last_animation_id:              "+ led_strip_info["4"]["a"].as<String>());
+    Serial.println("last_animation_customization:   "+ led_strip_info["4"]["d"].as<String>());
 
     // start animation loop
     for(;;){
@@ -97,7 +97,7 @@ void start_leds(){
             break;
         }
 
-        String new_animation_id = led_strip_info["4"].as<String>();
+        String new_animation_id = led_strip_info["4"]["a"].as<String>();
 
         // detect if animation has changed - if true, update colors
         if (new_animation_id!=previous_animation_id){
@@ -630,7 +630,7 @@ void start_leds(){
         }
 
         counter_current_color+=1;
-        previous_animation_id = led_strip_info["4"].as<String>();
+        previous_animation_id = led_strip_info["4"]["a"].as<String>();
     }
 
     start_wifi();

@@ -21,7 +21,9 @@ void become_host(){
 
     role = "host";
 
-    if (!MDNS.begin("theglowingstripes")) {             // Start the mDNS responder for esp8266.local
+    if (MDNS.begin("theglowingstripes")) {
+        Serial.println("LED strip is now available under http://theglowingstripes.local");
+    } else {
         Serial.println("Error setting up MDNS responder!");
     }
 

@@ -2120,12 +2120,15 @@
                 var self = this;
                 axios
                     .post('/forward_changes',{
-                        // TODO self.unsubmitted_mode_change.based_on + use numbers instead of names "4", "7" etc.
                         'updates': [{
                             'ids': [self.id],
                             'new_animation': self.unsubmitted_mode_change
-                        }]
-                    })
+                            }]
+                        },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    )
                     .then(function (response) {
                         var processed_led_strips = response.data.processed_led_strips;
                         
@@ -2136,15 +2139,14 @@
                             led_strips[id].last_animation = processed_led_strips[i].new_animation;
 
                             // also apply changes to selected led mode in frontend
-                            document.getElementById('mode_selector').selectedOptions[0].value = processed_led_strips[i].new_animation.id;
-                            document.getElementById('mode_selector').selectedOptions[0].text = processed_led_strips[i].new_animation.name;
-                            document.getElementById('mode_selector').selectedOptions[0].text = processed_led_strips[i].new_animation.name;
-                            if (processed_led_strips[i].new_animation.based_on){
-                                document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-based-on',processed_led_strips[i].new_animation.based_on);
+                            document.getElementById('mode_selector').selectedOptions[0].value = processed_led_strips[i].new_animation.a; // id
+                            document.getElementById('mode_selector').selectedOptions[0].text = processed_led_strips[i].new_animation.b; // name
+                            if (processed_led_strips[i].new_animation.c){ // based_on_id
+                                document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-based-on',processed_led_strips[i].new_animation.c);
                             } else {
                                 document.getElementById('mode_selector').selectedOptions[0].removeAttribute('data-based-on');
                             }
-                            document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(processed_led_strips[i].new_animation.customization));
+                            document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(processed_led_strips[i].new_animation.d)); // customizations
                         }
                     });
                 
@@ -2218,14 +2220,18 @@
                         'updates': [{
                             'ids': [this.id],
                             'new_animation': {
-                                '4': 'col', // Color
-                                '5': 'Color', // Color
-                                '7':{
+                                'a': 'col', // Color
+                                'b': 'Color', // Color
+                                'd':{
                                     'b': [this.setup_color] //rgb_colors
                                 }
                             }
                         }]
-                    });
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                    );
 
                 // add led strip to led_strips
                 led_strips.push(this);
@@ -2491,15 +2497,10 @@
 
                                     // create LED strip and execute .connect() function
                                     var led_strip = new LEDstrip(
-                                        now_connected_led_strips[counter]["0"],
-                                        now_connected_led_strips[counter]["1"],
-                                        {
-                                            "id":now_connected_led_strips[counter]["4"],
-                                            "name":now_connected_led_strips[counter]["5"],
-                                            "based_on_animation_id":now_connected_led_strips[counter]["6"],
-                                            "customization":now_connected_led_strips[counter]["7"],
-                                        },
-                                        now_connected_led_strips[counter]["2"],
+                                        now_connected_led_strips[counter]["0"], // id
+                                        now_connected_led_strips[counter]["1"], // name
+                                        now_connected_led_strips[counter]["4"] // current_animation
+                                        now_connected_led_strips[counter]["2"], // num_of_leds
                                     );
                                     led_strip.connect();
                                     added_led_strips+=1;
