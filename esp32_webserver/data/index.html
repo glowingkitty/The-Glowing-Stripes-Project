@@ -2050,10 +2050,10 @@
                 this.name = name;
                 this.last_animation = last_animation;
                 this.unsubmitted_mode_change = {
-                    'id':null,
-                    'name':null,
-                    'based_on':null,
-                    'customization':null
+                    'a':null,
+                    'b':null,
+                    'c':null,
+                    'd':null
                 };
                 this.num_of_leds = num_of_leds;
                 this.html;
@@ -2093,22 +2093,22 @@
             }
 
             check_mode_changed(){
-                if (document.getElementById('mode_selector').value!=this.last_animation.id || document.getElementById('mode_selector').value=='1111111111'){
+                if (document.getElementById('mode_selector').value!=this.last_animation.a || document.getElementById('mode_selector').value=='1111111111'){
                     // save values of new animation
-                    this.unsubmitted_mode_change.id = document.getElementById('mode_selector').selectedOptions[0].value;
-                    this.unsubmitted_mode_change.name = document.getElementById('mode_selector').selectedOptions[0].text;
-                    this.unsubmitted_mode_change.based_on = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on');
-                    this.unsubmitted_mode_change.customization = JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'));
+                    this.unsubmitted_mode_change.a = document.getElementById('mode_selector').selectedOptions[0].value; // id
+                    this.unsubmitted_mode_change.b = document.getElementById('mode_selector').selectedOptions[0].text; // name
+                    this.unsubmitted_mode_change.c = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'); // based_on
+                    this.unsubmitted_mode_change.d = JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"')); // customizations
 
 
                     // show buttons to apply or undo change 
                     document.getElementById('undo_changes_button').classList.remove('display_none');
                     document.getElementById('apply_changes_button').classList.remove('display_none');
                 } else {
-                    this.unsubmitted_mode_change.id = null;
-                    this.unsubmitted_mode_change.name = null;
-                    this.unsubmitted_mode_change.based_on = null;
-                    this.unsubmitted_mode_change.customization = null;
+                    this.unsubmitted_mode_change.a = null; // id
+                    this.unsubmitted_mode_change.b = null; // name
+                    this.unsubmitted_mode_change.c = null; // based_on
+                    this.unsubmitted_mode_change.d = null; // customizations
 
                     document.getElementById('undo_changes_button').classList.add('display_none');
                     document.getElementById('apply_changes_button').classList.add('display_none');
@@ -2119,14 +2119,14 @@
                 // send request to change mode
                 var self = this;
                 axios
-                    .post('/forward_changes',{
-                        'updates': [{
-                            'ids': [self.id],
-                            'new_animation': self.unsubmitted_mode_change
-                            }]
-                        },
-                        headers: {
-                            'Content-Type': 'application/json'
+                    .post('/forward_changes',
+                        {
+                            'updates': [
+                                {
+                                'ids': [self.id],
+                                'new_animation': self.unsubmitted_mode_change
+                                }
+                            ]
                         }
                     )
                     .then(function (response) {
@@ -2159,17 +2159,17 @@
                 var mode_selector = document.getElementById('mode_selector');
                 var options = mode_selector.options;
                 for (var counter = 0;true;counter++){
-                    if (options[counter].value==this.last_animation.id){
+                    if (options[counter].value==this.last_animation.a){
                         mode_selector.selectedIndex=counter;
                         break;
                     }
                 }
                 
                 this.unsubmitted_mode_change = {
-                    'id':null,
-                    'name':null,
-                    'based_on':null,
-                    'customization':null
+                    'a':null,
+                    'b':null,
+                    'c':null,
+                    'd':null
                 };
 
                 document.getElementById('undo_changes_button').classList.add('display_none');
@@ -2216,25 +2216,25 @@
 
                 // start Setup mode on LED strip
                 axios
-                    .post('/forward_changes', {
-                        'updates': [{
-                            'ids': [this.id],
-                            'new_animation': {
-                                'a': 'col', // Color
-                                'b': 'Color', // Color
-                                'd':{
-                                    'b': [this.setup_color] //rgb_colors
+                    .post('/forward_changes', 
+                        {
+                            'updates': [
+                                {
+                                    'ids': [this.id],
+                                    'new_animation': {
+                                        'a': 'col', // Color
+                                        'b': 'Color', // Color
+                                        'd':{'b': [this.setup_color]} //rgb_colors
+                                        }
                                 }
-                            }
-                        }]
-                    },
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                            ]
+                        }
                     );
 
                 // add led strip to led_strips
                 led_strips.push(this);
+                connected_led_strips_ids.push(this.id);
+                    
             }
 
 
@@ -2421,6 +2421,7 @@
         //  control.js
         var control;
         var connected_led_strips = [];
+        var connected_led_strips_ids = [];
         var web_control_config = {};
         var num_of_led_strips = 0;
         var led_strips = [];
@@ -2491,7 +2492,9 @@
                             // for every led strip in now_connected_led_strips, check if led_strip was already setup 
                             var counter;
                             for (counter = 0; counter < now_num_of_led_strips; counter++){
-                                if (now_connected_led_strips[counter]["s"]==false){
+                                // process led strip if setup==false & not yet in connected_led_strips_ids
+                                if (now_connected_led_strips[counter]["s"]==false &&
+                                    !connected_led_strips_ids.includes(now_connected_led_strips[counter]["0"]) ){
                                     console.log("Process new LED strip:");
                                     console.log(now_connected_led_strips[counter]);
 
@@ -2499,8 +2502,8 @@
                                     var led_strip = new LEDstrip(
                                         now_connected_led_strips[counter]["0"], // id
                                         now_connected_led_strips[counter]["1"], // name
-                                        now_connected_led_strips[counter]["4"] // current_animation
-                                        now_connected_led_strips[counter]["2"], // num_of_leds
+                                        now_connected_led_strips[counter]["4"], // current_animation
+                                        now_connected_led_strips[counter]["2"] // num_of_leds
                                     );
                                     led_strip.connect();
                                     added_led_strips+=1;
@@ -2525,6 +2528,10 @@
                                     for (stripe_counter = 0; stripe_counter < led_strips.length; stripe_counter++){
                                         if (led_strips[stripe_counter].id==led_strip_id){
                                             led_strips[stripe_counter].disconnect();
+                                            connected_led_strips_ids = connected_led_strips_ids.filter(function(value, index, arr){ 
+                                                return value != led_strip_id;
+                                            });
+
                                             removed_led_strips+=1;
                                             break
                                         }
@@ -2617,7 +2624,7 @@
                                 
                                 var counter;
                                 for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
-                                    control_object.main_window_new_html += '<option data-based-on="'+('based_on' in led_animations.led_animations.custom[counter] ? led_animations.led_animations.custom[counter].based_on:'');
+                                    control_object.main_window_new_html += '<option data-based-on="'+('c' in led_animations.led_animations.custom[counter] ? led_animations.led_animations.custom[counter].based_on:'');
                                     // if "led_animations.led_animations.custom[counter].unsaved_customization", then show those unsaved customization and save button
                                     if (led_animations.led_animations.custom[counter].unsaved_customization){
                                         control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].unsaved_customization).replaceAll('"',"'");
@@ -2649,12 +2656,12 @@
                                             
                                             // also safe id of animation with unsaved changes to led strip
                                             led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
-                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization));
+                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.d = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization));
                                         } else {
-                                            control_object.main_window_new_html += '<option data-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
+                                            control_object.main_window_new_html += '<option data-customization="'+('d' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
                                         }
                                         // add data-default-customization
-                                        control_object.main_window_new_html += '" data-default-customization="'+('customization' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
+                                        control_object.main_window_new_html += '" data-default-customization="'+('d' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
                                         control_object.main_window_new_html += '" value="' + led_animations.led_animations.default[counter].id + '"';
 
                                         // mark mode as selected if thats the case in "current mix"
@@ -3921,20 +3928,20 @@
                 this.animation_custom = document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on')?true:false;
                 this.animation_fields= this.customizable_fields[this.animation_id].fields;
                 this.animation = {
-                    'id':this.animation_id,
-                    'name':this.animation_name,
-                    'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
-                    'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'))
+                    'a':this.animation_id,
+                    'b':this.animation_name,
+                    'c':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+                    'd':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-customization').replaceAll("'",'"'))
                 };
 
                 // save current animation to make it easy to detect changes
                 this.original_animation = JSON.parse(JSON.stringify(this.animation));
                 this.updated_animation = JSON.parse(JSON.stringify(this.animation));
                 this.based_on_animation = {
-                    'id':this.animation_id,
-                    'name':this.animation_name,
-                    'based_on':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
-                    'customization':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-default-customization').replaceAll("'",'"'))
+                    'a':this.animation_id,
+                    'b':this.animation_name,
+                    'c':document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-based-on'),
+                    'd':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-default-customization').replaceAll("'",'"'))
                 };
 
                 // update popup headline
@@ -3967,7 +3974,7 @@
                     {
                         'style':'secondary',
                         'id':'save_mode_button',
-                        'hide':((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)||reset_mode_and_not_applied_yet==true)?false:true,
+                        'hide':((led_strips[selected_led_strip_id].unsubmitted_mode_change.a==this.animation_id) && (this.equals_default==false)||reset_mode_and_not_applied_yet==true)?false:true,
                         'icon':'save',
                         'text':'Save new',
                         'onclick':'animation_customizer.open_save_field()'
@@ -3976,7 +3983,7 @@
 
                 // show reset animation button for animations which have unsaved changes
                 // TODO see if animation has customized details
-                if ((led_strips[selected_led_strip_id].unsubmitted_mode_change.id==this.animation_id) && (this.equals_default==false)){
+                if ((led_strips[selected_led_strip_id].unsubmitted_mode_change.a==this.animation_id) && (this.equals_default==false)){
                     popup.buttons.push({
                         'style':'secondary',
                         'id':'reset_mode_button',
@@ -4060,7 +4067,7 @@
                     }
                 } else {
                     // hide buttons
-                    if (!led_strips[selected_led_strip_id].unsubmitted_mode_change.id || led_strips[selected_led_strip_id].unsubmitted_mode_change.id!=this.animation_id){
+                    if (!led_strips[selected_led_strip_id].unsubmitted_mode_change.a || led_strips[selected_led_strip_id].unsubmitted_mode_change.a!=this.animation_id){
                         if (document.getElementById('save_mode_button')){
                             document.getElementById('save_mode_button').classList.add('display_none');
                         }
@@ -4078,7 +4085,7 @@
                 reset_mode_and_not_applied_yet = false;
                 // update customization of led_strip.unsubmitted_mode_change and run led_strip.apply_changes
                 led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
-                led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+                led_strips[selected_led_strip_id].unsubmitted_mode_change.d = JSON.parse(JSON.stringify(this.updated_animation.customization));
                 led_strips[selected_led_strip_id].apply_changes();
                 
                 // update original_animation
@@ -4089,7 +4096,7 @@
 
                 // if changes unsaved, mark this in led strip, to show "Save" and "Reset" button correctly
                 if (changes_saved==false){
-                    led_strips[selected_led_strip_id].unsubmitted_mode_change.id = this.animation_id;
+                    led_strips[selected_led_strip_id].unsubmitted_mode_change.a = this.animation_id;
                 }
             }
 
@@ -4148,7 +4155,7 @@
                 this.check_for_changes();
 
                 led_strips[selected_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(this.original_animation));
-                led_strips[selected_led_strip_id].unsubmitted_mode_change.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
+                led_strips[selected_led_strip_id].unsubmitted_mode_change.d = JSON.parse(JSON.stringify(this.updated_animation.customization));
                 
                 // reset shown customizations to default values
                 var select_fields = document.getElementsByName('customizer_select_fields');

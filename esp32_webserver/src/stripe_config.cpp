@@ -160,7 +160,7 @@ StaticJsonDocument<850> load_strip_config(){
 }
 
 
-void update_animation(String id, String name, String based_on_id, StaticJsonDocument<500> customizations){
+void update_animation(StaticJsonDocument<800> new_animation){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
@@ -180,12 +180,10 @@ void update_animation(String id, String name, String based_on_id, StaticJsonDocu
         } else {
             Serial.println("Loaded stripe_config.json");
             led_strip_info_file.close();
-            led_strip_info["4"]["a"] = id;
-            led_strip_info["4"]["b"] = name;
-            if (based_on_id!=""){
-                led_strip_info["4"]["c"] = based_on_id;
-            }
-            led_strip_info["4"]["d"] = customizations;
+            // backup existing animation
+            led_strip_info["5"] = led_strip_info["4"];
+            // set new animation
+            led_strip_info["4"] = new_animation;
 
             SPIFFS.remove("/stripe_config.json");
 
