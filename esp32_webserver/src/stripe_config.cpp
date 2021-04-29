@@ -3,6 +3,7 @@
 #include "ArduinoJson.h"
 #include "serial.h"
 #include <string>
+#include <HTTPClient.h>
 using namespace std;
 
 
@@ -71,6 +72,36 @@ string gen_random() {
     
 }
 
+
+bool update_stripe_config(StaticJsonDocument<850> new_config){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_stripe_config()");
+    Serial.println("");
+
+    SPIFFS.remove("/stripe_config.json");
+
+    // Open file for writing
+    File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
+    if (!file) {
+        Serial.println("Failed to create stripe_config.json");
+        return false;
+    }
+    // Serialize JSON to file
+    if (serializeJson(new_config, file) == 0) {
+        Serial.println(F("Failed to write to stripe_config.json"));
+        return false;
+    }
+    // Close the file
+    file.close();
+
+    new_config.clear();
+
+    Serial.println("Updated stripe_config.json");
+    return true;
+}
+
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
 StaticJsonDocument<850> load_strip_config(){
     Serial.println("");
@@ -96,18 +127,18 @@ StaticJsonDocument<850> load_strip_config(){
     led_strip_config_file.close();
     
 
-    bool update_led_strip_config {false};
+    bool update_config {false};
     // generate values if they don't exist yet
     if (!led_strip_config["0"]){
         Serial.println("led_strip_config.id is null, generating random id...");
         // generate random id
         led_strip_config["0"] = gen_random().c_str();
-        update_led_strip_config = true;
+        update_config = true;
     }
     if (!led_strip_config["1"]){
         Serial.println("led_strip_config.name is null, generating name...");
         led_strip_config["1"] = "LED strip";
-        update_led_strip_config = true;
+        update_config = true;
     }
     if (!led_strip_config["4"] || !led_strip_config["4"]["a"]){
         Serial.println("led_strip_config.last_animation_id is null, generating last_animation_..");
@@ -134,37 +165,28 @@ StaticJsonDocument<850> load_strip_config(){
         // led_strip_config["last_animation"]["id"] = led_animations["default_animation"]["id"];
         // led_strip_config["last_animation"]["name"] = led_animations["default_animation"]["name"];
         // led_strip_config["last_animation"]["customization"] = led_animations["default_animation"]["customization"];
-        update_led_strip_config = true;
+        update_config = true;
     }
 
-    if (update_led_strip_config){
-        Serial.println("Update stripe_config.json...");
-        // write updated file
-        SPIFFS.remove("/stripe_config.json");
+    // If currently in setup mode while booting, restore previous animation instead
+    if (led_strip_config["4"]["a"]=="set"){
+        led_strip_config["4"] = led_strip_config["5"];
+        update_config = true;
+    }
 
-        // Open file for writing
-        File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
-        if (!file) {
-            Serial.println("Failed to create file");
-        }
-        // Serialize JSON to file
-        if (serializeJson(led_strip_config, file) == 0) {
-            Serial.println(F("Failed to write to file"));
-        }
-        // Close the file
-        file.close();
-        Serial.println("Updated stripe_config.json");
+    if (update_config){
+        Serial.println("Update stripe_config.json...");
+        update_stripe_config(led_strip_config);
     }
 
     return led_strip_config;
 }
 
-
-void update_animation(StaticJsonDocument<800> new_animation){
+StaticJsonDocument<850> update_this_led_strip(StaticJsonDocument<800> new_animation){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
-    Serial.print(" || update_animation()");
+    Serial.print(" || update_this_led_strip()");
     Serial.println("");
 
     // Open file for writing
@@ -184,6 +206,8 @@ void update_animation(StaticJsonDocument<800> new_animation){
             led_strip_info["5"] = led_strip_info["4"];
             // set new animation
             led_strip_info["4"] = new_animation;
+
+            new_animation.clear();
 
             SPIFFS.remove("/stripe_config.json");
 
@@ -208,4 +232,48 @@ void update_animation(StaticJsonDocument<800> new_animation){
             Serial.println(serialized_json);
         }
     }
+
+    return led_strip_info;
+}
+
+StaticJsonDocument<850> update_other_led_strip(
+    StaticJsonDocument<800> new_animation,
+    StaticJsonDocument<850> current_led_strip_config
+    ){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_other_led_strip()");
+    Serial.println("");
+
+    String led_strip_id = current_led_strip_config["0"].as<String>();
+    String led_strip_ip_address = current_led_strip_config["8"].as<String>();
+
+    Serial.println("Updating 'current_animation' of "+led_strip_id+" ...");
+    HTTPClient http;
+    http.begin("http://"+led_strip_ip_address+"/mode");
+    http.addHeader("Content-Type", "application/json");
+    
+    String json_text;
+    serializeJson(current_led_strip_config, json_text);
+    int httpResponseCode = http.POST(json_text);
+    if(httpResponseCode==200){
+        // backup current animation
+        current_led_strip_config["5"] = current_led_strip_config["4"];
+
+        // update to new animation
+        current_led_strip_config["4"] = new_animation;
+
+        Serial.println("Updated LED strip "+led_strip_id+" via POST request.");
+    } else {
+        Serial.println("Failed to update LED strip "+led_strip_id+" via POST request.");
+        Serial.println("httpResponseCode:");
+        Serial.println(httpResponseCode);
+        Serial.println("response:");
+        String response = http.getString();
+        Serial.println(response);
+    }
+    http.end();
+
+    return current_led_strip_config;
 }

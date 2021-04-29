@@ -204,8 +204,8 @@ void start_leds(){
         // ANIMATIONS
         //////////////////////////////////////
 
-        // Color
-        if (new_animation_id == "col"){
+        // Setup mode / Color
+        if (new_animation_id == "set" || new_animation_id == "col"){
             Serial.println("Glow color...");
             // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
             if (received_stop_animation_command){

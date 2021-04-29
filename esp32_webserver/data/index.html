@@ -2216,24 +2216,17 @@
 
                 // start Setup mode on LED strip
                 axios
-                    .post('/forward_changes', 
+                    .post('/start_setup_mode', 
                         {
-                            'updates': [
-                                {
-                                    'ids': [this.id],
-                                    'new_animation': {
-                                        'a': 'col', // Color
-                                        'b': 'Color', // Color
-                                        'd':{'b': [this.setup_color]} //rgb_colors
-                                        }
-                                }
-                            ]
-                        }
+                            'id': this.id,
+                            'color':this.setup_color
+                        }                                 
                     );
 
                 // add led strip to led_strips
                 led_strips.push(this);
                 connected_led_strips_ids.push(this.id);
+                setup_not_complete_led_strips_ids.push(this.id);
                     
             }
 
@@ -2246,10 +2239,19 @@
                 document.getElementById(this.id).outerHTML = "";
 
                 // remove LED strip from led_strips list (via filter?)
-                led_strips.filter(function(value,index,arr){
+                led_strips = led_strips.filter(function(value,index,arr){
                     return value.id != this.id;
                 })
-                
+
+                // remove from connected_led_strips_ids
+                connected_led_strips_ids = connected_led_strips_ids.filter(function(value, index, arr){ 
+                    return value != this.id;
+                });
+
+                // remove from setup_not_complete_led_strips_ids
+                setup_not_complete_led_strips_ids = setup_not_complete_led_strips_ids.filter(function(value, index, arr){ 
+                    return value != this.id;
+                });
             }
 
             make_shorter() {
@@ -2422,6 +2424,7 @@
         var control;
         var connected_led_strips = [];
         var connected_led_strips_ids = [];
+        var setup_not_complete_led_strips_ids = [];
         var web_control_config = {};
         var num_of_led_strips = 0;
         var led_strips = [];
@@ -2528,10 +2531,6 @@
                                     for (stripe_counter = 0; stripe_counter < led_strips.length; stripe_counter++){
                                         if (led_strips[stripe_counter].id==led_strip_id){
                                             led_strips[stripe_counter].disconnect();
-                                            connected_led_strips_ids = connected_led_strips_ids.filter(function(value, index, arr){ 
-                                                return value != led_strip_id;
-                                            });
-
                                             removed_led_strips+=1;
                                             break
                                         }
@@ -2565,16 +2564,22 @@
             load_control() {
                 this.clear_main_window();
 
-                // TODO switch back preview to previous LED mode
                 num_of_led_strips = Object.keys(led_strips).length;
                 selected_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
                 
                 for (this.i = 0; this.i < num_of_led_strips; this.i++) {
+                    // TODO switch back preview to previous LED mode
                     led_strips[[Object.keys(led_strips)[this.i]]].rainbow_animation();
-
                 }
 
                 var first_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
+
+                
+                // end setup mode
+                axios
+                    .post('/end_setup_mode', {'ids': setup_not_complete_led_strips_ids})
+                    .then(function (response) {setup_not_complete_led_strips_ids = [];})
+                    .catch(function (error) {console.log(error);})
 
                 // show main control interface
                 var control_object = this;

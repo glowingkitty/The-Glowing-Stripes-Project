@@ -403,53 +403,16 @@ void start_server(){
                 // check if the id exist on the host server
                 for (int i = 0; i < led_strips.size();i++){
                     if (led_strips[i]["0"].as<String>() == ids[a].as<String>()){
-                        // if found, forward change to IP address of LED strip
-                        String led_strip_id = led_strips[i]["0"].as<String>();
-                        String led_strip_ip_address = led_strips[i]["8"].as<String>();
 
-                        // if the ip is the host ip, update host, else make post request
-                        if (led_strip_ip_address==host_ip_address){
-                            Serial.println("Updating 'current_animation' of host ...");
-                            // update to new animation
-                            StaticJsonDocument<800> new_animation;
-                            deserializeJson(new_animation, json["updates"][e]["new_animation"].as<String>());
+                        StaticJsonDocument<800> new_animation;
+                        deserializeJson(new_animation, json["updates"][e]["new_animation"].as<String>());
 
-                            // backup current animation
-                            led_strips[i]["5"] = led_strips[i]["4"];
-                            
-                            // in memory
-                            led_strips[i]["4"] = new_animation;
-
-                            // and on storage
-                            update_animation(new_animation);
-
+                        if(host_ip_address == led_strips[i]["8"].as<String>()){
+                            led_strips[i] = update_this_led_strip(new_animation);
                         } else {
-                            Serial.println("Updating 'current_animation' of "+led_strip_ip_address+" ...");
-                            HTTPClient http;
-                            http.begin("http://"+led_strip_ip_address+"/mode");
-                            http.addHeader("Content-Type", "application/json");
-                            
-                            int httpResponseCode = http.POST(json["updates"][e]["new_animation"].as<String>());
-                            if(httpResponseCode==200){
-                                // backup current animation
-                                led_strips[i]["5"] = led_strips[i]["4"];
-
-                                // update to new animation
-                                StaticJsonDocument<800> new_animation;
-                                deserializeJson(new_animation, json["updates"][e]["new_animation"].as<String>());
-                                led_strips[i]["4"] = new_animation;
-                                Serial.println("Updated LED strip "+led_strip_id+" via POST request.");
-                            } else {
-                                Serial.println("Failed to update LED strip "+led_strip_id+" via POST request.");
-                                Serial.println("httpResponseCode:");
-                                Serial.println(httpResponseCode);
-                                Serial.println("response:");
-                                String response = http.getString();
-                                Serial.println(response);
-                            }
-                            http.end();
+                            led_strips[i] = update_other_led_strip(new_animation,led_strips[i]);
                         }
-                        
+
                         break;
                     }
                 }
@@ -457,6 +420,68 @@ void start_server(){
             
         }
         
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+
+    AsyncCallbackJsonWebHandler* start_setup_mode_handler = new AsyncCallbackJsonWebHandler("/start_setup_mode", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /start_setup_mode");
+        Serial.println("");
+
+        StaticJsonDocument<800> new_animation;
+        new_animation["a"] = "set";
+        new_animation["b"] = "Setup mode";
+        StaticJsonDocument<30> customization;
+        new_animation["d"] =  customization;
+        new_animation["d"]["b"] = json["color"];
+
+        // check if the id exist on the host server
+        for (int i = 0; i < led_strips.size();i++){
+            if (led_strips[i]["0"].as<String>() == json["id"].as<String>()){
+                // if THIS LED strip needs to be updated, start update_this_led_strip(), else update_other_led_strip()
+                if(host_ip_address == led_strips[i]["8"].as<String>()){
+                    led_strips[i] = update_this_led_strip(new_animation);
+                } else {
+                    led_strips[i] = update_other_led_strip(new_animation,led_strips[i]);
+                }
+                break;
+            }
+        }
+
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+
+    AsyncCallbackJsonWebHandler* end_setup_mode_handler = new AsyncCallbackJsonWebHandler("/end_setup_mode", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /end_setup_mode");
+        Serial.println("");
+
+        // for every led strip in "setup_not_complete_led_strips_ids" - restore previous animation
+        JsonArray ids = json["ids"].as<JsonArray>();
+        for (int a = 0; a < ids.size();a++){
+            // check if the id exist on the host server
+            for (int i = 0; i < led_strips.size();i++){
+                if (led_strips[i]["0"].as<String>() == ids[a].as<String>()){
+                    if(host_ip_address == led_strips[i]["8"].as<String>()){
+                        // restore backup
+                        led_strips[i] = update_this_led_strip(led_strips[i]["5"]);
+                    } else {
+                        // restore backup
+                        led_strips[i] = update_other_led_strip(led_strips[i]["5"],led_strips[i]);
+                    }
+
+                    // set setup as complete
+                    led_strips[i]["s"] = true;
+
+                    break;
+                }
+            }
+        }
+
         request->send(200, "application/json", "{\"success\":true}");
     });
 
@@ -470,7 +495,7 @@ void start_server(){
         // change mode based on POST request
         StaticJsonDocument<800> new_animation;
         deserializeJson(new_animation, json.as<String>());
-        update_animation(new_animation);
+        update_this_led_strip(new_animation);
         
         Serial.println("Changed LED strip mode to "+json["a"].as<String>());
         request->send(200, "application/json", "{\"success\":true}");
@@ -513,6 +538,8 @@ void start_server(){
     server.addHandler(update_led_strips_handler);
     server.addHandler(forward_changes_handler);
     server.addHandler(mode_handler);
+    server.addHandler(start_setup_mode_handler);
+    server.addHandler(end_setup_mode_handler);
     server.addHandler(signup_led_strip_handler);
 
     server.onNotFound(notFound);

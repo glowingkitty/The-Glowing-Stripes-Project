@@ -48,6 +48,8 @@ bool update_stripe_config(StaticJsonDocument<850> new_config){
     }
     // Close the file
     file.close();
+    
+    new_config.clear();
 
     Serial.println("Updated stripe_config.json");
     return true;
@@ -136,6 +138,12 @@ StaticJsonDocument<850> load_strip_config(){
         // led_strip_config["last_animation"]["id"] = led_animations["default_animation"]["id"];
         // led_strip_config["last_animation"]["name"] = led_animations["default_animation"]["name"];
         // led_strip_config["last_animation"]["customization"] = led_animations["default_animation"]["customization"];
+        update_config = true;
+    }
+
+    // If currently in setup mode while booting, restore previous animation instead
+    if (led_strip_config["4"]["a"]=="set"){
+        led_strip_config["4"] = led_strip_config["5"];
         update_config = true;
     }
 
