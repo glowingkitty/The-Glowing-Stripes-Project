@@ -1,6 +1,6 @@
 #include <ArduinoOTA.h>
 #include "HttpsOTAUpdate.h"
-#include "strip_config.h"
+#include "stripe_config.h"
 #include "serial.h"
 #include <SPIFFS.h>
 

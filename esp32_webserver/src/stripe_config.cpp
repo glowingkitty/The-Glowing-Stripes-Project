@@ -5,59 +5,57 @@
 #include <string>
 #include <HTTPClient.h>
 using namespace std;
+#include <typeinfo>
 
 
 //// stripe_config.json fields - around 70bytes when fields are filled:
-// p:data_pin
+// "p":data_pin <int>
 // "0":id <String>
 // "1":name <String>
 // "2":num_of_leds <int>
 // "3":num_of_sections <int>
-// 4:current_animation <JsonObject>
-//// a:id <String>
-//// b:name <String>
-//// c:based_on_animation_id <String>
-//// d:customization <JsonObject>
-// 5:previous_animation
-//// a:id <String>
-//// b:name <String>
-//// c:based_on_animation_id <String>
-//// d:customization <JsonObject>
-// 6:ip_address
-// s:setup_complete
-// u:start_firmware_update
+// "4":current_animation <JsonObject>
+//// "a":id <String>
+//// "b":name <String>
+//// "c":based_on_animation_id <String>
+//// "d":customization <JsonObject>
+// "5":previous_animation
+//// "a":id <String>
+//// "b":name <String>
+//// "c":based_on_animation_id <String>
+//// "d":customization <JsonObject>
+// "6":ip_address <String>
+// "s":setup_complete <boolean>
+// "u":start_firmware_update <boolean>
 
 //// led_animations.json fields - around 930bytes with default content:
-// 0:id
-// 1:name
-// 2:neopixel_plus_function
-// 3:customization
-//// customization settings:
-// a:colors_selected
-// b:rgb_colors
-// c:num_random_colors
-// d:brightness
-// e:timing_selected
-// f:duration_ms
-// g:pause_a_ms
-// h:pause_b_ms
-// i:sections_selected
-// j:sections
-// k:start
-// l:possible_directions
-// m:brightness_fixed
-// n:max_height
-// o:update_type
-// p:update_progress
-// 4:based_on_animation_id (for custom animations)
+// "0":id <String>
+// "1":name <String>
+// "2":neopixel_plus_function <String>
+// "3":customization <JsonObject>
+//// "a":colors_selected <String>
+//// "b":rgb_colors <array<int>> or <array<array<int>>>
+//// "c":num_random_colors <int>
+//// "d":brightness <float>
+//// "d":timing_selected <String>
+//// "f":duration_ms <int>
+//// "g":pause_a_ms <int>
+//// "h":pause_b_ms <int>
+//// "i":sections_selected <String>
+//// "j":sections <array<int>>
+//// "k":start <String>
+//// "l":possible_directions <array<String>>
+//// "m":brightness_fixed <boolean>
+//// "n":max_height <float>
+// "4":based_on_animation_id (for custom animations)
 
-string gen_random() {
+String gen_random() {
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
     Serial.print(" || gen_random()");
     Serial.println("");
-    string tmp_s;
+    String tmp_s;
     static const char alphanum[] =
         "0123456789"
         "abcdefghijklmnopqrstuvwxyz";
@@ -71,6 +69,402 @@ string gen_random() {
     return tmp_s;
     
 }
+
+bool field_valid(
+    StaticJsonDocument<850> led_strip_config,
+    String fieldname,
+    String type, 
+    boolean is_required,
+    int required_length=0
+    ){
+
+    if (is_required){
+        // check if field is required and exists
+        if (!led_strip_config.containsKey(fieldname)){
+            Serial.println("Field not valid: '"+fieldname+"' doesnt exist!");
+            return false;
+        }
+    }
+
+    // if the field exists, check if its correct
+    if (led_strip_config.containsKey(fieldname)){
+        if (type=="<String>"){
+            // check if field is String
+            if (!led_strip_config[fieldname].is<String>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <String>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+            // check if field is the right length
+            if (required_length>0 && (led_strip_config[fieldname].as<String>().length()!=required_length)){
+                Serial.println("Field not valid: '"+fieldname+"' is not the right length! Length: "+led_strip_config[fieldname].as<String>().length());
+                return false;
+            }
+
+        } else if (type=="<int>"){
+            // check if field is int
+            if (!led_strip_config[fieldname].is<int>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <int>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+
+        } else if (type=="<float>"){
+            // check if field is float
+            if (!led_strip_config[fieldname].is<float>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <float>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        } else if (type=="<JsonObject>"){
+            // check if field is JsonObject
+            if (!led_strip_config[fieldname].is<JsonObject>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <JsonObject>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        } else if (type=="<boolean>"){
+            // check if field is boolean
+            if (!led_strip_config[fieldname].is<boolean>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <boolean>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        } else if (type=="<array<String>>"){
+            // check if field is an array with String
+            if (!led_strip_config[fieldname].is<JsonArray>() || !led_strip_config[fieldname][0].is<String>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <array<String>>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        } else if (type=="<array<int>>"){
+            // check if field is an array with int
+            if (!led_strip_config[fieldname].is<JsonArray>() || !led_strip_config[fieldname][0].is<int>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <array<int>>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        } else if (type=="<array<int>>|<array<array<int>>>"){
+            // check if field is an array
+            if (!led_strip_config[fieldname].is<JsonArray>()){
+                Serial.println("Field not valid: '"+fieldname+"' is not <array...>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+            // check if field is an array with int or an array with arrays with int
+            if (!led_strip_config[fieldname][0].is<int>() && !(led_strip_config[fieldname][0].is<JsonArray>() && led_strip_config[fieldname][0][0].is<int>())){
+                Serial.println("Field not valid: '"+fieldname+"' is not <array<int>> and not <array<array<int>>>! Content: "+led_strip_config[fieldname].as<String>());
+                return false;
+            }
+        }
+
+    }
+
+    led_strip_config.clear();
+
+    return true;
+}
+
+bool stripe_config_valid(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || stripe_config_valid()");
+    Serial.println("");
+
+    // load stripe config and check every field if its valid
+    Serial.println("Loading stripe_config.json ...");
+    StaticJsonDocument<850> led_strip_config;
+    File led_strip_config_file = SPIFFS.open("/stripe_config.json");
+    if(!led_strip_config_file){
+        Serial.println("Failed to open led_strip_config for reading");
+        led_strip_config_file.close();
+        return false;
+    }else {
+        DeserializationError error = deserializeJson(led_strip_config, led_strip_config_file);
+        if (error){
+            Serial.println("Failed to read stripe_config.json: ");
+            Serial.println(error.c_str());
+            led_strip_config_file.close();
+            return false;
+        } else {
+            Serial.println("Loaded stripe_config.json");
+            led_strip_config_file.close();
+        }
+    }
+    
+
+    Serial.println("Checking if stripe_config.json is valid ...");
+    // check "p" (data_pin):                   if it exists, make sure its <int>
+    if (!field_valid(led_strip_config,"p","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "0" (id):                         must exist, make sure its <String> and 3 characters long
+    if (!field_valid(led_strip_config,"0","<String>",true,3)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "1" (name):                       must exist, make sure its <String>
+    if (!field_valid(led_strip_config,"1","<String>",true)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "2" (num_of_leds):                must exist, make sure its <int>
+    if (!field_valid(led_strip_config,"2","<int>",true)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "3" (num_of_sections):            if it exists, make sure its <int>
+    if (!field_valid(led_strip_config,"3","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4" (current_animation):          must exist, make sure its <JsonObject>
+    if (!field_valid(led_strip_config,"4","<JsonObject>",true)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""a" (id):                      must exist, make sure its <String> and 3 characters long
+    if (!field_valid(led_strip_config["4"],"a","<String>",true,3)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""b" (name):                    must exist, make sure its <String>
+    if (!field_valid(led_strip_config["4"],"b","<String>",true)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""c" (based_on_id):             if it exists, make sure its <String>
+    if (!field_valid(led_strip_config["4"],"c","<String>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d" (customization):           if it exists, make sure its <JsonObject>
+    if (!field_valid(led_strip_config["4"],"d","<JsonObject>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""a" (colors_selected):      if it exists, make sure its <String>
+    if (!field_valid(led_strip_config["4"]["d"],"a","<String>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""b" (rgb_colors):           if it exists, make sure its <array<int>> or <array<array<int>>>
+    if (!field_valid(led_strip_config["4"]["d"],"b","<array<int>>|<array<array<int>>>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""c" (num_random_colors):    if it exists, make sure its <int>
+    if (!field_valid(led_strip_config["4"]["d"],"c","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""d" (brightness):           if it exists, make sure its <float>
+    if (!field_valid(led_strip_config["4"]["d"],"d","<float>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""f" (duration_ms):          if it exists, make sure its <int>
+    if (!field_valid(led_strip_config["4"]["d"],"f","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""g" (pause_a_ms):           if it exists, make sure its <int>
+    if (!field_valid(led_strip_config["4"]["d"],"g","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""h" (pause_b_ms):           if it exists, make sure its <int>
+    if (!field_valid(led_strip_config["4"]["d"],"h","<int>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""i" (sections_selected):    if it exists, make sure its <String>
+    if (!field_valid(led_strip_config["4"]["d"],"i","<String>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""j" (sections):             if it exists, make sure its <array<int>>
+    if (!field_valid(led_strip_config["4"]["d"],"j","<array<int>>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""k" (start):                if it exists, make sure its <String>
+    if (!field_valid(led_strip_config["4"]["d"],"k","<String>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""l" (possible_directions):  if it exists, make sure its <array<String>>
+    if (!field_valid(led_strip_config["4"]["d"],"l","<array<String>>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""m" (brightness_fixed):     if it exists, make sure its <boolean>
+    if (!field_valid(led_strip_config["4"]["d"],"m","<boolean>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "4""d""n" (max_height):           if it exists, make sure its <float>
+    if (!field_valid(led_strip_config["4"]["d"],"n","<float>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+    // check "5" (previous_animation):         if it exists, make sure its <JsonObject> (further checking not needed, since json needs to be valid to be backup anyway)
+    if (!field_valid(led_strip_config,"5","<JsonObject>",false)){
+        Serial.println("stripe_config.json:");
+        Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+
+    return true;
+}
+
+void restore_default_config(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || restore_default_config()");
+    Serial.println("");
+
+    File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
+    if (!file) {
+        Serial.println("Failed to create stripe_config.json");
+    }
+    
+    StaticJsonDocument<850> default_config;
+    default_config["p"] = 22;
+    default_config["0"] = gen_random();
+    default_config["1"] = "Glowing Stripe";
+    default_config["2"] = 60;
+    default_config["4"]["a"] = "rai";
+    default_config["4"]["b"] = "Rainbow";
+    default_config["4"]["d"]["d"] = 1.0;
+    default_config["4"]["d"]["e"] = "manual";
+    default_config["4"]["d"]["f"] = 20000;
+    default_config["4"]["d"]["g"] = 0;
+
+
+    if (serializeJson(default_config, file) == 0) {
+        Serial.println("Failed to serializeJson to restore default config!");
+    }
+
+    file.close();
+    Serial.println("/stripe_config.json was restored to default");
+    Serial.println("Rebooting...");
+    ESP.restart();
+}
+
+bool copy_json(String path_from, String path_to){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || copy_json()");
+    Serial.println("");
+
+    StaticJsonDocument<850> origin_json;
+    File origin_json_file = SPIFFS.open(path_from);
+    if(!origin_json_file){
+        Serial.println("Failed to open "+path_from+" for reading");
+        return false;
+    }else {
+        DeserializationError error = deserializeJson(origin_json, origin_json_file);
+        if (error){
+            Serial.println("Failed to read "+path_from+"!");
+            Serial.println(error.c_str());
+            return false;
+        } else {
+            Serial.println("Loaded "+path_from);
+        }
+    }
+    origin_json_file.close();
+
+    Serial.println("Write to "+path_to+" ...");
+    // Open file for writing
+    File target_json_file = SPIFFS.open(path_to, FILE_WRITE);
+    if (!target_json_file) {
+        Serial.println("Failed to create "+path_to);
+        return false;
+    }
+    // Serialize JSON to file
+    if (serializeJson(origin_json, target_json_file) == 0) {
+        Serial.println("Failed to write "+path_to);
+        return false;
+    }
+    // Close the file
+    target_json_file.close();
+
+    return true;
+}
+
+void restore_backup(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || restore_backup()");
+    Serial.println("");
+
+    // restore /stripe_config_backup.json, if backup exists - else restore_default_config
+    if (!SPIFFS.exists("/stripe_config_backup.json")){
+        Serial.print("/stripe_config_backup.json doesn't exist! Restoring default stripe_config.json...");
+        restore_default_config();
+
+    } else {
+        Serial.println("Read backup...");
+        if (!copy_json("/stripe_config_backup.json","/stripe_config.json")){
+            Serial.println("Restoring backup failed!");
+        } else {
+            Serial.println("Success! Restored /stripe_config_backup.json to /stripe_config.json");
+
+            Serial.println("Rebooting...");
+            ESP.restart();
+        }
+    }
+}
+
+void check_stripe_config(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || check_stripe_config()");
+    Serial.println("");
+
+    // if stripe config does not exist -> restore from factory_settings, defined in code
+    if (!SPIFFS.exists("/stripe_config.json")){
+        Serial.print("/stripe_config.json doesn't exist! Restoring default stripe_config.json...");
+        restore_default_config();
+        
+    } else if (!stripe_config_valid()){
+        // if stripe config exist & is unvalid -> restore from backup & reboot
+        Serial.print("/stripe_config.json is invalid! Restoring /stripe_config_backup.json...");
+        restore_backup();
+    } else {
+        // if stripe config exist & is valid, backup current config and continue code
+        Serial.print("/stripe_config.json is valid. Creating backup...");
+        if (!copy_json("/stripe_config.json","/stripe_config_backup.json")){
+            Serial.print("Creating /stripe_config_backup.json failed!");
+        } else {
+            Serial.print("Success. Continue boot process...");
+        }
+        
+    }
+}
+
 
 
 bool update_stripe_config(StaticJsonDocument<850> new_config){
@@ -128,45 +522,6 @@ StaticJsonDocument<850> load_strip_config(){
     
 
     bool update_config {false};
-    // generate values if they don't exist yet
-    if (!led_strip_config["0"]){
-        Serial.println("led_strip_config.id is null, generating random id...");
-        // generate random id
-        led_strip_config["0"] = gen_random().c_str();
-        update_config = true;
-    }
-    if (!led_strip_config["1"]){
-        Serial.println("led_strip_config.name is null, generating name...");
-        led_strip_config["1"] = "LED strip";
-        update_config = true;
-    }
-    if (!led_strip_config["4"] || !led_strip_config["4"]["a"]){
-        Serial.println("led_strip_config.last_animation_id is null, generating last_animation_..");
-
-        // read led_animations.json
-        File led_animations_file = SPIFFS.open("/led_animations.json");
-        
-        if(!led_animations_file){
-            Serial.println("Failed to open led_strip_config for reading");
-        }
-        
-        DynamicJsonDocument led_animations(2048);
-        DeserializationError error = deserializeJson(led_animations, led_animations_file);
-        if (error){
-            Serial.print(F("Failed to read led_animations.json: "));
-            Serial.println(error.c_str());
-        } else {
-            Serial.println("Loaded led_animations.json");
-        }
-
-        led_animations_file.close();
-
-        // TODO define defaul animation - based on led_animations.json
-        // led_strip_config["last_animation"]["id"] = led_animations["default_animation"]["id"];
-        // led_strip_config["last_animation"]["name"] = led_animations["default_animation"]["name"];
-        // led_strip_config["last_animation"]["customization"] = led_animations["default_animation"]["customization"];
-        update_config = true;
-    }
 
     // If currently in setup mode while booting, restore previous animation instead
     if (led_strip_config["4"]["a"]=="set"){
@@ -254,9 +609,7 @@ StaticJsonDocument<850> update_other_led_strip(
     http.begin("http://"+led_strip_ip_address+"/mode");
     http.addHeader("Content-Type", "application/json");
     
-    String json_text;
-    serializeJson(current_led_strip_config, json_text);
-    int httpResponseCode = http.POST(json_text);
+    int httpResponseCode = http.POST(new_animation.as<String>());
     if(httpResponseCode==200){
         // backup current animation
         current_led_strip_config["5"] = current_led_strip_config["4"];

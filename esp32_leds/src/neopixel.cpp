@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 #include <math.h>
-#include "strip_config.h"
+#include "stripe_config.h"
 #include <algorithm>
 #include "ota_update.h"
 #include "wifi_connection.h"
@@ -127,19 +127,19 @@ void start_leds(){
         
 
         // get customization settings for animation | if they don't exist use default settings
-        int duration_ms = led_strip_info.containsKey("7") ? led_strip_info["4"]["d"].containsKey("f") ? led_strip_info["4"]["d"]["f"].as<int>() :200 : 200;
-        int pause_a_ms = led_strip_info.containsKey("7") ? led_strip_info["4"]["d"].containsKey("g") ? led_strip_info["4"]["d"]["g"].as<int>() :0 : 0;
-        float max_brightness = led_strip_info.containsKey("7") ? led_strip_info["4"]["d"].containsKey("d") ? led_strip_info["4"]["d"]["d"].as<float>() : 1.0 : 1.0;
+        int duration_ms = led_strip_info.containsKey("4") ? led_strip_info["4"]["d"].containsKey("f") ? led_strip_info["4"]["d"]["f"].as<int>() :200 : 200;
+        int pause_a_ms = led_strip_info.containsKey("4") ? led_strip_info["4"]["d"].containsKey("g") ? led_strip_info["4"]["d"]["g"].as<int>() :0 : 0;
+        float max_brightness = led_strip_info.containsKey("4") ? led_strip_info["4"]["d"].containsKey("d") ? led_strip_info["4"]["d"]["d"].as<float>() : 1.0 : 1.0;
         // check if brightness is not fixed
-        bool brightness_fixed = led_strip_info.containsKey("7") ? led_strip_info["4"]["d"].containsKey("m") ? led_strip_info["4"]["d"]["m"].as<bool>() : true : true;
+        bool brightness_fixed = led_strip_info.containsKey("4") ? led_strip_info["4"]["d"].containsKey("m") ? led_strip_info["4"]["d"]["m"].as<bool>() : true : true;
         float brightness = !brightness_fixed ? 0 : max_brightness;
         
-        String start = led_strip_info.containsKey("7") ? led_strip_info["4"]["d"].containsKey("k") ? led_strip_info["4"]["d"]["k"].as<String>() : "start" : "start";
+        String start = led_strip_info.containsKey("4") ? led_strip_info["4"]["d"].containsKey("k") ? led_strip_info["4"]["d"]["k"].as<String>() : "start" : "start";
         
 
         // define sections which should glow up
         bool all_sections {true};
-        if (led_strip_info.containsKey("7") && led_strip_info["4"]["d"].containsKey("j")){
+        if (led_strip_info.containsKey("4") && led_strip_info["4"]["d"].containsKey("j")){
             if (led_strip_info["4"]["d"]["j"].as<String>()!="all"){
                 all_sections = !all_sections;
             }

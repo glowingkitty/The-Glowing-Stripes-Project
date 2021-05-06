@@ -2,7 +2,7 @@
 #include "neopixel.h"
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
-#include "strip_config.h"
+#include "stripe_config.h"
 #include "serial.h"
 
 extern bool skip_remaining_animation;
@@ -39,11 +39,12 @@ void Task2code( void * pvParameters ){
 
 void setup() {
     Serial.begin(115200);
-
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
     }
+
+    check_stripe_config();
 
     //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
     xTaskCreatePinnedToCore(

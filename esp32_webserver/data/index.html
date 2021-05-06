@@ -1710,87 +1710,49 @@
 
         //  software_update.js
         let SoftwareUpdate = class {
-            update(){
-                // check if host is connected to internet
-                // show popup
-                popup.header = '<span class="icon sync" style="background-size: 25px 25px !important;"></span> Updating software';
-                popup.message = 'Updating software. Please wait...';
-                popup.buttons = [];
-                popup.show();
+            constructor() {
+                this.update_available = false;
+                this.latest_webserver_firmware_v = null;
+                this.latest_webserver_firmware_description = null;
+                this.latest_leds_firmware_v = null;
+                this.latest_leds_firmware_description = null;
+                this.update_check_interval=null;
+            }
 
-                axios
-                    .get('/is_online').then(
-                        function(response){
-                            axios
-                                .post('/update_all_led_strips',{timeout:120})
-                                .then(function (response) {software_update.restart_services();})
-                                .catch(
-                                    function (error) {
-                                        console.log(error);
-                                        popup.header = 'An error occured';
-                                        popup.message = error;
-                                        popup.buttons = [];
-                                        popup.show();
-                                    }
-                                );
-                        }
-                    ).catch(
-                        function (error) {
+            open_window(){
+                // TODO shows popup window with info if new update is available - and if yes, the button to update
+            }
+
+            background_check_for_update(){
+                // TODO check in the background if an update is available - if true, show notification
+                // check for both webserver and leds firmware
+                var self = this;
+
+                this.connect_check_interval = setInterval(function () {
+                    axios.get('https://raw.githubusercontent.com/glowingkitty/The-Glowing-Stripes-Project/master/latest_firmware.json')
+                        .then(function (response) {
+                            // update latest firmware details
+                            self.latest_webserver_firmware_v = response.data.webserver.version;
+                            self.latest_webserver_firmware_description = response.data.webserver.whats_new;
+                            self.latest_leds_firmware_v = response.data.leds.version;
+                            self.latest_leds_firmware_description = response.data.leds.whats_new;
+
+                            // TODO for every led strip, check if version is outdated
+                            console.log(self.latest_webserver_firmware_v);
+
+                        })
+                        .catch(function (error) {
                             console.log(error);
-                            software_update.no_internet_connection();
-                        }
-                );
+                        });
+                },30000);
+
+                
+
+
             }
 
-            no_internet_connection(){
-                popup.header = '<span class="icon error" style="background-size: 25px 25px !important;"></span> Software update failed';
-                popup.message = 'The LED strip is not connected to the internet.<br>Please connect to a Wi-Fi with internet access - and try again.';
-                popup.buttons = [
-                    {
-                        'style':'primary',
-                        'text':'Connect to Wi-Fi',
-                        'icon':'wifi_online',
-                        'onclick':'wifi.show_networks()'
-                    }
-                ];
-                popup.show();
-            }
-
-            restart_services(){
-                popup.header = 'Restarting services';
-                popup.message = 'Restarting software services. Please wait...';
-                popup.buttons = [];
-                popup.show();
-
-                axios
-                    .post('/restart_services_all_led_strips',{timeout:120})
-                    .then(function (response) {
-                        console.log('Update complete');
-                        console.log(response.data);
-                        software_update.update_complete();
-                    }
-                    ).catch(
-                        function (error) {
-                            console.log(error);
-                            popup.header = 'An error occured';
-                            popup.message = error;
-                            popup.buttons = [];
-                            popup.show();
-                        }
-                    );
-            }
-
-            update_complete(){
-                popup.header = '<span class="icon success" style="background-size: 25px 25px !important;"></span> Update complete';
-                popup.message = 'The LED strip software on all connected LED strips is updated.';
-                popup.buttons = [
-                    {
-                        'style':'primary',
-                        'text':'Ok',
-                        'onclick':'popup.hide()'
-                    }
-                ];
-                popup.show();
+            update_firmware(){
+                // TODO check currently installed firmware for each connected led strip - if firmware outdated, update to latest firmware (else show as "Up to date")
             }
         };
         var software_update = new SoftwareUpdate();
@@ -2348,6 +2310,12 @@
                 this.write();
             }
 
+            preview_animation(){
+                // TODO preview currently active animation
+
+                this.rainbow_animation();
+            }
+
             rainbow_animation(limit = null) {
                 if (this.debug) {
                     console.log('LEDstrip().rainbow_animation()');
@@ -2567,9 +2535,9 @@
                 num_of_led_strips = Object.keys(led_strips).length;
                 selected_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
                 
+                // start animation preview for all led_strips
                 for (this.i = 0; this.i < num_of_led_strips; this.i++) {
-                    // TODO switch back preview to previous LED mode
-                    led_strips[[Object.keys(led_strips)[this.i]]].rainbow_animation();
+                    led_strips[[Object.keys(led_strips)[this.i]]].preview_animation();
                 }
 
                 var first_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
