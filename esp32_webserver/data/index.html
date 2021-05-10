@@ -2546,7 +2546,9 @@
                 // end setup mode
                 axios
                     .post('/end_setup_mode', {'ids': setup_not_complete_led_strips_ids})
-                    .then(function (response) {setup_not_complete_led_strips_ids = [];})
+                    .then(function (response) {
+                        setup_not_complete_led_strips_ids = [];
+                        console.log("/end_setup_mode success")})
                     .catch(function (error) {console.log(error);})
 
                 // show main control interface

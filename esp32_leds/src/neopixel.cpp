@@ -39,17 +39,6 @@ void generate_random_colors(int num_random_colors){
 
 //////////////////////////////////////
 
-void stop_animation(Adafruit_NeoPixel leds){
-    if (!stopped_animation){
-        // TODO decrease brightness of last LED state step by step (quickly)
-
-
-        // then turn LEDs off
-        leds.fill(leds.Color(0,0,0));
-        leds.show();
-        stopped_animation = true;
-    }
-}
 
 void start_leds(){
     Serial.println("");
@@ -76,6 +65,8 @@ void start_leds(){
     Serial.println("last_animation_id:              "+ led_strip_info["4"]["a"].as<String>());
     Serial.println("last_animation_customization:   "+ led_strip_info["4"]["d"].as<String>());
 
+    led_strip_info.clear();
+
     // start animation loop
     for(;;){
 
@@ -84,8 +75,7 @@ void start_leds(){
         stopped_animation = false;
 
         // reload strip config on every loop
-        led_strip_info.clear();
-        StaticJsonDocument<850> led_strip_info = load_strip_config();
+        led_strip_info = load_strip_config();
 
         // check if strip should prepare for update, if so - stop animation loop, start wifi and OTA
         if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()){
@@ -206,11 +196,19 @@ void start_leds(){
 
         // Setup mode / Color
         if (new_animation_id == "set" || new_animation_id == "col"){
-            Serial.println("Glow color...");
+            Serial.println("Start 'set'/'col' animation...");
             // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
             if (received_stop_animation_command){
-                stop_animation(leds);
+                // Stop animation
+                if (!stopped_animation){
+                    // then turn LEDs off
+                    leds.fill(leds.Color(0,0,0));
+                    leds.show();
+                    stopped_animation = true;
+                }
+
             } else {
+                Serial.println("Glow color...");
                 // glow in selected or random color, without transition
                 leds.fill(leds.Color(
                             round(rgb_colors[0][0]*max_brightness),
@@ -241,7 +239,12 @@ void start_leds(){
             for(j=0; j<steps; j++) {
                 // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
                 if (received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
 
@@ -300,7 +303,12 @@ void start_leds(){
             for(int i=0; i<num_leds; i++) {
                 // if "Stop animation" command received, loop will be stopped and instead animation will fade away (decreasing brightness up to 0)
                 if (received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
                 
@@ -350,7 +358,12 @@ void start_leds(){
 
             for(int i=num_leds; i>=0; i--) {
                 if (skip_remaining_animation || received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
 
@@ -385,12 +398,22 @@ void start_leds(){
             if ((start=="start" && !switch_direction) || (start=="end" && switch_direction)){
                 for(int start_point=0; start_point<(num_leds+5); start_point++) {
                     if (skip_remaining_animation || received_stop_animation_command){
-                        stop_animation(leds);
+                        // Stop animation, turn LEDs off
+                        if (!stopped_animation){
+                            leds.fill(leds.Color(0,0,0));
+                            leds.show();
+                            stopped_animation = true;
+                        }
                         break;
                     }
                     for(int i=0; i<num_leds; i++) {
                         if (skip_remaining_animation || received_stop_animation_command){
-                            stop_animation(leds);
+                            // Stop animation, turn LEDs off
+                            if (!stopped_animation){
+                                leds.fill(leds.Color(0,0,0));
+                                leds.show();
+                                stopped_animation = true;
+                            }
                             break;
                         }
                         
@@ -428,12 +451,22 @@ void start_leds(){
             else {
                 for(int start_point=num_leds; start_point>-6; start_point--) {
                     if (skip_remaining_animation || received_stop_animation_command){
-                        stop_animation(leds);
+                        // Stop animation, turn LEDs off
+                        if (!stopped_animation){
+                            leds.fill(leds.Color(0,0,0));
+                            leds.show();
+                            stopped_animation = true;
+                        }
                         break;
                     }
                     for(int i=0; i<num_leds; i++) {
                         if (skip_remaining_animation || received_stop_animation_command){
-                            stop_animation(leds);
+                            // Stop animation, turn LEDs off
+                            if (!stopped_animation){
+                                leds.fill(leds.Color(0,0,0));
+                                leds.show();
+                                stopped_animation = true;
+                            }
                             break;
                         }
                         
@@ -483,7 +516,12 @@ void start_leds(){
             // light up
             for (float max_brightness=0;max_brightness<=brightness;max_brightness+=(brightness/brightness_steps)){
                 if (skip_remaining_animation || received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
 
@@ -516,7 +554,12 @@ void start_leds(){
             // light down
             for (float max_brightness=brightness;max_brightness>=0;max_brightness-=(brightness/brightness_steps)){
                 if (skip_remaining_animation || received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
 
@@ -570,7 +613,12 @@ void start_leds(){
             
             for(int i=0; i<num_of_steps; i++) {
                 if (received_stop_animation_command){
-                    stop_animation(leds);
+                    // Stop animation, turn LEDs off
+                    if (!stopped_animation){
+                        leds.fill(leds.Color(0,0,0));
+                        leds.show();
+                        stopped_animation = true;
+                    }
                     break;
                 }
                 
@@ -631,6 +679,8 @@ void start_leds(){
 
         counter_current_color+=1;
         previous_animation_id = led_strip_info["4"]["a"].as<String>();
+
+        led_strip_info.clear();
     }
 
     start_wifi();

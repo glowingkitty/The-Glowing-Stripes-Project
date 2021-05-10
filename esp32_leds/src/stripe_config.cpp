@@ -48,10 +48,11 @@ bool update_stripe_config(StaticJsonDocument<850> new_config){
     }
     // Close the file
     file.close();
-    
-    new_config.clear();
 
-    Serial.println("Updated stripe_config.json");
+    Serial.println("Updated stripe_config.json to:");
+    Serial.println(new_config.as<String>());
+
+    new_config.clear();
     return true;
 }
 
@@ -68,9 +69,11 @@ bool update_stripe_config_based_on_string(String new_config_text){
     DeserializationError error = deserializeJson(led_strip_config, new_config_text);
     if (error){
         Serial.println("deserializeJson failed");
+        led_strip_config.clear();
         return false;
     } else {
         update_stripe_config(led_strip_config);
+        led_strip_config.clear();
         return true;
     }
 }
@@ -97,19 +100,6 @@ StaticJsonDocument<850> load_strip_config(){
     }
     led_strip_config_file.close();
     
-
-    bool update_config {false};
-
-    // If currently in setup mode while booting, restore previous animation instead
-    if (led_strip_config["4"]["a"]=="set"){
-        led_strip_config["4"] = led_strip_config["5"];
-        update_config = true;
-    }
-
-    if (update_config){
-        Serial.println("Update stripe_config.json...");
-        update_stripe_config(led_strip_config);
-    }
 
     return led_strip_config;
 }
@@ -377,6 +367,17 @@ bool stripe_config_valid(){
         return false;
     }
 
+    // If currently in setup mode while booting, restore previous animation instead
+    if (led_strip_config["4"]["a"]=="set"){
+        led_strip_config["4"] = led_strip_config["5"];
+        Serial.println("Restore LED strip from setup mode to previous animation...");
+        update_stripe_config(led_strip_config);
+        led_strip_config.clear();
+        Serial.println("Restored previous animation!");
+        Serial.println("Rebooting...");
+        ESP.restart();
+    }
+
     return true;
 }
 
@@ -408,7 +409,7 @@ void restore_default_config(){
     if (serializeJson(default_config, file) == 0) {
         Serial.println("Failed to serializeJson to restore default config!");
     }
-
+    default_config.clear();
     file.close();
     Serial.println("/stripe_config.json was restored to default");
     Serial.println("Rebooting...");
@@ -426,32 +427,43 @@ bool copy_json(String path_from, String path_to){
     File origin_json_file = SPIFFS.open(path_from);
     if(!origin_json_file){
         Serial.println("Failed to open "+path_from+" for reading");
+        origin_json.clear();
+        origin_json_file.close();
         return false;
     }else {
         DeserializationError error = deserializeJson(origin_json, origin_json_file);
         if (error){
             Serial.println("Failed to read "+path_from+"!");
             Serial.println(error.c_str());
+            origin_json.clear();
+            origin_json_file.close();
             return false;
         } else {
             Serial.println("Loaded "+path_from);
+            origin_json.clear();
+            origin_json_file.close();
         }
     }
-    origin_json_file.close();
+    
 
     Serial.println("Write to "+path_to+" ...");
     // Open file for writing
     File target_json_file = SPIFFS.open(path_to, FILE_WRITE);
     if (!target_json_file) {
         Serial.println("Failed to create "+path_to);
+        origin_json.clear();
+        target_json_file.close();
         return false;
     }
     // Serialize JSON to file
     if (serializeJson(origin_json, target_json_file) == 0) {
         Serial.println("Failed to write "+path_to);
+        origin_json.clear();
+        target_json_file.close();
         return false;
     }
-    // Close the file
+
+    origin_json.clear();
     target_json_file.close();
 
     return true;

@@ -326,6 +326,21 @@ void start_server(){
         request->send(200, "application/json", "{\"connected_led_strips\":"+output+"}");
     });
 
+    server.on("/led_animations", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /led_animations");
+        Serial.println("");
+        String output;
+
+        // TODO load json with all LED animations and details about them - and return them
+        
+        request->send(200, "application/json", "{\"led_animations\":"+output+"}");
+    });
+
+    
+
     // Over the internet update code:
     AsyncCallbackJsonWebHandler* update_firmware_handler = new AsyncCallbackJsonWebHandler("/update_firmware", [](AsyncWebServerRequest *request, JsonVariant &json) {
         Serial.println("");
