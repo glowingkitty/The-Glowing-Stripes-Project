@@ -1997,11 +1997,12 @@
         let used_setup_colors = [];
 
         let LEDstrip = class {
-            constructor(id,
+            constructor(
+                id,
                 name,
                 last_animation,
                 num_of_leds,
-                setup_color = null,
+                setup_complete,
                 brightness = 0.97,
                 start_point = 0,
                 animation_up_and_down = true,
@@ -2025,13 +2026,21 @@
                 this.start_point = start_point;
                 this.animation_up_and_down = animation_up_and_down;
                 this.animation_direction = animation_direction;
-                // get setup_color
-                if (setup_color == null) {
+
+                // prepare for setup
+                this.setup_complete = setup_complete;
+                this.setup_color = null;
+                if (this.setup_complete==false){
                     this.setup_color = this.get_setup_color();
-                } else {
-                    this.setup_color = setup_color;
+                    this.leds = Array(this.num_of_leds).fill(this.setup_color);
                 }
-                this.leds = Array(this.num_of_leds).fill(this.setup_color);
+
+                // TODO or else show current animation
+                else{
+                    this.leds = Array(this.num_of_leds).fill([0,0,0]);
+                }
+                
+                
 
                 this.debug = debug;
             }
@@ -2055,7 +2064,7 @@
             }
 
             check_mode_changed(){
-                if (document.getElementById('mode_selector').value!=this.last_animation.a || document.getElementById('mode_selector').value=='1111111111'){
+                if (document.getElementById('mode_selector').value!=this.last_animation.a || document.getElementById('mode_selector').value=='off'){
                     // save values of new animation
                     this.unsubmitted_mode_change.a = document.getElementById('mode_selector').selectedOptions[0].value; // id
                     this.unsubmitted_mode_change.b = document.getElementById('mode_selector').selectedOptions[0].text; // name
@@ -2176,20 +2185,21 @@
                 // attatch LED strip to div
                 document.getElementsByClassName('leds_preview_block')[0].innerHTML = document.getElementsByClassName('leds_preview_block')[0].innerHTML + this.html;
 
-                // start Setup mode on LED strip
-                axios
-                    .post('/start_setup_mode', 
-                        {
-                            'id': this.id,
-                            'color':this.setup_color
-                        }                                 
-                    );
-
                 // add led strip to led_strips
                 led_strips.push(this);
                 connected_led_strips_ids.push(this.id);
-                setup_not_complete_led_strips_ids.push(this.id);
-                    
+
+                if (this.setup_complete==false){
+                    // start Setup mode on LED strip
+                    axios
+                        .post('/start_setup_mode', 
+                            {
+                                'id': this.id,
+                                'color':this.setup_color
+                            }                                 
+                        );
+                    setup_not_complete_led_strips_ids.push(this.id);
+                }
             }
 
 
@@ -2398,6 +2408,7 @@
         var led_strips = [];
         var led_animations = [];
         var selected_led_strip_id = null;
+        var selected_led_strip = 0;
 
         let Control = class {
             constructor(sync_all) {
@@ -2457,15 +2468,20 @@
                         .then(function (response) {
                             var now_connected_led_strips = response.data.connected_led_strips;
                             var now_num_of_led_strips = response.data.connected_led_strips.length;
+                            var fully_setup_led_strips = 0;
                             var added_led_strips = 0;
                             var removed_led_strips = 0;
 
                             // for every led strip in now_connected_led_strips, check if led_strip was already setup 
                             var counter;
                             for (counter = 0; counter < now_num_of_led_strips; counter++){
+                                // check if LED strip is already setup
+                                if (now_connected_led_strips[counter]["s"]==true){
+                                    fully_setup_led_strips+=1;
+                                }
+
                                 // process led strip if setup==false & not yet in connected_led_strips_ids
-                                if (now_connected_led_strips[counter]["s"]==false &&
-                                    !connected_led_strips_ids.includes(now_connected_led_strips[counter]["0"]) ){
+                                if (!connected_led_strips_ids.includes(now_connected_led_strips[counter]["0"]) ){
                                     console.log("Process new LED strip:");
                                     console.log(now_connected_led_strips[counter]);
 
@@ -2474,7 +2490,8 @@
                                         now_connected_led_strips[counter]["0"], // id
                                         now_connected_led_strips[counter]["1"], // name
                                         now_connected_led_strips[counter]["4"], // current_animation
-                                        now_connected_led_strips[counter]["2"] // num_of_leds
+                                        now_connected_led_strips[counter]["2"], // num_of_leds
+                                        now_connected_led_strips[counter]["s"] // setup_complete
                                     );
                                     led_strip.connect();
                                     added_led_strips+=1;
@@ -2519,6 +2536,11 @@
                             if (added_led_strips > 0) {
                                 control.load_setup_menu();
                             }
+
+                            // if all led strips are already setup, load control interface
+                            if (fully_setup_led_strips==num_of_led_strips){
+                                control.load_control(false);
+                            }
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -2529,34 +2551,33 @@
 
             }
 
-            load_control() {
+            load_control(end_setup_mode=true) {
+                clearInterval(check_led_strips);
                 this.clear_main_window();
 
                 num_of_led_strips = Object.keys(led_strips).length;
-                selected_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
                 
                 // start animation preview for all led_strips
                 for (this.i = 0; this.i < num_of_led_strips; this.i++) {
-                    led_strips[[Object.keys(led_strips)[this.i]]].preview_animation();
+                    led_strips[this.i].preview_animation();
                 }
 
-                var first_led_strip_id = led_strips[[Object.keys(led_strips)[0]]].id;
-
+                // end setup mode, if there are new led strips who are not yet setup
+                if (end_setup_mode){
+                    axios
+                        .post('/end_setup_mode', {'ids': setup_not_complete_led_strips_ids})
+                        .then(function (response) {
+                            setup_not_complete_led_strips_ids = [];
+                            console.log("/end_setup_mode success")})
+                        .catch(function (error) {console.log(error);})
+                }
                 
-                // end setup mode
-                axios
-                    .post('/end_setup_mode', {'ids': setup_not_complete_led_strips_ids})
-                    .then(function (response) {
-                        setup_not_complete_led_strips_ids = [];
-                        console.log("/end_setup_mode success")})
-                    .catch(function (error) {console.log(error);})
-
                 // show main control interface
                 var control_object = this;
                 axios
                     .get("/led_animations")
                     .then(function (response) {
-                        led_animations = response.data;
+                        led_animations = response.data.led_animations.led_animations;
 
                         axios
                             .get("/web_control_config")
@@ -2568,7 +2589,7 @@
 
                                 //// show "all x LED strips" or name of single LED strip, depending on current mix
                                 control_object.main_window_new_html += '<div>';
-                                if ('name' in web_control_config.current_mix) {
+                                if (web_control_config.current_mix && 'name' in web_control_config.current_mix) {
                                     //// show name of mix
                                     control_object.main_window_new_html += '<span class="icon mix">' + web_control_config.current_mix.name + '</span>';
 
@@ -2583,8 +2604,8 @@
                                 } else {
                                     //// show name and  "edit name" if single LED strip selected
                                     
-                                    control_object.main_window_new_html += '<spam class="led_strip_name">'+led_strips[first_led_strip_id].name+'</spam>';
-                                    control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'led_strip\',\'' + led_strips[first_led_strip_id].id + '\')" ';
+                                    control_object.main_window_new_html += '<spam class="led_strip_name">'+led_strips[selected_led_strip].name+'</spam>';
+                                    control_object.main_window_new_html += '<span id="edit_name_button" onclick="editname(\'led_strip\',\'' + led_strips[selected_led_strip].id + '\')" ';
                                     control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>';
 
                                 }
@@ -2592,60 +2613,57 @@
 
 
                                 //// show last used mode for all LED strips or mode of last selected led strip (depending on current mix)
-                                control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips.'+led_strips[first_led_strip_id].id+'.check_mode_changed()" data-current-led-strip-id="'+led_strips[first_led_strip_id].id+'" class="mode_selector">';
+                                control_object.main_window_new_html += '<select id="mode_selector" onchange="led_strips.'+led_strips[selected_led_strip]["0"]+'.check_mode_changed()" data-current-led-strip-id="'+led_strips[selected_led_strip]["0"]+'" class="mode_selector">';
 
                                 //// show all custom modes
                                 control_object.main_window_new_html += '<optgroup label="Custom animations">';
                                 
                                 var counter;
-                                for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
-                                    control_object.main_window_new_html += '<option data-based-on="'+('c' in led_animations.led_animations.custom[counter] ? led_animations.led_animations.custom[counter].based_on:'');
-                                    // if "led_animations.led_animations.custom[counter].unsaved_customization", then show those unsaved customization and save button
-                                    if (led_animations.led_animations.custom[counter].unsaved_customization){
-                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].unsaved_customization).replaceAll('"',"'");
+                                for (counter = 0; counter < led_animations.custom.length; counter++) {
+                                    control_object.main_window_new_html += '<option data-based-on="'+('c' in led_animations.custom[counter] ? led_animations.custom[counter].based_on:'');
+                                    // if "led_animations.custom[counter].unsaved_customization", then show those unsaved customization and save button
+                                    if (led_animations.custom[counter].unsaved_customization){
+                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.custom[counter].unsaved_customization).replaceAll('"',"'");
                                     }else{
-                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
+                                        control_object.main_window_new_html += '" data-customization="'+JSON.stringify(led_animations.custom[counter]["3"]).replaceAll('"',"'");
                                     }
                                     // add data-default-customization
-                                    control_object.main_window_new_html += '" data-default-customization="'+JSON.stringify(led_animations.led_animations.custom[counter].customization).replaceAll('"',"'");
-                                    control_object.main_window_new_html += '" value="' + led_animations.led_animations.custom[counter].id + '"';
+                                    control_object.main_window_new_html += '" data-default-customization="'+JSON.stringify(led_animations.custom[counter]["3"]).replaceAll('"',"'");
+                                    control_object.main_window_new_html += '" value="' + led_animations.custom[counter]["0"] + '"';
 
                                     // mark mode as selected if thats the case in "current mix"
-                                    if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.custom[counter].id) {
+                                    if (led_strips[selected_led_strip].last_animation.id == led_animations.custom[counter]["0"]) {
                                         control_object.main_window_new_html += ' selected';
                                     }
                                     control_object.main_window_new_html += '>';
-                                    control_object.main_window_new_html += led_animations.led_animations.custom[counter].name + '</option>';
+                                    control_object.main_window_new_html += led_animations.custom[counter].name + '</option>';
                                 }
                                 control_object.main_window_new_html += '</optgroup>';
 
                                 //// show all default modes
                                 control_object.main_window_new_html += '<optgroup label="Default animations">';
                                 
-                                for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
-                                    // exclude Setup mode
-                                    if (led_animations.led_animations.default[counter].id != "0000000000") {
-                                        // if "led_animations.led_animations.default[counter].unsaved_customization", then show those unsaved customization and save button
-                                        if (led_animations.led_animations.default[counter].unsaved_customization){
-                                            control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization).replaceAll('"',"'");
-                                            
-                                            // also safe id of animation with unsaved changes to led strip
-                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
-                                            led_strips[led_animations.led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.d = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter].unsaved_customization));
-                                        } else {
-                                            control_object.main_window_new_html += '<option data-customization="'+('d' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
-                                        }
-                                        // add data-default-customization
-                                        control_object.main_window_new_html += '" data-default-customization="'+('d' in led_animations.led_animations.default[counter]? JSON.stringify(led_animations.led_animations.default[counter].customization).replaceAll('"',"'"):'{}');
-                                        control_object.main_window_new_html += '" value="' + led_animations.led_animations.default[counter].id + '"';
-
-                                        // mark mode as selected if thats the case in "current mix"
-                                        if (led_strips[first_led_strip_id].last_animation.id == led_animations.led_animations.default[counter].id) {
-                                            control_object.main_window_new_html += ' selected';
-                                        }
-                                        control_object.main_window_new_html += '>';
-                                        control_object.main_window_new_html += led_animations.led_animations.default[counter].name + '</option>';
+                                for (counter = 0; counter < led_animations.default.length; counter++) {
+                                    // if "led_animations.default[counter].unsaved_customization", then show those unsaved customization and save button
+                                    if (led_animations.default[counter].unsaved_customization){
+                                        control_object.main_window_new_html += '<option data-customization="'+JSON.stringify(led_animations.default[counter].unsaved_customization).replaceAll('"',"'");
+                                        
+                                        // also safe id of animation with unsaved changes to led strip
+                                        led_strips[led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change = JSON.parse(JSON.stringify(led_animations.default[counter]));
+                                        led_strips[led_animations.default[counter].unsaved_customization_for_led_strip_id].unsubmitted_mode_change.d = JSON.parse(JSON.stringify(led_animations.default[counter].unsaved_customization));
+                                    } else {
+                                        control_object.main_window_new_html += '<option data-customization="'+("3" in led_animations.default[counter]? JSON.stringify(led_animations.default[counter]["3"]).replaceAll('"',"'"):'{}');
                                     }
+                                    // add data-default-customization
+                                    control_object.main_window_new_html += '" data-default-customization="'+("3" in led_animations.default[counter]? JSON.stringify(led_animations.default[counter]["3"]).replaceAll('"',"'"):'{}');
+                                    control_object.main_window_new_html += '" value="' + led_animations.default[counter]["0"] + '"';
+
+                                    // mark mode as selected if thats the case in "current mix"
+                                    if (led_strips[selected_led_strip].last_animation.id == led_animations.default[counter]["0"]) {
+                                        control_object.main_window_new_html += ' selected';
+                                    }
+                                    control_object.main_window_new_html += '>';
+                                    control_object.main_window_new_html += led_animations.default[counter].name + '</option>';
                                 }
                                 control_object.main_window_new_html += '</optgroup>';
 
@@ -2688,8 +2706,8 @@
 
                                 // show undo and apply button (hidden, only visible if change is made)
                                 control_object.main_window_new_html += '<div class="fixed_bottom_right">';
-                                control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+first_led_strip_id+'.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
-                                control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips.'+first_led_strip_id+'.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
+                                control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+selected_led_strip+'.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
+                                control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips.'+selected_led_strip+'.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
                                 control_object.main_window_new_html += '</div>';
 
                                 control_object.main_window_new_html += '</div>';
@@ -4107,22 +4125,22 @@
                 document.getElementById('reset_mode_button').classList.add('display_none');
 
                 var counter;
-                for (counter = 0; counter < led_animations.led_animations.custom.length; counter++) {
-                    if (this.animation_id == led_animations.led_animations.custom[counter].id) {
-                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.custom[counter].customization));
+                for (counter = 0; counter < led_animations.custom.length; counter++) {
+                    if (this.animation_id == led_animations.custom[counter].id) {
+                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.custom[counter].customization));
                         
                         // update original_animation
-                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.custom[counter]));
+                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.custom[counter]));
                         break;
                     }
                 }
 
-                for (counter = 0; counter < led_animations.led_animations.default.length; counter++) {
-                    if (this.animation_id == led_animations.led_animations.default[counter].id) {
-                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.led_animations.default[counter].customization));
+                for (counter = 0; counter < led_animations.default.length; counter++) {
+                    if (this.animation_id == led_animations.default[counter].id) {
+                        document.getElementById('mode_selector').selectedOptions[0].setAttribute('data-customization',JSON.stringify(led_animations.default[counter].customization));
                         
                         // update original_animation
-                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.led_animations.default[counter]));
+                        this.updated_animation = JSON.parse(JSON.stringify(led_animations.default[counter]));
                         break;
                     }
                 }

@@ -206,6 +206,7 @@ void start_leds(){
                     leds.show();
                     stopped_animation = true;
                 }
+                received_stop_animation_command = false;
 
             } else {
                 Serial.println("Glow color...");
@@ -245,6 +246,7 @@ void start_leds(){
                         leds.show();
                         stopped_animation = true;
                     }
+                    received_stop_animation_command = false;
                     break;
                 }
 
@@ -309,6 +311,7 @@ void start_leds(){
                         leds.show();
                         stopped_animation = true;
                     }
+                    received_stop_animation_command = false;
                     break;
                 }
                 
@@ -619,6 +622,7 @@ void start_leds(){
                         leds.show();
                         stopped_animation = true;
                     }
+                    received_stop_animation_command = false;
                     break;
                 }
                 

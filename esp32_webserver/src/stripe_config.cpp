@@ -537,7 +537,28 @@ StaticJsonDocument<850> load_strip_config(){
     return led_strip_config;
 }
 
-StaticJsonDocument<850> update_this_led_strip(StaticJsonDocument<800> new_animation){
+String load_json_as_string(String path){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || load_json_as_string()");
+    Serial.println("");
+
+    String json_text;
+
+    File json_file = SPIFFS.open(path,"r");
+    while (json_file.available()){
+        json_text += char(json_file.read());
+    }
+    json_file.close();
+
+    return json_text;
+}
+
+StaticJsonDocument<850> update_this_led_strip(
+    StaticJsonDocument<800> new_animation,
+    StaticJsonDocument<850> current_led_strip_config
+    ){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
@@ -586,6 +607,16 @@ StaticJsonDocument<850> update_this_led_strip(StaticJsonDocument<800> new_animat
             Serial.println("Sent new stripe_config.json via Serial to other ESP:");
             Serial.println(serialized_json);
         }
+    }
+
+    // add temporary fields again
+    if (current_led_strip_config.containsKey("8")){
+        // adding IP address
+        led_strip_info["8"] =  current_led_strip_config["8"];
+    }
+    if (current_led_strip_config.containsKey("s")){
+        // adding IP address
+        led_strip_info["s"] =  current_led_strip_config["s"];
     }
 
     return led_strip_info;

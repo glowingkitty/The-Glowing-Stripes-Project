@@ -332,11 +332,24 @@ void start_server(){
         Serial.print(xPortGetCoreID());
         Serial.print(" || /led_animations");
         Serial.println("");
-        String output;
 
-        // TODO load json with all LED animations and details about them - and return them
+        // load json with all LED animations and details about them - and return them
+        String output = load_json_as_string("/led_animations.json");
         
         request->send(200, "application/json", "{\"led_animations\":"+output+"}");
+    });
+
+    server.on("/web_control_config", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /web_control_config");
+        Serial.println("");
+
+        // load json with details about currently open mix, if animations are synced etc. - and return them
+        String output = load_json_as_string("/web_control_config.json");
+        
+        request->send(200, "application/json", output);
     });
 
     
@@ -423,7 +436,7 @@ void start_server(){
                         deserializeJson(new_animation, json["updates"][e]["new_animation"].as<String>());
 
                         if(host_ip_address == led_strips[i]["8"].as<String>()){
-                            led_strips[i] = update_this_led_strip(new_animation);
+                            led_strips[i] = update_this_led_strip(new_animation,led_strips[i]);
                         } else {
                             led_strips[i] = update_other_led_strip(new_animation,led_strips[i]);
                         }
@@ -445,6 +458,9 @@ void start_server(){
         Serial.print(" || /start_setup_mode");
         Serial.println("");
 
+        Serial.print("Starting setup mode for... ");
+        Serial.print(json["id"].as<String>());
+
         StaticJsonDocument<800> new_animation;
         new_animation["a"] = "set";
         new_animation["b"] = "Setup mode";
@@ -457,7 +473,7 @@ void start_server(){
             if (led_strips[i]["0"].as<String>() == json["id"].as<String>()){
                 // if THIS LED strip needs to be updated, start update_this_led_strip(), else update_other_led_strip()
                 if(host_ip_address == led_strips[i]["8"].as<String>()){
-                    led_strips[i] = update_this_led_strip(new_animation);
+                    led_strips[i] = update_this_led_strip(new_animation,led_strips[i]);
                 } else {
                     led_strips[i] = update_other_led_strip(new_animation,led_strips[i]);
                 }
@@ -477,13 +493,18 @@ void start_server(){
 
         // for every led strip in "setup_not_complete_led_strips_ids" - restore previous animation
         JsonArray ids = json["ids"].as<JsonArray>();
+        Serial.print("Ending setup mode for... ");
+        for(JsonVariant v : ids) {
+            Serial.println(v.as<String>());
+        }
+
         for (int a = 0; a < ids.size();a++){
             // check if the id exist on the host server
             for (int i = 0; i < led_strips.size();i++){
                 if (led_strips[i]["0"].as<String>() == ids[a].as<String>()){
                     if(host_ip_address == led_strips[i]["8"].as<String>()){
                         // restore backup
-                        led_strips[i] = update_this_led_strip(led_strips[i]["5"]);
+                        led_strips[i] = update_this_led_strip(led_strips[i]["5"],led_strips[i]);
                     } else {
                         // restore backup
                         led_strips[i] = update_other_led_strip(led_strips[i]["5"],led_strips[i]);
@@ -510,7 +531,13 @@ void start_server(){
         // change mode based on POST request
         StaticJsonDocument<800> new_animation;
         deserializeJson(new_animation, json.as<String>());
-        update_this_led_strip(new_animation);
+
+        for (int i = 0; i < led_strips.size();i++){
+            if (led_strips[i]["8"].as<String>() == host_ip_address){
+                update_this_led_strip(new_animation,led_strips[i]);
+                break;
+            }
+        }
         
         Serial.println("Changed LED strip mode to "+json["a"].as<String>());
         request->send(200, "application/json", "{\"success\":true}");
