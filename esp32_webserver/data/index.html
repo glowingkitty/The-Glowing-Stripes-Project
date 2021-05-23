@@ -11,28 +11,15 @@
         <link rel="shortcut icon" href="favicons/favicon.ico" type="image/x-icon">
         
         <style>
-        /* lexend-deca-regular - latin */
-        @font-face {
-            font-family: 'Lexend Deca';
-            font-style: normal;
-            font-weight: 400;
-            src: local('Lexend Deca Regular'), local('LexendDeca-Regular'),
-                url('fonts/lexenddeca.woff2') format('woff2'),
-                /* Chrome 26+, Opera 23+, Firefox 39+ */
-                url('fonts/lexenddeca.woff') format('woff');
-            /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Lexend+Deca&display=swap');
 
         .background {
-            background: #FFFFFF;
+            background: #000000;
             font-family: Lexend Deca;
             font-style: normal;
             font-weight: normal;
             margin: 0px;
-        }
-
-        .background.darkmode {
-            background: #000000;
+            overflow-x: hidden;
         }
 
         .header_overlay {
@@ -61,6 +48,39 @@
             background: #292929;
             border: 1px solid #505050;
             color: #FFFFFF;
+        }
+
+        .notifications {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            transform: translate(0%);
+            -webkit-transition: all 200ms ease;
+            transition: all 200ms ease;
+        }
+
+        .notifications.hidden {
+            transform: translate(115%);
+        }
+
+        .notification {
+            background: #292929;
+            border: 1px solid #505050;
+            color: #FFFFFF;
+            padding: 15px;
+            border-radius: 10px;
+            padding-bottom: 28px;
+        }
+
+        .notification_message {
+            font-size: 14px;
+            color: #AEAEAE;
+            padding-top: 5px;
+        }
+        
+        .notification_buttons{
+            position: absolute;
+            right: 0;
         }
 
         @media only screen and (max-width: 740px) {
@@ -160,12 +180,9 @@
             height: 19px;
             padding: 3px;
             border-radius: 20px;
-            background: #FFFFFF;
-        }
-
-        .num_of_connected_leds.darkmode {
             background: #000000;
         }
+
 
         .glow_text {
             color: #DF0A0A;
@@ -515,13 +532,6 @@
         }
 
         .cta.secondary {
-            background: #FFFFFF;
-            color: #575757;
-            border: 1px solid #DCDCDC;
-            box-sizing: border-box;
-        }
-
-        .cta.darkmode {
             background: #2F2F2F;
             color: #FFFFFF;
             border: 1px solid #414141;
@@ -678,14 +688,6 @@
 
         .multi_select_dark {
             background-image: url("icons/multi_select_dark.svg") !important;
-        }
-
-        .power {
-            background-image: url("icons/power.svg") !important;
-        }
-
-        .power_dark {
-            background-image: url("icons/power_dark.svg") !important;
         }
 
         .restart {
@@ -1529,13 +1531,10 @@
         
         
         //  popup.js
-        let Popup = class {
-            constructor(header='', message='', buttons=[]) {
-                this.header = header;
-                this.message = message;
-                this.buttons = buttons;
-                this.i=0;
-                // buttons example = [{"style":"primary","text":"Continue","icon":"sync","onclick":"control.next_page()"}]
+        let Popups = class {
+            constructor() {
+                this.is_open = false;
+                this.currently_open_popup = null;
             }
 
             get popup_active() {
@@ -1547,7 +1546,12 @@
                 }
             }
 
-            show() {
+            show(
+                popup_name,
+                header,
+                message = '',
+                buttons = []
+            ) {
                 // make sure animation customizer is hidden
                 animation_customizer.close();
 
@@ -1556,71 +1560,73 @@
                     this.hide();
                 }
 
-                var self = this;
+                this.is_open = true;
+                this.currently_open_popup = popup_name;
+
                 setTimeout(function(){
                     // overwrite headline
-                    document.getElementById('popup_headline').innerHTML = self.header;
+                    document.getElementById('popup_headline').innerHTML = header;
 
                     // overwrite message
-                    document.getElementById('popup_message').innerHTML = self.message;
+                    document.getElementById('popup_message').innerHTML = message;
                     
                     // overwrite buttons
-                    var buttons = '';
-                    for (this.i = 0; this.i < self.buttons.length; this.i++) {
+                    var output_buttons = '';
+                    var i
+                    for (i = 0; i < buttons.length; i++) {
+                        var button_id = null;
+                        var button_style = 'primary';
+                        var button_icon = null;
+                        var button_hide = false;
+                        var button_text;
+                        var button_onclick
+
                         // get button values
-                        if ('style' in self.buttons[this.i] && self.buttons[this.i].style){
-                            this.style = self.buttons[this.i].style;
-                        } else {
-                            this.style = 'primary';
+                        if ('style' in buttons[i] && buttons[i].style){
+                            button_style = buttons[i].style;
                         }
-                        if ('icon' in self.buttons[this.i] && self.buttons[this.i].icon){
-                            this.icon = self.buttons[this.i].icon;
-                        } else {
-                            this.icon = null;
+                        if ('icon' in buttons[i] && buttons[i].icon){
+                            button_icon = buttons[i].icon;
                         }
-                        if ('id' in self.buttons[this.i] && self.buttons[this.i].id){
-                            this.id = self.buttons[this.i].id;
-                        } else {
-                            this.id = null;
+                        if ('id' in buttons[i] && buttons[i].id){
+                            button_id = buttons[i].id;
                         }
-                        if ('hide' in self.buttons[this.i] && self.buttons[this.i].hide==true){
-                            this.hide = true;
-                        } else {
-                            this.hide = false;
-                        }
-                        var text = self.buttons[this.i].text;
-                        var onclick = self.buttons[this.i].onclick;
+                        if ('hide' in buttons[i] && buttons[i].hide==true){
+                            button_hide = true;
+                        } 
+                        button_text = buttons[i].text;
+                        button_onclick = buttons[i].onclick;
 
                         // add button
-                        buttons+='<a class="cta ';
+                        output_buttons+='<a class="cta ';
 
-                        if (this.style=='primary'){
-                            buttons+='primary';
+                        if (button_style=='primary'){
+                            output_buttons+='primary';
                         } else{
-                            buttons+='darkmode';
+                            output_buttons+='darkmode';
                         }
 
-                        if (this.icon){
-                            buttons+=' with_icon '+this.icon;
+                        if (button_icon){
+                            output_buttons+=' with_icon '+button_icon;
                         }
 
                         // if button is supposed to be hidden - hide by default
-                        if (this.hide==true){
-                            buttons+=' display_none';
+                        if (button_hide==true){
+                            output_buttons+=' display_none';
                         }
                         
-                        buttons+='"';
+                        output_buttons+='"';
                         
-                        if (this.id){
-                            buttons+=' id="'+this.id+'"';
+                        if (button_id){
+                            output_buttons+=' id="'+button_id+'"';
                         }
 
-                        buttons+=' onclick="'+onclick+'">';
+                        output_buttons+=' onclick="'+button_onclick+'">';
 
-                        buttons+=text;
-                        buttons+='</a>';
+                        output_buttons+=button_text;
+                        output_buttons+='</a>';
                     }
-                    document.getElementById('popup_buttons').innerHTML = buttons;
+                    document.getElementById('popup_buttons').innerHTML = output_buttons;
 
                     // make popup visible
                     document.getElementById('popup').classList.remove('display_none');
@@ -1633,6 +1639,9 @@
             }
 
             hide(){
+                this.is_open = false;
+                this.currently_open_popup = null
+
                 document.getElementsByTagName('body')[0].style.removeProperty('overflow');
                 document.getElementById('popup').classList.add('opacity_null');
                 setTimeout(function(){
@@ -1640,72 +1649,70 @@
                 },200);
             }
         };
-        var popup = new Popup();
+        var popups = new Popups();
 
 
-        //  power.js
-        let Power = class {
-            show_options(){
-                popup.header = 'Power options';
-                popup.message = 'What do you want to do?';
-                popup.buttons = [
-                    {
-                        'style':'secondary',
-                        'id':'shutdown_button',
-                        'icon':'power',
-                        'text':'Shutdown',
-                        'onclick':'power.shutdown()'
-                    },
-                    {
-                        'style':'secondary',
-                        'id':'restart_button',
-                        'icon':'restart',
-                        'text':'Restart',
-                        'onclick':'power.restart()'
-                    },
-                    {
-                        'style':'primary',
-                        'id':'sleep_button',
-                        'icon':'sleep',
-                        'text':'Sleep',
-                        'onclick':'power.sleep()'
+        let PushNotifications = class {
+            constructor() {
+            }
+
+            show(
+                headline,
+                message,
+                cta_primary_message=null,
+                cta_primary_action="push_notifications.close()",
+                cta_primary_icon=null,
+                cta_secondary_message=null,
+                cta_secondary_action="push_notifications.close()",
+                cta_secondary_icon=null
+                ){
+                // generate div
+                var div = '<div class="notification"">';
+                div+= '<div>'+headline+'</div>';
+                div+= '<div class="notification_message">'+message+'</div>';
+                // add buttons
+                if (cta_primary_message){
+                    div+= '<div class="notification_buttons">';
+                    // add cta_primary
+                    div+= '<div class="cta primary';
+                    if (cta_primary_icon){
+                        div+= ' with_icon '+cta_primary_icon;
                     }
-                ];
-                popup.show();
+                    div+= '" onclick="'+cta_primary_action+'">'+cta_primary_message+'</div>';
+
+                    // add cta_secondary
+                    if (cta_secondary_message){
+                        div+= '<div class="cta secondary';
+                        if (cta_secondary_icon){
+                            div+= ' with_icon '+cta_secondary_icon;
+                        }
+                        div+= '" onclick="'+cta_secondary_action+'">'+cta_secondary_message+'</div>';
+                    }
+
+                    div+= '</div>' // end notification_buttons
+                }
+                div+= '</div>'// end notification
+
+                // show notification
+                document.getElementById("notifications").innerHTML = div;
+                document.getElementById("notifications").classList.remove("hidden");
+
+                // if no cta buttons, auto hide notification after a few seconds
+                if (!cta_primary_message){
+                    setTimeout(function(){
+                        document.getElementById("notifications").classList.add("hidden")
+                        setTimeout(function(){
+                            document.getElementById("notifications").innerHTML = "";
+                        },200);
+                    },3000);
+                }
             }
 
-            shutdown(){
-                popup.header = 'Shut Down';
-                popup.message = 'Shutting down all connected LED strips. Please wait...';
-                popup.buttons = [];
-                popup.show();
-                axios
-                    .post("/shutdown_all_led_strips")
-                    .catch(function(error){
-                        console.log('Shut Down successfull');
-                        connection_check.show_disconnected_warning('power_off');
-                    });
+            close(){
+                // TODO close notification
             }
-
-            restart(){
-                popup.header = 'Restart';
-                popup.message = 'Restarting all connected LED strips. Please wait...';
-                popup.buttons = [];
-                popup.show();
-                axios
-                    .post("/restart_all_led_strips")
-                    .catch(function(error){
-                        console.log('Restart successfull');
-                        connection_check.show_disconnected_warning('restart');
-                    });
-            }
-
-            sleep(){
-                // TODO
-                console.log('Turn LED strips off, without turning Raspberry Pi off');
-            }
-        };
-        var power = new Power();
+        }
+        var push_notifications = new PushNotifications();
 
 
         //  software_update.js
@@ -1717,6 +1724,10 @@
                 this.latest_leds_firmware_v = null;
                 this.latest_leds_firmware_description = null;
                 this.update_check_interval=null;
+                this.oudated_led_strips=[];
+                this.checked_for_outdated_firmware=false;
+                this.update_notification_viewed=false;
+                this.server_response = null;
             }
 
             open_window(){
@@ -1724,102 +1735,150 @@
             }
 
             background_check_for_update(){
-                // TODO check in the background if an update is available - if true, show notification
+                // check in the background if an update is available - if true, show notification
                 // check for both webserver and leds firmware
-                var self = this;
-
                 this.connect_check_interval = setInterval(function () {
                     axios.get('https://raw.githubusercontent.com/glowingkitty/The-Glowing-Stripes-Project/master/latest_firmware.json')
                         .then(function (response) {
                             // update latest firmware details
-                            self.latest_webserver_firmware_v = response.data.webserver.version;
-                            self.latest_webserver_firmware_description = response.data.webserver.whats_new;
-                            self.latest_leds_firmware_v = response.data.leds.version;
-                            self.latest_leds_firmware_description = response.data.leds.whats_new;
+                            software_update.server_response = response.data;
+                            software_update.latest_webserver_firmware_v = response.data.webserver.version;
+                            software_update.latest_webserver_firmware_description = response.data.webserver.whats_new;
+                            software_update.latest_leds_firmware_v = response.data.leds.version;
+                            software_update.latest_leds_firmware_description = response.data.leds.whats_new;
 
-                            // TODO for every led strip, check if version is outdated
-                            console.log(self.latest_webserver_firmware_v);
+                            // for every led strip, check if version is outdated
+                            var stripe_counter;
+                            for (stripe_counter = 0; stripe_counter < led_strips.length; stripe_counter++){
+                                // if LED strip is not yet on this.oudated_led_strips, check if needs to be added
+                                if (!software_update.oudated_led_strips.includes(led_strips[stripe_counter].id)){
+                                    if (led_strips[stripe_counter].firmware_webserver!=software_update.latest_webserver_firmware_v){
+                                        console.log("Firmware outdated! "+led_strips[stripe_counter].id+" (webserver ESP32) is still using "+led_strips[stripe_counter].firmware_webserver+" (latest: "+software_update.latest_webserver_firmware_v+")")
+                                        software_update.oudated_led_strips.push(led_strips[stripe_counter].id);
 
+                                    } else if (led_strips[stripe_counter].firmware_leds!=software_update.latest_leds_firmware_v){
+                                        console.log("Firmware outdated! "+led_strips[stripe_counter].id+" (LEDs ESP32) is still using "+led_strips[stripe_counter].firmware_leds+" (latest: "+software_update.latest_leds_firmware_v+")")
+                                        software_update.oudated_led_strips.push(led_strips[stripe_counter].id);
+                                    }
+                                }
+                            }
+
+                            software_update.checked_for_outdated_firmware = true;
+
+                            // if one of the LED strips is outdated, notify via push notification "New software update available! Update all LED strips to v0.x.x!"
+                            // only show notification if software update window is not already open, else just update open window
+                            if (
+                                popups.currently_open_popup!="software_updates" &&
+                                software_update.update_notification_viewed==false && 
+                                software_update.oudated_led_strips.length > 0){
+                                var message = "Update all LED strips to v"+self.latest_webserver_firmware_v+"!"
+                                if (self.latest_webserver_firmware_v != self.latest_leds_firmware_v){
+                                    message = "Update all LED strips!"
+                                }
+                                push_notifications.show(
+                                    "New software update available!",
+                                    message,
+                                    "Install update",
+                                    "software_update.update_firmware()",
+                                    "sync",
+                                    "Not now"
+                                )
+                                software_update.update_notification_viewed=true;
+                            }
                         })
                         .catch(function (error) {
                             console.log(error);
+                            // show notification "connect to internet for latest software updates"
+                            push_notifications.show(
+                                    "Cannot connect to Update-Server",
+                                    "Make sure the LED strips are connected to the internet, to keep them up-to-date and get all the latest features!",
+                                    "Go online",
+                                    "wifi.show_networks()",
+                                    "wifi_online",
+                                    "Not now"
+                                )
                         });
                 },30000);
-
-                
-
-
             }
 
             update_firmware(){
                 // TODO check currently installed firmware for each connected led strip - if firmware outdated, update to latest firmware (else show as "Up to date")
+                if (this.checked_for_outdated_firmware==false){
+                    // TODO check firmware outdated
+                }
+
+                // TODO open window with "Updating firmware..." progress
             }
         };
         var software_update = new SoftwareUpdate();
+        software_update.background_check_for_update();
 
 
         //  wifi.js
         let WiFi = class {
             constructor() {
                 this.network=null;
-                this.cta=null;
-                this.i=0;
+                this.cta=null
             }
 
             show_networks(){
-                popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks';
-                popup.message = 'Loading...';
-                popup.buttons = [];
-                popup.show();
+                popups.show(
+                    'loading_wifi_networks',
+                    '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks',
+                    'Loading...'
+                );
 
                 var self = this;
                 axios
                     .get('/wifi_networks_nearby')
                     .then(function(response){
-                        popup.message = '';
+                        var popup_message = '';
 
                         // if not connected to any wifi, show list of wifis with "Connect" buttons
                         if (response.data.networks[0].current_wifi==false || response.data.networks[0].is_default_wifi==true){
-                            popup.message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
-                            for (this.i = 0; this.i < response.data.networks.length; this.i++) {
-                                self.network = response.data.networks[this.i];
-                                self.cta = 'connect';
-                                popup.message += self.get_wifi_div();
+                            popup_message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
+                            var i;
+                            for (i = 0; i < response.data.networks.length; i++) {
+                                wifi.network = response.data.networks[i];
+                                wifi.cta = 'connect';
+                                popup_message += wifi.get_wifi_div();
                             }
-                            popup.message+= '</div>';
+                            popup_message+= '</div>';
                         }
                         // else show connected wifi at the top, "Disconnect" button and list other wifis WITH NO "Connect" buttons
                         else {
-                            self.network = response.data.networks[0];
-                            self.cta = 'disconnect';
-                            popup.message += self.get_wifi_div();
+                            wifi.network = response.data.networks[0];
+                            wifi.cta = 'disconnect';
+                            popup_message += wifi.get_wifi_div();
 
-                            popup.message+= '<div id="other_wifis">';
-                            popup.message+= '<div class="divider_line"></div>';
+                            popup_message+= '<div id="other_wifis">';
+                            popup_message+= '<div class="divider_line"></div>';
 
                             // show all remaining wifis
-                            popup.message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
+                            popup_message+= '<div style="overflow-y: scroll;max-height: 30vh;">';
                             
                             for (this.i = 1; this.i < response.data.networks.length; this.i++) {
-                                self.network = response.data.networks[this.i];
-                                self.cta = null;
-                                popup.message += self.get_wifi_div();
+                                wifi.network = response.data.networks[this.i];
+                                wifi.cta = null;
+                                popup_message += wifi.get_wifi_div();
                             }
-                            popup.message+= '</div>';
+                            popup_message+= '</div>';
 
-                            popup.message+= '</div>';
+                            popup_message+= '</div>';
 
                             // also add hidden default wifi network (which will be visible when user disconnects from wifi)
-                            popup.message+= '<div id="default_wifi" style="display: none">';
-                            self.network = response.data.default_wifi;
-                            self.cta = null;
-                            popup.message += self.get_wifi_div();
-                            popup.message+= '</div>';
+                            popup_message+= '<div id="default_wifi" style="display: none">';
+                            wifi.network = response.data.default_wifi;
+                            wifi.cta = null;
+                            popup_message += wifi.get_wifi_div();
+                            popup_message+= '</div>';
                         }
 
-                        popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks';
-                        popup.buttons = [];
-                        popup.show();
+                        popups.show(
+                            "wifi_networks_nearby",
+                            '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Wi-Fi networks',
+                            popup_message
+                        );
                     })
                     .catch(function(error){
                         console.log(error);
@@ -1879,61 +1938,54 @@
 
             connect(essid,password,encryption){
                 if (essid!=null){
-                    popup.header = 'Connecting to...';
-                    popup.message = document.getElementById(essid).outerHTML;
-                    popup.message += '<br>Please wait...';
-                    popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
-                    popup.buttons = [];
-                    popup.show();
+                    popups.show(
+                        "connecting_to_wifi",
+                        'Connecting to...',
+                        document.getElementById(essid).outerHTML+'<br>Please wait...'
+                    );
 
                     axios
                         .post('/connect_to_wifi_all_led_strips',{
                             'essid':essid,
-                            'password':password, // TODO yeah yeah, this.i know. Don't worry, password will be submitted only if you are on the "TheGlowingStripes" wifi. And if anyone has a better suggestion on how to safely submit the wifi password on the local wifi without ssl issues, let me know
+                            'password':password, // TODO yeah yeah, this.i know. Don't worry, password will be submitted only if you are on the "glow" wifi. And if anyone has a better suggestion on how to safely submit the wifi password on the local wifi without ssl issues, let me know
                             'encryption':encryption
                         })
                         .catch(function(error){
                             console.log(error);
-                            popup.header = 'Connected to new Wi-Fi';
-                            popup.message = 'You can access the LED strips now by connecting your device to:<br>';
-                            popup.message+= document.getElementById(essid).outerHTML;
-                            popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
-                            popup.buttons = [];
-                            popup.show();
+                            popups.show(
+                                "connected_to_new_wifi",
+                                'Connected to new Wi-Fi',
+                                'You can access the LED strips now by connecting your device to:<br>'+document.getElementById(essid).outerHTML
+                            );
                         });
                 }
             }
 
             ask_for_password(essid,encryption){
                 if (essid!=null && encryption!=null){
-                    popup.header = 'Enter Wi-Fi password for...';
-
                     // remove connect button
                     document.getElementById(essid+'_connect_button').outerHTML = '';
 
-                    // show wifi details to 
-                    popup.message = document.getElementById(essid).outerHTML;
+                    var popup_message;
+                    popup_message = document.getElementById(essid).outerHTML;
+                    popup_message+='<div>';
+                    popup_message+='<input oninput="wifi.show_connect_button()" class="input_field" id="wifipassword" type="password" placeholder="Enter the Wi-Fi password here">';
+                    popup_message+='<div class="right_aligned inline_block">';
+                    popup_message+='<a id="connect_to_wifi_button" style="display: none" onclick="wifi.connect(\''+essid+'\',document.getElementById(\'wifipassword\').value,\''+encryption+'\')" class="cta primary">Connect</a>';
+                    popup_message+='</div>';
+                    popup_message+='</div>';
 
-                    // show 
-                    popup.message+='<div>';
-                    popup.message+='<input oninput="wifi.show_connect_button()" class="input_field" id="wifipassword" type="password" placeholder="Enter the Wi-Fi password here">';
-
-                    popup.message+='<div class="right_aligned inline_block">';
-                    popup.message+='<a id="connect_to_wifi_button" style="display: none" onclick="wifi.connect(\''+essid+'\',document.getElementById(\'wifipassword\').value,\''+encryption+'\')" class="cta primary">Connect</a>';
-                    popup.message+='</div>';
-                    
-                    popup.message+='</div>';
-
-                    popup.buttons = [];
-                    popup.show();
+                    popups.show(
+                        "enter_wifi_password",
+                        'Enter Wi-Fi password for...',
+                        popup_message
+                    );
 
                     setTimeout(function(){
                         var wifipasswordfield = document.getElementById('wifipassword');
                         wifipasswordfield.focus();
                         wifipasswordfield.select();
                     },200);
-                    
-
                 }
             }
 
@@ -1948,30 +2000,30 @@
 
             disconnect(essid){
                 // show new popup and send disconnect request
-                popup.header = '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Disconnecting from ...';
                 // hide "Disconnect" button
                 document.getElementById('popup_message').getElementsByClassName('cta primary')[0].outerHTML='';
 
                 // replace "other wifis" div with "Please wait..."
                 document.getElementById('other_wifis').outerHTML='Please wait...';
                 
-                popup.message = document.getElementById('popup_message').innerHTML;
-                popup.show();
+                popups.show(
+                    "disconnecting_from_wifi",
+                    '<span class="icon wifi_three_bars" style="background-size: 25px 25px !important; padding-left: 35px !important;"></span> Disconnecting from ...',
+                    document.getElementById('popup_message').innerHTML
+                );
 
                 // send disconnect request
-                // TODO testing
                 axios
                     .post('/disconnect_from_wifi_all_led_strips',{
                         'essid':essid
                     },{timeout:10})
                     .catch(function(error){
                         console.log(error);
-                        popup.header = 'Disconnected from Wi-Fi';
-                        popup.message = 'You can access the LED strips now by connecting your device to:<br>';
-                        popup.message+= document.getElementById('default_wifi').innerHTML;
-                        popup.message+= '<br><br>This was a mistake?<br>Press the “Reset Wi-Fi” button on the LED strip case.';
-                        popup.buttons = [];
-                        popup.show();
+                        popups.show(
+                            "disconnected_from_wifi",
+                            'Disconnected from Wi-Fi',
+                            'You can access the LED strips now by connecting your device to:<br>'+document.getElementById('default_wifi').innerHTML
+                        );
                     });
             }
 
@@ -2003,6 +2055,8 @@
                 last_animation,
                 num_of_leds,
                 setup_complete,
+                firmware_webserver,
+                firmware_leds,
                 brightness = 0.97,
                 start_point = 0,
                 animation_up_and_down = true,
@@ -2011,6 +2065,8 @@
             ) {
                 this.id = id;
                 this.name = name;
+                this.firmware_webserver = firmware_webserver;
+                this.firmware_leds = firmware_leds;
                 this.last_animation = last_animation;
                 this.unsubmitted_mode_change = {
                     'a':null,
@@ -2444,7 +2500,7 @@
                 this.clear_main_window();
 
                 this.main_window_new_html = `
-                    <span id="num_strips" class="num_of_connected_leds darkmode">`+num_of_led_strips+`</span> LED <span id="text_strips">strip`+(num_of_led_strips!=1?`s`:``)+`</span> connected.<br>
+                    <span id="num_strips" class="num_of_connected_leds">`+num_of_led_strips+`</span> LED <span id="text_strips">strip`+(num_of_led_strips!=1?`s`:``)+`</span> connected.<br>
                     <span id="ready_to_glow">
                         Ready to <span class="glow_text">glow</span>?<br>
                         <br>
@@ -2491,7 +2547,9 @@
                                         now_connected_led_strips[counter]["1"], // name
                                         now_connected_led_strips[counter]["4"], // current_animation
                                         now_connected_led_strips[counter]["2"], // num_of_leds
-                                        now_connected_led_strips[counter]["s"] // setup_complete
+                                        now_connected_led_strips[counter]["s"], // setup_complete
+                                        now_connected_led_strips[counter]["fw"], // firmware_webserver
+                                        now_connected_led_strips[counter]["fl"] // firmware_leds
                                     );
                                     led_strip.connect();
                                     added_led_strips+=1;
@@ -2598,7 +2656,7 @@
                                     control_object.main_window_new_html += 'class="text_cta with_icon edit right_positioned">Edit name</span>';
 
                                 } else if (num_of_led_strips > 1 && web_control_config.sync_all == true) {
-                                    control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds darkmode">';
+                                    control_object.main_window_new_html += 'All <span id="num_strips" class="num_of_connected_leds">';
                                     control_object.main_window_new_html += num_of_led_strips + '</span> LED <span id="text_strips"> strips</span>';
 
                                 } else {
@@ -2699,14 +2757,14 @@
 
                                 //// show "save mix" button
                                 if (num_of_led_strips > 1) {
-                                    control_object.main_window_new_html += '<a id="save_mix_button" class="cta darkmode with_icon save">Save mix</a>';
+                                    control_object.main_window_new_html += '<a id="save_mix_button" class="cta with_icon save">Save mix</a>';
                                 }
 
                                 control_object.main_window_new_html += '</div>';
 
                                 // show undo and apply button (hidden, only visible if change is made)
                                 control_object.main_window_new_html += '<div class="fixed_bottom_right">';
-                                control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+selected_led_strip+'.undo_changes()" class="cta darkmode with_icon undo display_none">Undo</a>';
+                                control_object.main_window_new_html += '<a id="undo_changes_button" onclick="led_strips.'+selected_led_strip+'.undo_changes()" class="cta with_icon undo display_none">Undo</a>';
                                 control_object.main_window_new_html += '<a id="apply_changes_button" onclick="led_strips.'+selected_led_strip+'.apply_changes()"class="cta primary with_icon true display_none">Apply</a>';
                                 control_object.main_window_new_html += '</div>';
 
@@ -2748,7 +2806,7 @@
             check_if_host_connected_again(){
                 this.connect_check_interval = setInterval(function () {
                     axios
-                        .get('http://theglowingstripes.local')
+                        .get('http://glow.local')
                         .then(function(response){
                             clearInterval(connection_check.connect_check_interval);
                             connection_check.show_connected_again_info();
@@ -2776,7 +2834,6 @@
                 document.getElementsByClassName('mixes')[0].style.display = 'none';
 
                 document.getElementById('software_update_button').style.display = 'none';
-                document.getElementById('power_button').style.display = 'none';
                 document.getElementById('show_wifi_networks_button').style.display = 'none';
 
                 document.getElementById('disconnected_info').innerHTML = 'Disconnected from "The Glowing Stripes Project"<br>In case this is not supposed to happen: check the battery status of the LED strips and if you are connected to the correct Wi-Fi.';
@@ -2800,7 +2857,6 @@
                 document.getElementsByClassName('mixes')[0].style.removeProperty('display');
 
                 document.getElementById('software_update_button').style.removeProperty('display');
-                document.getElementById('power_button').style.removeProperty('display');
                 document.getElementById('show_wifi_networks_button').style.removeProperty('display');
 
                 document.getElementById('disconnected_info').innerHTML = '';
@@ -3937,33 +3993,31 @@
                     'd':JSON.parse(document.getElementById('mode_selector').selectedOptions[0].getAttribute('data-default-customization').replaceAll("'",'"'))
                 };
 
-                // update popup headline
-                popup.header = 'Customize "'+this.animation_name+'"';
-                popup.message = '';
+                var popup_message = '';
 
                 // add fields
                 if (this.animation_fields.indexOf('colors') >= 0){
-                    popup.message += colors_customizer.get_colors_field(this.animation_id);
+                    popup_message += colors_customizer.get_colors_field(this.animation_id);
                 }
                 if (this.animation_fields.indexOf('timing') >= 0){
-                    popup.message += timing_customizer.get_timing_field();
+                    popup_message += timing_customizer.get_timing_field();
                 }
                 if (this.animation_fields.indexOf('direction') >= 0){
-                    popup.message += direction_customizer.get_direction_field();
+                    popup_message += direction_customizer.get_direction_field();
                 }
                 if (this.animation_fields.indexOf('brightness') >= 0){
-                    popup.message += brightness_customizer.get_brightness_field();
+                    popup_message += brightness_customizer.get_brightness_field();
                 }
                 if (this.animation_fields.indexOf('height') >= 0){
-                    popup.message += height_customizer.get_height_field();
+                    popup_message += height_customizer.get_height_field();
                 }
                 if (this.animation_fields.indexOf('sections') >= 0){
-                    popup.message += sections_customizer.get_sections_field();
+                    popup_message += sections_customizer.get_sections_field();
                 }
                     
 
                 // show "Save new", "Update" and "Apply" button, depending on if edited mode is a default or custom mode (default modes cannot be updated)
-                popup.buttons = [
+                var popup_buttons = [
                     {
                         'style':'secondary',
                         'id':'save_mode_button',
@@ -3977,7 +4031,7 @@
                 // show reset animation button for animations which have unsaved changes
                 // TODO see if animation has customized details
                 if ((led_strips[selected_led_strip_id].unsubmitted_mode_change.a==this.animation_id) && (this.equals_default==false)){
-                    popup.buttons.push({
+                    popup_buttons.push({
                         'style':'secondary',
                         'id':'reset_mode_button',
                         'hide':false,
@@ -3989,7 +4043,7 @@
 
                 // if a custom mode is beeing updated, add update button
                 if (this.animation_custom==true){
-                    popup.buttons.push({
+                    popup_buttons.push({
                         'style':'secondary',
                         'id':'update_mode_button',
                         'hide':true,
@@ -3999,7 +4053,7 @@
                     });
                 }
 
-                popup.buttons.push(
+                popup_buttons.push(
                     {
                         'style':'primary',
                         'id':'apply_changed_mode_button',
@@ -4021,7 +4075,12 @@
                 document.getElementById('customized_led_animation_preview_stripes').innerHTML = document.getElementById(selected_led_strip_id+'_led_strip_parts').innerHTML;
 
                 // show popup
-                popup.show();
+                popups.show(
+                    "customize_animation",
+                    'Customize "'+this.animation_name+'"',
+                    popup_message,
+                    popup_buttons
+                );
                 
             }
 
@@ -4085,7 +4144,7 @@
                 this.original_animation.customization = JSON.parse(JSON.stringify(this.updated_animation.customization));
 
                 // hide interface
-                popup.hide();
+                popups.hide();
 
                 // if changes unsaved, mark this in led strip, to show "Save" and "Reset" button correctly
                 if (changes_saved==false){
@@ -4096,9 +4155,6 @@
 
             // save new mode
             open_save_field(){
-                // TODO replace headline
-                popup.header = 'Save customized mode';
-                popup.message = '';
 
                 // show name input field (onchange: check if name already exists, if true for custom: show "Update" and "Update & Apply" buttons, if true for default: hide "Save" and "Save & Apply")
                 var animation_name_field = new CustomizerField(
@@ -4181,7 +4237,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes"/>
     </head>
 
-    <body class="background darkmode" onload="boot();">
+    <body class="background" onload="boot();">
 
         <div>
             <div class="leds_preview_block">
@@ -4203,21 +4259,20 @@
         <div class="sub_menu">
             <a id="edit_layout_button" onclick="" class="icon large_inline move"></a>
             <a id="software_update_button" onclick="software_update.update()" class="icon large_inline sync"></a>
-            <a id="power_button" onclick="power.show_options()" class="icon large_inline power"></a>
             <a id="show_wifi_networks_button" onclick="wifi.show_networks()" class="icon large_inline wifi_three_bars"></a>
         
         </div>
 
-        <div id="notifications">
+        <div class="notifications hidden" id="notifications">
         </div>
 
-        <div class="popup opacity_null display_none" onclick="popup.hide()" id="popup">
+        <div class="popup opacity_null display_none" onclick="popups.hide()" id="popup">
             <div id="customized_led_animation_preview" class="display_none">
                 <div id="customized_led_animation_preview_stripes"></div>
                 <div class="led_strip_base wide_base"></div>
             </div>
             <div class="main_window popup_content" onclick="event.stopPropagation()" id="popup_content">
-                <div class="popup_button close" onclick="popup.hide()"></div>
+                <div class="popup_button close" onclick="popups.hide()"></div>
                 <div class="popup_headline" id="popup_headline"></div>
                 <div class="popup_message" id="popup_message"></div>
                 <div class="popup_buttons" id="popup_buttons"></div>

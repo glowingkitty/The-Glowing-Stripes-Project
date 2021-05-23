@@ -77,7 +77,7 @@ void update_firmware_status(String stripe_id, String new_status){
     if(device_is_client()){
         HTTPClient http;   
         
-        IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+        IPAddress serverIp = MDNS.queryHost("glow");
         http.begin("http://"+serverIp.toString()+"/new_firmware_update_status");
         http.addHeader("Content-Type", "application/json");
         int httpResponseCode = http.POST("{\"led_strip_id\":\""+stripe_id+"\",\"status\":\""+new_status+"\"}");

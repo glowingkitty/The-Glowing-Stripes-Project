@@ -23,7 +23,7 @@
 
 using namespace std;
 
-const char* glowing_stripes_ssid = "TheGlowingStripes";
+const char* glowing_stripes_ssid = "glow";
 const char* glowing_stripes_password = "letsglow";
 String host_ip_address;
 
@@ -140,13 +140,13 @@ boolean host_is_online(){
     Serial.print(" || host_is_online()");
     Serial.println("");
 
-    // check if "theglowingstripes.local" is accessible
-    // search for theglowingstripes domain
+    // check if "glow.local" is accessible
+    // search for glow domain
     if(mdns_init()!= ESP_OK){
         Serial.println("mDNS failed to start");
         return false;
     }
-    IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+    IPAddress serverIp = MDNS.queryHost("glow");
     if (serverIp){
         return true;
     }
@@ -168,8 +168,6 @@ void start_hotspot(){
     Serial.println("Hotspot active now!");
 }
 
-
-
 void signup_led_strip(){
     Serial.println("");
     Serial.print("|| Core ");
@@ -179,16 +177,18 @@ void signup_led_strip(){
     // make POST request to webserver to submit information like ip address and details
     StaticJsonDocument<850> led_strip_info = load_strip_config();
     
+    // set IP address
     led_strip_info["8"] = WiFi.localIP().toString();
+    Serial.println("ip_address:  "+ led_strip_info["8"].as<String>());
     // set Setup as false (default)
     led_strip_info["s"] = false;
-    Serial.println("ip_address:  "+ led_strip_info["8"].as<String>());
+    
 
     // make post request
     if(device_is_client()){
         HTTPClient http;   
         
-        IPAddress serverIp = MDNS.queryHost("theglowingstripes");
+        IPAddress serverIp = MDNS.queryHost("glow");
         http.begin("http://"+serverIp.toString()+"/signup_led_strip");
         http.addHeader("Content-Type", "application/json");
         
@@ -224,7 +224,7 @@ void start_wifi(){
     Serial.print(" || start_wifi()");
     Serial.println("");
 
-    // see if host wifi is nearby (the one defined in credentials, or TheGlowingStripes wifi)
+    // see if host wifi is nearby (the one defined in credentials, or glow wifi)
     if (connect_to_wifi()){
         if (host_is_online()){
             // if true, become a client (playing leds are get ready to take over host, if host goes offline)

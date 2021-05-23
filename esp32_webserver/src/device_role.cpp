@@ -21,8 +21,8 @@ void become_host(){
 
     role = "host";
 
-    if (MDNS.begin("theglowingstripes")) {
-        Serial.println("LED strip is now available under http://theglowingstripes.local");
+    if (MDNS.begin("glow")) {
+        Serial.println("LED strip is now available under http://glow.local");
     } else {
         Serial.println("Error setting up MDNS responder!");
     }

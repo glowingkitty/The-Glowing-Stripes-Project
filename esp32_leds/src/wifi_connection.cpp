@@ -106,7 +106,7 @@ boolean connect_to_wifi(){
 
 void start_wifi(){
     // if wifi from wifi credentials is available, connect to it
-    // else connect to theglowingstripes.local network
+    // else connect to glow.local network
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
