@@ -253,9 +253,11 @@ void notFound(AsyncWebServerRequest *request) {
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
-    Serial.print(" || notFound()");
+    String path = request->url();
+    Serial.print(" || notFound("+path+")");
     Serial.println("");
-    request->send(404, "application/json", "{\"error\":\"page not found\"}");
+    
+    request->send(404, "application/json", "{\"error\":\"page not found: "+path+"\"}");
 }
 
 void start_server(){
