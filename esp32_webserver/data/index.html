@@ -691,6 +691,36 @@
         .wifi_three_bars {
             background-image: url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8' standalone='no'?><!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg width='100%' height='100%' viewBox='0 0 14 14' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;'>    <g>        <path d='M10.295,9.308C9.416,8.493 8.269,8 7.013,8C5.756,8 4.609,8.493 3.729,9.31C3.705,9.333 3.69,9.366 3.687,9.401C3.685,9.435 3.695,9.47 3.716,9.497L4.279,10.212C4.324,10.268 4.404,10.275 4.457,10.227C5.139,9.587 6.033,9.2 7.013,9.2C7.992,9.2 8.886,9.587 9.568,10.225C9.621,10.273 9.701,10.267 9.746,10.21L10.309,9.495C10.352,9.44 10.346,9.357 10.295,9.308ZM12.129,6.973C10.743,5.742 8.96,5 7.013,5C5.065,5 3.282,5.742 1.894,6.973C1.869,6.996 1.853,7.029 1.85,7.064C1.847,7.099 1.857,7.134 1.878,7.162L2.441,7.877C2.485,7.933 2.565,7.94 2.616,7.893C3.809,6.837 5.342,6.2 7.013,6.2C8.683,6.2 10.216,6.837 11.407,7.893C11.461,7.94 11.539,7.933 11.582,7.877L12.145,7.162C12.189,7.105 12.183,7.02 12.129,6.973ZM13.953,4.657C12.056,2.997 9.627,2 6.981,2C4.352,2 1.939,2.983 0.047,4.623C0.034,4.634 0.023,4.648 0.015,4.664C0.007,4.68 0.002,4.697 0.001,4.714C-0.001,4.732 0.001,4.75 0.006,4.767C0.011,4.784 0.019,4.8 0.03,4.813L0.592,5.528C0.636,5.583 0.714,5.592 0.766,5.547C2.465,4.078 4.626,3.2 6.981,3.2C9.354,3.2 11.529,4.092 13.233,5.578C13.286,5.625 13.364,5.617 13.408,5.56L13.971,4.845C14.016,4.788 14.008,4.703 13.953,4.657ZM5.997,11.933C5.997,12.216 6.102,12.488 6.29,12.688C6.477,12.888 6.732,13 6.997,13C7.262,13 7.517,12.888 7.704,12.688C7.892,12.488 7.997,12.216 7.997,11.933C7.997,11.65 7.892,11.379 7.704,11.179C7.517,10.979 7.262,10.867 6.997,10.867C6.732,10.867 6.477,10.979 6.29,11.179C6.102,11.379 5.997,11.65 5.997,11.933Z' style='fill:white;fill-rule:nonzero;'/>    </g></svg>") !important;
         }
+        
+        .software_update_description_block{
+            background-color: #373737;
+            padding: 20px;
+            border-radius: 11px;
+        }
+
+        .software_update_version_number{
+            color: rgba(174, 174, 174, 0.5);
+            padding-bottom: 7px;
+        }
+
+        .column {
+        float: left;
+        width: 50%;
+        }
+
+        .row{
+            margin: 20px;
+        }
+
+        .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+
+        .half_visible{
+            opacity: 0.5;
+        }
 
         .leds_preview_block {
             margin: auto;
@@ -740,6 +770,8 @@
             margin-top: 2px;
             margin-bottom: 2px;
         }
+
+
 
         .led {
             width: 8px;
@@ -1718,13 +1750,17 @@
                     if (software_update.latest_webserver_firmware_v != software_update.latest_leds_firmware_v){
                         version = software_update.latest_webserver_firmware_v+" (webserver) & "+software_update.latest_leds_firmware_v+" (LEDs)";
                     }
+                    let message = "<div>All connected LED strips are using the latest software (v"+version+")</div>";
+                    if (!version){
+                        message = "<div>All connected LED strips are using the latest software.</div>";
+                    }
                     popups.show(
                         "no_update_available",
                         "No software update available.",
-                        "<div>All connected LED strips are using the latest software: "+version+"</div>"
+                        message
                     );
                 } else {
-                    let message = "<div><div>v"+software_update.latest_webserver_firmware_v+" changes:</div>"+software_update.latest_webserver_firmware_description+"</div>";
+                    let message = "<div class='software_update_description_block'><div class='software_update_version_number'>v"+software_update.latest_webserver_firmware_v+" changes:</div>"+software_update.latest_webserver_firmware_description+"</div>";
 
                     popups.show(
                         "new_update_available",
@@ -1739,17 +1775,47 @@
                             "onclick":"software_update.update_firmware()"
                         }]
                     );
-
-                    software_update.update_firmware();
                 }
             }
 
             update_firmware(){
-                // TODO open "updating firmware..." popup window
+                // if all LED strips up to date, skip update
+                if (software_update.oudated_led_strips.length==0){
+                    let version = software_update.latest_webserver_firmware_v;
+                    if (software_update.latest_webserver_firmware_v != software_update.latest_leds_firmware_v){
+                        version = software_update.latest_webserver_firmware_v+" (webserver) & "+software_update.latest_leds_firmware_v+" (LEDs)";
+                    }
+                    popups.show(
+                        "no_update_available",
+                        "No software update available.",
+                        "<div>All connected LED strips are using the latest software: "+version+"</div>"
+                    );
+                } else {
+                    // open "updating firmware..." popup window
+                    let message = "<div class='software_update_description_block'><div class='software_update_version_number'>v"+software_update.latest_webserver_firmware_v+" changes:</div>"+software_update.latest_webserver_firmware_description+"</div>";
+                    
+                    // add all LED strips which needs to be updated to progress overview
+                    message+="<div>"
+                    let stripe_counter;
+                    for (stripe_counter = 0; stripe_counter < led_strips.length; stripe_counter++){
+                        if (software_update.oudated_led_strips.includes(led_strips[stripe_counter].id)){
+                            message+="<div class='row half_visible' id='update_row_"+led_strips[stripe_counter].id+"'><div class='column'>"+led_strips[stripe_counter].name+"</div><div class='column' id='update_status_"+led_strips[stripe_counter].id+"'><span class='icon sync'></span>Updating...</div></div>"
+                        }
+                    }
+                    
+                    message+="</div>"
 
-                // TODO make update firmware request to all led strips
+                    
+                    popups.show(
+                            "updating_led_strips",
+                            "Updating LED strips...",
+                            message
+                    );
 
-                // TODO check for update progress and display it
+                    // TODO make update firmware request to all led strips
+
+                    // TODO check for update progress and display it
+                }
             }
         };
         var software_update = new SoftwareUpdate();
