@@ -7,11 +7,12 @@
 #include "stripe_config.h"
 #include "serial.h"
 #include "device_role.h"
+#include "webserver.h"
+#include <SPIFFS.h>
 
 StaticJsonDocument<850> led_strip_info = load_strip_config();
 String stripe_id = led_strip_info["0"].as<String>();
 
-DynamicJsonDocument firmware_updates_status(1024);
 
 /////////////////////////////
 /// OTA
@@ -46,6 +47,7 @@ static const char *server_certificate =   "-----BEGIN CERTIFICATE-----\n"
 static HttpsOTAStatus_t otastatus;
 
 bool ota_in_progress {false};
+bool update_failed {false};
 
 void HttpEvent(HttpEvent_t *event)
 {
@@ -73,55 +75,82 @@ void HttpEvent(HttpEvent_t *event)
     }
 }
 
-void update_firmware_status(String stripe_id, String new_status){
-    if(device_is_client()){
-        HTTPClient http;   
-        
-        IPAddress serverIp = MDNS.queryHost("glow");
-        http.begin("http://"+serverIp.toString()+"/new_firmware_update_status");
-        http.addHeader("Content-Type", "application/json");
-        int httpResponseCode = http.POST("{\"led_strip_id\":\""+stripe_id+"\",\"status\":\""+new_status+"\"}");
-        if(httpResponseCode==200){
-            Serial.println("Updated firmware status for "+stripe_id);
-        }else{
-            Serial.print("Error on sending POST: ");
-            Serial.println(httpResponseCode);
+boolean download_file(String filename, String url){
+    Serial.println("Downloading '"+filename+"' from '"+url+"'...");
+    HTTPClient http;
+    String file_name="/"+filename;
+    File f = SPIFFS.open(file_name, "w");
+    if (f) {
+      http.begin(url);
+      int httpCode = http.GET();
+      if (httpCode > 0) {
+        if (httpCode == HTTP_CODE_OK) {
+          http.writeToStream(&f);
+          f.close();
+          http.end();
+          return true;
         }
-        http.end();  //Free resources
-        return;
+      } else {
+        Serial.printf("Downloading failed, error: %s\n", http.errorToString(httpCode).c_str());
+        f.close();
+        http.end();
+        return false;
+      }
+    }
+    return false;
+}
 
-    } 
-    
-    // if this LED strip is the host, update the local list of firmware_updates_status
-    firmware_updates_status[stripe_id] = new_status;
+boolean update_data_folder(){
+    Serial.println("Update /data/ folder...");
+    bool all_downloads_successfull {true};
+
+    // download all essential files for /data/
+    all_downloads_successfull = download_file("index.html","https://raw.githubusercontent.com/glowingkitty/The-Glowing-Stripes-Project/master/esp32_webserver/data/index.html");
+
+    return all_downloads_successfull;
 }
 
 void check_ota_status(){
     // update webserver ESP32 firmware
-    if (ota_in_progress){
-        otastatus = HttpsOTA.status();
-        if(otastatus == HTTPS_OTA_SUCCESS) { 
-            Serial.println("Firmware update successfull. Rebooting device...");
-            update_firmware_status(stripe_id,"not_updating");
-            ESP.restart();
-        } else if(otastatus == HTTPS_OTA_FAIL) { 
-            Serial.println("Firmware update failed");
-            update_firmware_status(stripe_id,"updated_failed");
-            ESP.restart();
+    if (!update_failed){
+        if (ota_in_progress){
+            otastatus = HttpsOTA.status();
+            if(otastatus == HTTPS_OTA_SUCCESS) { 
+                Serial.println("Firmware update successfull. Rebooting device...");
+                update_firmware_status(stripe_id,"not_updating");
+                ESP.restart();
+            } else if(otastatus == HTTPS_OTA_FAIL) { 
+                Serial.println("Firmware update failed");
+                update_firmware_status(stripe_id,"update_failed");
+                update_failed = true;
+                ESP.restart();
+            }
         }
-    }
 
-    // once LEDs ESP32 confirms update is complete, continue with webserver ESP32 update
-    else if(led_esp_available()){
-        String command = led_esp_received_message();
-        if (command.startsWith("firmware_update_success")){
-            Serial.println("Updating firmware for webserver ESP32...");
-            HttpsOTA.onHttpEvent(HttpEvent);
-            HttpsOTA.begin(url, server_certificate); 
-            ota_in_progress = true;
-        } else if (command.startsWith("firmware_update_failed")){
-            // if error returned, skip webserver update and change firmware_update_status to error
-            update_firmware_status(stripe_id,"updated_failed");
+        // once LEDs ESP32 confirms update is complete, continue with webserver ESP32 update
+        else if(led_esp_available()){
+            String command = led_esp_received_message();
+            if (command.startsWith("firmware_update_success")){
+                update_firmware_status(stripe_id,"updating_webserver");
+                Serial.println("Updating /data for webserver ESP32...");
+                if (!update_data_folder()){
+                    update_firmware_status(stripe_id,"update_failed");
+                    update_failed = true;
+                    Serial.println("Updating /data failed!");
+                } else {
+                    // update webserver firmware
+                    Serial.println("Updating firmware for webserver ESP32...");
+                    HttpsOTA.onHttpEvent(HttpEvent);
+                    HttpsOTA.begin(url, server_certificate); 
+                    ota_in_progress = true;
+                }
+
+            } else if (command.startsWith("firmware_update_failed")){
+                // if error returned, skip webserver update and change firmware_update_status to error
+                update_firmware_status(stripe_id,"update_failed");
+                update_failed = true;
+            }
         }
     }
+    
 }

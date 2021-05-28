@@ -33,6 +33,9 @@ DynamicJsonDocument connected_led_strips(2048);
 JsonArray led_strips = connected_led_strips["online"].to<JsonArray>();
 
 
+DynamicJsonDocument firmware_updates_status(512);
+
+
 /////////////////////////////
 /// Wifi
 /////////////////////////////
@@ -153,7 +156,44 @@ boolean host_is_online(){
     return false;
 }
 
+void update_firmware(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_firmware()");
+    Serial.println("");
 
+    StaticJsonDocument<850> led_strip_info = load_strip_config();
+    led_strip_info["u"]=true;
+    String serialized_json;
+    serializeJson(led_strip_info, serialized_json);
+    // send update firmware request to LED strip ESP, after success, webserver ESP will automatically update as well
+    Serial.print("Updating LEDs...");
+    send_to_led_esp(serialized_json);
+}
+
+void update_firmware_status(String stripe_id, String new_status){
+    if(device_is_client()){
+        HTTPClient http;   
+        
+        IPAddress serverIp = MDNS.queryHost("glow");
+        http.begin("http://"+serverIp.toString()+"/new_firmware_update_status");
+        http.addHeader("Content-Type", "application/json");
+        int httpResponseCode = http.POST("{\"led_strip_id\":\""+stripe_id+"\",\"status\":\""+new_status+"\"}");
+        if(httpResponseCode==200){
+            Serial.println("Updated firmware status for "+stripe_id);
+        }else{
+            Serial.print("Error on sending POST: ");
+            Serial.println(httpResponseCode);
+        }
+        http.end();  //Free resources
+        return;
+
+    } 
+    
+    // if this LED strip is the host, update the local list of firmware_updates_status
+    firmware_updates_status[stripe_id] = new_status;
+}
 
 void start_hotspot(){
     Serial.println("");
@@ -354,7 +394,32 @@ void start_server(){
         request->send(200, "application/json", output);
     });
 
-    
+    server.on("/current_firmware_update_status", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /current_firmware_update_status");
+        Serial.println("");
+        
+        request->send(200, "application/json", firmware_updates_status.as<String>());
+    });
+
+    AsyncCallbackJsonWebHandler* new_firmware_update_status_handler = new AsyncCallbackJsonWebHandler("/new_firmware_update_status", [](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.println("");
+        Serial.print("|| Core ");
+        Serial.print(xPortGetCoreID());
+        Serial.print(" || /new_firmware_update_status");
+        Serial.println("");
+
+        // check if LED strip ID is already in "updating_led_strips", if so, update status
+        String id = json["led_strip_id"];
+        firmware_updates_status[id]= json["status"];
+        Serial.print("Updated update status");
+
+        request->send(200, "application/json", "{\"updated_status\":true}");
+        
+    });
+
 
     // Over the internet update code:
     AsyncCallbackJsonWebHandler* update_firmware_handler = new AsyncCallbackJsonWebHandler("/update_firmware", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -364,18 +429,8 @@ void start_server(){
         Serial.print(" || /update_firmware");
         Serial.println("");
 
-        // make sure input json is led strip details with "u":true - to start update
-        if (json["0"]){
-            json["u"]=true;
-            Serial.print("Input json correct.");
-            String serialized_json;
-            serializeJson(json, serialized_json);
-            send_to_led_esp(serialized_json);
-            request->send(200, "application/json", "{\"started_update\":true}");
-        } else {
-            Serial.print("Input json missing or incomplete! Make sure all LED strip details are included.");
-            request->send(500, "application/json", "{\"started_update\":false}");
-        }
+        update_firmware();
+        request->send(200, "application/json", "{\"started_update\":true}");
         
     });
 
@@ -386,36 +441,56 @@ void start_server(){
         Serial.print(" || /update_led_strips");
         Serial.println("");
 
+        bool host_needs_update {false};
+
         // send request to each led strip to update firmware
-        JsonArray led_strips = json["led_strips"].as<JsonArray>();
-        for (int e = 0; e < led_strips.size();e++){
-            String id = led_strips[e]["0"].as<String>();
-            String ip_address = led_strips[e]["8"].as<String>();
-            HTTPClient http;
-            http.begin("http://"+ip_address+"/update_firmware");
-            http.addHeader("Content-Type", "application/json");
-            
-            int httpResponseCode = http.POST(led_strips[e].as<String>());
+        JsonArray outdated_led_strips = json["led_strip_ids"].as<JsonArray>();
+        request->send(200, "application/json", "{\"started_update\":true}");
 
-            if(httpResponseCode==200){
-                Serial.println("Started firmware upgrade on "+led_strips[e]["0"].as<String>());
-                update_firmware_status(id,"updating...");
+        for (int e = 0; e < outdated_led_strips.size();e++){
+            // check every connected LED strip, to get current IP address
+            String id = outdated_led_strips[e].as<String>();
+            for (int i = 0; i < led_strips.size();i++){
+                if (led_strips[i]["0"].as<String>() == id){
+                    // make sure to skip updating host for now - update host only at the end (if host is oudated)
+                    String ip_address = led_strips[e]["8"].as<String>();
 
-            } else {
-                Serial.println("Failed to update LED strip "+led_strips[e]["0"].as<String>()+" via POST request.");
-                Serial.println("httpResponseCode:");
-                Serial.println(httpResponseCode);
-                Serial.println("response:");
-                String response = http.getString();
-                Serial.println(response);
+                    if (host_ip_address==ip_address){
+                        host_needs_update = true;
+                    } else {
+                        Serial.println("Updating firmware of "+led_strips[e]["0"].as<String>());
+                        HTTPClient http;
+                        http.begin("http://"+ip_address+"/update_firmware");
+                        http.addHeader("Content-Type", "application/json");
+                        
+                        int httpResponseCode = http.POST("{}");
 
-                update_firmware_status(id,"failed");
+                        if(httpResponseCode==200){
+                            Serial.println("Started firmware update on "+led_strips[e]["0"].as<String>());
+                            update_firmware_status(id,"updating_leds");
+
+                        } else {
+                            Serial.println("Failed to update LED strip "+led_strips[e]["0"].as<String>()+" via POST request.");
+                            Serial.println("httpResponseCode:");
+                            Serial.println(httpResponseCode);
+                            Serial.println("response:");
+                            String response = http.getString();
+                            Serial.println(response);
+
+                            update_firmware_status(id,"update_failed");
+                        }
+                        http.end();
+                    }
+                    break;
+                }
             }
-            http.end();
-            
         }
 
-        request->send(200, "application/json", "{\"started_update\":true}");
+        // update the host (if it needs to be updated)
+        if (host_needs_update){
+            Serial.println("Updating host firmware...");
+            update_firmware();
+        }
     });
 
     AsyncCallbackJsonWebHandler* forward_changes_handler = new AsyncCallbackJsonWebHandler("/forward_changes", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -579,6 +654,7 @@ void start_server(){
     });
 
     server.addHandler(update_firmware_handler);
+    server.addHandler(new_firmware_update_status_handler);
     server.addHandler(update_led_strips_handler);
     server.addHandler(forward_changes_handler);
     server.addHandler(mode_handler);
