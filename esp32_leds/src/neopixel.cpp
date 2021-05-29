@@ -691,6 +691,9 @@ void start_leds(){
         previous_animation_id = led_strip_info["4"]["a"].as<String>();
 
         led_strip_info.clear();
+
+        // // now since its clear that the booting was successfull, lets reset the attempt counter
+        // reset_boot_attempt_counts();
     }
 
     start_wifi();
@@ -698,6 +701,9 @@ void start_leds(){
         new_webserver_firmware_version,
         new_leds_firmware_version
     );
+
+    // // now since its clear that the booting was successfull, lets reset the attempt counter
+    // reset_boot_attempt_counts();
 
     for(;;){
         check_ota_status();

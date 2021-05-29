@@ -44,6 +44,8 @@ void setup() {
         return;
     }
 
+    // check_boot_attempts(); // if boot was attempted already 3 times without success, reset stripe_config to backup
+
     check_stripe_config();
 
     //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
@@ -69,7 +71,6 @@ void setup() {
                       &Task1,      /* Task handle to keep track of created task */
                       0);          /* pin task to core 0 */                  
 
-    
 }
 
 

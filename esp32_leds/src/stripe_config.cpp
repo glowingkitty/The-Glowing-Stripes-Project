@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-bool first_boot {true};
+int config_loaded = 0;
 
 String gen_random() {
     Serial.println("");
@@ -105,19 +105,34 @@ StaticJsonDocument<850> load_strip_config(){
 
     bool update_config {false};
 
-    if (first_boot){
+    if (config_loaded<5){
+        config_loaded++;
+    }
+
+    if (config_loaded==4){
+        Serial.println("Repeated animation loop enough times. Cleaning stripe_config.json now before continuing, to prevent errors...");
         // make sure software update mode isn't triggered on boot
         if (led_strip_config.containsKey("u")){
             led_strip_config.remove("u");
+            Serial.println("Removed 'u' from led_strip_config.");
+            update_config = true;
+        }
+        if (led_strip_config.containsKey("nfw")){
+            led_strip_config.remove("nfw");
+            Serial.println("Removed 'nfw' from led_strip_config.");
+            update_config = true;
+        }
+        if (led_strip_config.containsKey("nfl")){
+            led_strip_config.remove("nfl");
+            Serial.println("Removed 'nfl' from led_strip_config.");
             update_config = true;
         }
         // If currently in setup mode while booting, restore previous animation instead
         if (led_strip_config["4"]["a"]=="set"){
             led_strip_config["4"] = led_strip_config["5"];
+            Serial.println("Reset current animation to previous animation.");
             update_config = true;
         }
-        
-        first_boot = false;
     }
 
     if (update_config){
@@ -473,6 +488,25 @@ bool copy_json(String path_from, String path_to){
             origin_json.clear();
             origin_json_file.close();
         }
+    }
+
+    // clean .json file - remove unwanted fields
+    if (origin_json.containsKey("u")){
+        origin_json.remove("u");
+        Serial.println("Removed 'u' from origin_json.");
+    }
+    if (origin_json.containsKey("nfw")){
+        origin_json.remove("nfw");
+        Serial.println("Removed 'nfw' from origin_json.");
+    }
+    if (origin_json.containsKey("nfl")){
+        origin_json.remove("nfl");
+        Serial.println("Removed 'nfl' from origin_json.");
+    }
+    // If currently in setup mode, restore previous animation instead
+    if (origin_json["4"]["a"]=="set"){
+        origin_json["4"] = origin_json["5"];
+        Serial.println("Reset current animation to previous animation.");
     }
     
 
