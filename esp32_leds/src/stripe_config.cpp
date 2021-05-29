@@ -99,6 +99,23 @@ StaticJsonDocument<850> load_strip_config(){
         }
     }
     led_strip_config_file.close();
+
+
+    bool update_config {false};
+
+    // make sure software update mode isn't triggered on boot
+    led_strip_config["u"] = false;
+
+    // If currently in setup mode while booting, restore previous animation instead
+    if (led_strip_config["4"]["a"]=="set"){
+        led_strip_config["4"] = led_strip_config["5"];
+        update_config = true;
+    }
+
+    if (update_config){
+        Serial.println("Update stripe_config.json...");
+        update_stripe_config(led_strip_config);
+    }
     
 
     return led_strip_config;

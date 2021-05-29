@@ -523,6 +523,9 @@ StaticJsonDocument<850> load_strip_config(){
 
     bool update_config {false};
 
+    // make sure software update mode isn't triggered on boot
+    led_strip_config["u"] = false;
+
     // If currently in setup mode while booting, restore previous animation instead
     if (led_strip_config["4"]["a"]=="set"){
         led_strip_config["4"] = led_strip_config["5"];

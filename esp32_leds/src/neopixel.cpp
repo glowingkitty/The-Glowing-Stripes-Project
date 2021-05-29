@@ -15,6 +15,8 @@ bool skip_remaining_animation {false};
 bool received_stop_animation_command {false};
 bool stopped_animation {false};
 
+String new_webserver_firmware_version;
+String new_leds_firmware_version;
 
 void generate_random_colors(int num_random_colors){
     Serial.println("");
@@ -80,6 +82,10 @@ void start_leds(){
         // check if strip should prepare for update, if so - stop animation loop, start wifi and OTA
         if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()){
             Serial.println("Received 'Prepare for software update' command. Turning LEDs off, starting WIFI and starting OTA update...");
+            // save new firmware version number
+            new_webserver_firmware_version = led_strip_info["nfw"].as<String>();
+            new_leds_firmware_version = led_strip_info["nfl"].as<String>();
+
             // turn leds off
             leds.fill(leds.Color(0,0,0));
             leds.show();
@@ -688,7 +694,10 @@ void start_leds(){
     }
 
     start_wifi();
-    start_ota();
+    start_ota(
+        new_webserver_firmware_version,
+        new_leds_firmware_version
+    );
 
     for(;;){
         check_ota_status();

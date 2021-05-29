@@ -156,7 +156,7 @@ boolean host_is_online(){
     return false;
 }
 
-void update_firmware(){
+void update_firmware(String new_webserver_firmware_version,String new_leds_firmware_version){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
@@ -165,6 +165,10 @@ void update_firmware(){
 
     StaticJsonDocument<850> led_strip_info = load_strip_config();
     led_strip_info["u"]=true;
+    led_strip_info["nfw"]=new_webserver_firmware_version;
+    led_strip_info["nfl"]=new_leds_firmware_version;
+    set_new_firmware_v(new_webserver_firmware_version,new_leds_firmware_version);
+
     String serialized_json;
     serializeJson(led_strip_info, serialized_json);
     // send update firmware request to LED strip ESP, after success, webserver ESP will automatically update as well
@@ -429,7 +433,7 @@ void start_server(){
         Serial.print(" || /update_firmware");
         Serial.println("");
 
-        update_firmware();
+        update_firmware(json["nfw"],json["nfl"]);
         request->send(200, "application/json", "{\"started_update\":true}");
         
     });
@@ -463,7 +467,7 @@ void start_server(){
                         http.begin("http://"+ip_address+"/update_firmware");
                         http.addHeader("Content-Type", "application/json");
                         
-                        int httpResponseCode = http.POST("{}");
+                        int httpResponseCode = http.POST("{\"nfw\":"+json["nfw"].as<String>()+",\"nfl\":"+json["nfl"].as<String>()+"}");
 
                         if(httpResponseCode==200){
                             Serial.println("Started firmware update on "+led_strips[e]["0"].as<String>());
@@ -489,7 +493,7 @@ void start_server(){
         // update the host (if it needs to be updated)
         if (host_needs_update){
             Serial.println("Updating host firmware...");
-            update_firmware();
+            update_firmware(json["nfw"].as<String>(),json["nfl"].as<String>());
         }
     });
 

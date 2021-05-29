@@ -1841,7 +1841,11 @@
                     );
 
                     // make update firmware request to all led strips
-                    axios.post("/update_led_strips",{"led_strip_ids":software_update.oudated_led_strips})
+                    axios.post("/update_led_strips",{
+                        "led_strip_ids":software_update.oudated_led_strips,
+                        "nfw":software_update.latest_webserver_firmware_v,// new webserver firmware version
+                        "nfl":software_update.latest_leds_firmware_v // new LED firmware version
+                    })
 
                     // check for update progress and display it
                     software_update.check_update_status = setInterval(function () {

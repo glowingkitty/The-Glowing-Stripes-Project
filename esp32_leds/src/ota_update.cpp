@@ -35,6 +35,8 @@ static const char *server_certificate =   "-----BEGIN CERTIFICATE-----\n"
 static HttpsOTAStatus_t otastatus;
 
 bool ota_in_progress {false};
+String new_webserver_firmware_v;
+String new_leds_firmware_v;
 
 void HttpEvent(HttpEvent_t *event)
 {
@@ -62,14 +64,17 @@ void HttpEvent(HttpEvent_t *event)
     }
 }
 
-void start_ota(){
+void start_ota(String new_webserver_firmware_version,String new_leds_firmware_version){
     Serial.println("");
     Serial.print("|| Core ");
     Serial.print(xPortGetCoreID());
     Serial.print(" || start_ota()");
     Serial.println("");
 
-    Serial.println("Updating firmware for LEDs ESP32...");
+    new_webserver_firmware_v = new_webserver_firmware_version;
+    new_leds_firmware_v = new_leds_firmware_version;
+
+    Serial.println("Updating firmware for LEDs ESP32 to v"+new_leds_firmware_v+"...");
     HttpsOTA.onHttpEvent(HttpEvent);
     HttpsOTA.begin(url, server_certificate); 
     ota_in_progress = true;
@@ -83,7 +88,13 @@ void check_ota_status(){
     Serial.println("");
     if (ota_in_progress){
         otastatus = HttpsOTA.status();
-        if(otastatus == HTTPS_OTA_SUCCESS) { 
+        if(otastatus == HTTPS_OTA_SUCCESS) {
+            // update local stripe_config.json with latest version number
+            StaticJsonDocument<850> led_strip_info = load_strip_config();
+            led_strip_info["nfw"] = new_webserver_firmware_v;
+            led_strip_info["nfl"] = new_leds_firmware_v;
+            update_stripe_config(led_strip_info);
+
             Serial.println("Firmware written successfully. Rebooting device...");
             // return via serial confirmation that firmware has been updated
             send_to_web_esp("firmware_update_success");

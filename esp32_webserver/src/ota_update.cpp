@@ -49,6 +49,14 @@ static HttpsOTAStatus_t otastatus;
 bool ota_in_progress {false};
 bool update_failed {false};
 
+String new_webserver_firmware_v;
+String new_leds_firmware_v;
+
+void set_new_firmware_v(String new_webserver_firmware_version,String new_leds_firmware_version){
+    new_webserver_firmware_v = new_webserver_firmware_version;
+    new_leds_firmware_v = new_leds_firmware_version;
+}
+
 void HttpEvent(HttpEvent_t *event)
 {
     switch(event->event_id) {
@@ -116,13 +124,21 @@ void check_ota_status(){
         if (ota_in_progress){
             otastatus = HttpsOTA.status();
             if(otastatus == HTTPS_OTA_SUCCESS) { 
+                // update local stripe_config.json with latest version number
+                StaticJsonDocument<850> led_strip_info = load_strip_config();
+                led_strip_info["nfw"] = new_webserver_firmware_v;
+                led_strip_info["nfl"] = new_leds_firmware_v;
+                update_stripe_config(led_strip_info);
+
                 Serial.println("Firmware update successfull. Rebooting device...");
                 update_firmware_status(stripe_id,"not_updating");
+                delay(2000);
                 ESP.restart();
             } else if(otastatus == HTTPS_OTA_FAIL) { 
                 Serial.println("Firmware update failed");
                 update_firmware_status(stripe_id,"update_failed");
                 update_failed = true;
+                delay(2000);
                 ESP.restart();
             }
         }
