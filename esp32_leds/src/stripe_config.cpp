@@ -4,6 +4,8 @@
 #include <string>
 using namespace std;
 
+bool first_boot {true};
+
 String gen_random() {
     Serial.println("");
     Serial.print("|| Core ");
@@ -103,8 +105,15 @@ StaticJsonDocument<850> load_strip_config(){
 
     bool update_config {false};
 
-    // make sure software update mode isn't triggered on boot
-    led_strip_config["u"] = false;
+    if (first_boot){
+        // make sure software update mode isn't triggered on boot
+        if (led_strip_config.containsKey("u")){
+            led_strip_config.remove("u");
+            update_config = true;
+        }
+        first_boot = false;
+    }
+    
 
     // If currently in setup mode while booting, restore previous animation instead
     if (led_strip_config["4"]["a"]=="set"){
