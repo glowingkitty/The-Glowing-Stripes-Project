@@ -89,10 +89,11 @@ void check_ota_status(){
     if (ota_in_progress){
         otastatus = HttpsOTA.status();
         if(otastatus == HTTPS_OTA_SUCCESS) {
-            // update local stripe_config.json with latest version number
+            // remove "u" to stop infinite software update
             StaticJsonDocument<850> led_strip_info = load_strip_config();
-            led_strip_info["nfw"] = new_webserver_firmware_v;
-            led_strip_info["nfl"] = new_leds_firmware_v;
+            led_strip_info.remove("u");
+            led_strip_info["fw"] = new_webserver_firmware_v;
+            led_strip_info["fl"] = new_leds_firmware_v;
             update_stripe_config(led_strip_info);
 
             Serial.println("Firmware written successfully. Rebooting device...");

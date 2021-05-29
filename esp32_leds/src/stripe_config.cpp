@@ -4,8 +4,6 @@
 #include <string>
 using namespace std;
 
-int config_loaded = 0;
-
 String gen_random() {
     Serial.println("");
     Serial.print("|| Core ");
@@ -101,45 +99,6 @@ StaticJsonDocument<850> load_strip_config(){
         }
     }
     led_strip_config_file.close();
-
-
-    bool update_config {false};
-
-    if (config_loaded<5){
-        config_loaded++;
-    }
-
-    if (config_loaded==4){
-        Serial.println("Repeated animation loop enough times. Cleaning stripe_config.json now before continuing, to prevent errors...");
-        // make sure software update mode isn't triggered on boot
-        if (led_strip_config.containsKey("u")){
-            led_strip_config.remove("u");
-            Serial.println("Removed 'u' from led_strip_config.");
-            update_config = true;
-        }
-        if (led_strip_config.containsKey("nfw")){
-            led_strip_config.remove("nfw");
-            Serial.println("Removed 'nfw' from led_strip_config.");
-            update_config = true;
-        }
-        if (led_strip_config.containsKey("nfl")){
-            led_strip_config.remove("nfl");
-            Serial.println("Removed 'nfl' from led_strip_config.");
-            update_config = true;
-        }
-        // If currently in setup mode while booting, restore previous animation instead
-        if (led_strip_config["4"]["a"]=="set"){
-            led_strip_config["4"] = led_strip_config["5"];
-            Serial.println("Reset current animation to previous animation.");
-            update_config = true;
-        }
-    }
-
-    if (update_config){
-        Serial.println("Update stripe_config.json...");
-        update_stripe_config(led_strip_config);
-    }
-    
 
     return led_strip_config;
 }

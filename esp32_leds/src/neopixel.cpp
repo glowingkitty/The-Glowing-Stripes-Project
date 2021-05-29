@@ -63,6 +63,7 @@ void start_leds(){
     Serial.println("Started LED strip:");
     Serial.println("id:                             "+ led_strip_info["0"].as<String>());
     Serial.println("name:                           "+ led_strip_info["1"].as<String>());
+    Serial.println("firmware:                       "+ led_strip_info["fl"].as<String>());
     Serial.println("num_of_leds:                    "+ led_strip_info["2"].as<String>());
     Serial.println("last_animation_id:              "+ led_strip_info["4"]["a"].as<String>());
     Serial.println("last_animation_customization:   "+ led_strip_info["4"]["d"].as<String>());
@@ -226,7 +227,6 @@ void start_leds(){
                 leds.show();
                 delay(500);
             }
-            
         }
         // Rainbow
         else if (new_animation_id == "rai"){
