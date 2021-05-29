@@ -178,6 +178,7 @@ void update_firmware(String new_webserver_firmware_version,String new_leds_firmw
 
 void update_firmware_status(String stripe_id, String new_status){
     if(device_is_client()){
+        Serial.println("Send POST request to host: Updated firmware status for "+stripe_id);
         HTTPClient http;   
         
         IPAddress serverIp = MDNS.queryHost("glow");
@@ -196,7 +197,9 @@ void update_firmware_status(String stripe_id, String new_status){
     } 
     
     // if this LED strip is the host, update the local list of firmware_updates_status
+    Serial.println("Locally: Updated firmware status for "+stripe_id);
     firmware_updates_status[stripe_id] = new_status;
+    Serial.println(firmware_updates_status.as<String>());
 }
 
 void start_hotspot(){
@@ -446,6 +449,7 @@ void start_server(){
         Serial.println("");
 
         bool host_needs_update {false};
+        String host_id;
 
         // send request to each led strip to update firmware
         JsonArray outdated_led_strips = json["led_strip_ids"].as<JsonArray>();
@@ -460,6 +464,7 @@ void start_server(){
                     String ip_address = led_strips[e]["8"].as<String>();
 
                     if (host_ip_address==ip_address){
+                        host_id = id;
                         host_needs_update = true;
                     } else {
                         Serial.println("Updating firmware of "+led_strips[e]["0"].as<String>());
@@ -493,6 +498,7 @@ void start_server(){
         // update the host (if it needs to be updated)
         if (host_needs_update){
             Serial.println("Updating host firmware...");
+            update_firmware_status(host_id,"updating_leds");
             update_firmware(json["nfw"].as<String>(),json["nfl"].as<String>());
         }
     });

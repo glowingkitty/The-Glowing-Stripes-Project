@@ -10,9 +10,6 @@
 #include "webserver.h"
 #include <SPIFFS.h>
 
-StaticJsonDocument<850> led_strip_info = load_strip_config();
-String stripe_id = led_strip_info["0"].as<String>();
-
 
 /////////////////////////////
 /// OTA
@@ -84,7 +81,11 @@ void HttpEvent(HttpEvent_t *event)
 }
 
 boolean download_file(String filename, String url){
-    Serial.println("Downloading '"+filename+"' from '"+url+"'...");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || download_file('"+filename+"','"+url+")");
+    Serial.println("");
     HTTPClient http;
     String file_name="/"+filename;
     File f = SPIFFS.open(file_name, "w");
@@ -109,7 +110,11 @@ boolean download_file(String filename, String url){
 }
 
 boolean update_data_folder(){
-    Serial.println("Update /data/ folder...");
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_data_folder()");
+    Serial.println("");
     bool all_downloads_successfull {true};
 
     // download all essential files for /data/
@@ -119,15 +124,24 @@ boolean update_data_folder(){
 }
 
 void check_ota_status(){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || check_ota_status()");
+    Serial.println("");
     // update webserver ESP32 firmware
+    StaticJsonDocument<850> led_strip_info = load_strip_config();
+    String stripe_id = led_strip_info["0"].as<String>();
+
     if (!update_failed){
         if (ota_in_progress){
             otastatus = HttpsOTA.status();
             if(otastatus == HTTPS_OTA_SUCCESS) { 
                 // update local stripe_config.json with latest version number
                 StaticJsonDocument<850> led_strip_info = load_strip_config();
-                led_strip_info["nfw"] = new_webserver_firmware_v;
-                led_strip_info["nfl"] = new_leds_firmware_v;
+                led_strip_info.remove("u");
+                led_strip_info["fw"] = new_webserver_firmware_v;
+                led_strip_info["fl"] = new_leds_firmware_v;
                 update_stripe_config(led_strip_info);
 
                 Serial.println("Firmware update successfull. Rebooting device...");
