@@ -111,14 +111,13 @@ StaticJsonDocument<850> load_strip_config(){
             led_strip_config.remove("u");
             update_config = true;
         }
+        // If currently in setup mode while booting, restore previous animation instead
+        if (led_strip_config["4"]["a"]=="set"){
+            led_strip_config["4"] = led_strip_config["5"];
+            update_config = true;
+        }
+        
         first_boot = false;
-    }
-    
-
-    // If currently in setup mode while booting, restore previous animation instead
-    if (led_strip_config["4"]["a"]=="set"){
-        led_strip_config["4"] = led_strip_config["5"];
-        update_config = true;
     }
 
     if (update_config){
@@ -390,6 +389,11 @@ bool stripe_config_valid(){
     if (!field_valid(led_strip_config,"5","<JsonObject>",false)){
         Serial.println("stripe_config.json:");
         Serial.println(led_strip_config.as<String>());
+        return false;
+    }
+
+    if (led_strip_config["5"]["a"]=="set"){
+        Serial.println("Setup mode is saved as previous animation...this shouldnt happen! Restoring backup...");
         return false;
     }
 

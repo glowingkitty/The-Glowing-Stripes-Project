@@ -50,6 +50,37 @@ bool first_boot {true};
 //// "n":max_height <float>
 // "4":based_on_animation_id (for custom animations)
 
+
+bool update_stripe_config(StaticJsonDocument<850> new_config){
+    Serial.println("");
+    Serial.print("|| Core ");
+    Serial.print(xPortGetCoreID());
+    Serial.print(" || update_stripe_config()");
+    Serial.println("");
+
+    SPIFFS.remove("/stripe_config.json");
+
+    // Open file for writing
+    File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
+    if (!file) {
+        Serial.println("Failed to create stripe_config.json");
+        return false;
+    }
+    // Serialize JSON to file
+    if (serializeJson(new_config, file) == 0) {
+        Serial.println(F("Failed to write to stripe_config.json"));
+        return false;
+    }
+    // Close the file
+    file.close();
+
+    new_config.clear();
+
+    Serial.println("Updated stripe_config.json");
+    return true;
+}
+
+
 String gen_random() {
     Serial.println("");
     Serial.print("|| Core ");
@@ -333,6 +364,22 @@ bool stripe_config_valid(){
         return false;
     }
 
+    if (led_strip_config["5"]["a"]=="set"){
+        Serial.println("Setup mode is saved as previous animation...this shouldnt happen! Restoring backup...");
+        return false;
+    }
+
+    // If currently in setup mode while booting, restore previous animation instead
+    if (led_strip_config["4"]["a"]=="set"){
+        led_strip_config["4"] = led_strip_config["5"];
+        Serial.println("Restore LED strip from setup mode to previous animation...");
+        update_stripe_config(led_strip_config);
+        led_strip_config.clear();
+        Serial.println("Restored previous animation!");
+        Serial.println("Rebooting...");
+        ESP.restart();
+    }
+
     return true;
 }
 
@@ -468,35 +515,6 @@ void check_stripe_config(){
 
 
 
-bool update_stripe_config(StaticJsonDocument<850> new_config){
-    Serial.println("");
-    Serial.print("|| Core ");
-    Serial.print(xPortGetCoreID());
-    Serial.print(" || update_stripe_config()");
-    Serial.println("");
-
-    SPIFFS.remove("/stripe_config.json");
-
-    // Open file for writing
-    File file = SPIFFS.open("/stripe_config.json", FILE_WRITE);
-    if (!file) {
-        Serial.println("Failed to create stripe_config.json");
-        return false;
-    }
-    // Serialize JSON to file
-    if (serializeJson(new_config, file) == 0) {
-        Serial.println(F("Failed to write to stripe_config.json"));
-        return false;
-    }
-    // Close the file
-    file.close();
-
-    new_config.clear();
-
-    Serial.println("Updated stripe_config.json");
-    return true;
-}
-
 // load strip config: for led animation (num of leds, last animation, num of sections) & webserver (all details)
 StaticJsonDocument<850> load_strip_config(){
     Serial.println("");
@@ -530,13 +548,13 @@ StaticJsonDocument<850> load_strip_config(){
             led_strip_config.remove("u");
             update_config = true;
         }
+        // If currently in setup mode while booting, restore previous animation instead
+        if (led_strip_config["4"]["a"]=="set"){
+            led_strip_config["4"] = led_strip_config["5"];
+            update_config = true;
+        }
+        
         first_boot = false;
-    }
-
-    // If currently in setup mode while booting, restore previous animation instead
-    if (led_strip_config["4"]["a"]=="set"){
-        led_strip_config["4"] = led_strip_config["5"];
-        update_config = true;
     }
 
     if (update_config){

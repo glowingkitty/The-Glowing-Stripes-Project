@@ -80,7 +80,7 @@ void start_leds(){
         led_strip_info = load_strip_config();
 
         // check if strip should prepare for update, if so - stop animation loop, start wifi and OTA
-        if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()){
+        if (led_strip_info.containsKey("u") && led_strip_info["u"].as<bool>()==true){
             Serial.println("Received 'Prepare for software update' command. Turning LEDs off, starting WIFI and starting OTA update...");
             // save new firmware version number
             new_webserver_firmware_version = led_strip_info["nfw"].as<String>();
