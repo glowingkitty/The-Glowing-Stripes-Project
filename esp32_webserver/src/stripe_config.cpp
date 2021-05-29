@@ -364,8 +364,8 @@ bool stripe_config_valid(){
         return false;
     }
 
-    if (led_strip_config["5"]["a"]=="set"){
-        Serial.println("Setup mode is saved as previous animation...this shouldnt happen! Restoring backup...");
+    if (led_strip_config["4"]["a"]=="set" && led_strip_config["5"]["a"]=="set"){
+        Serial.println("Setup mode is saved as both current and previous animation...this shouldnt happen! Restoring backup...");
         return false;
     }
 
