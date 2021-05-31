@@ -2416,21 +2416,25 @@
                     console.log('LEDstrip().disconnect()');
                 }
                 // remove LED strip from DIV block with class="leds_preview_block"
-                document.getElementById(this.id).outerHTML = "";
+                if (document.getElementById(this.id)){
+                    document.getElementById(this.id).outerHTML = "";
+                }
+
+                let id  = this.id;
 
                 // remove LED strip from led_strips list (via filter?)
                 led_strips = led_strips.filter(function(value,index,arr){
-                    return value.id != this.id;
+                    return value.id != id;
                 })
 
                 // remove from connected_led_strips_ids
                 connected_led_strips_ids = connected_led_strips_ids.filter(function(value, index, arr){ 
-                    return value != this.id;
+                    return value != id;
                 });
 
                 // remove from setup_not_complete_led_strips_ids
                 setup_not_complete_led_strips_ids = setup_not_complete_led_strips_ids.filter(function(value, index, arr){ 
-                    return value != this.id;
+                    return value != id;
                 });
             }
 
@@ -2875,35 +2879,35 @@
                                 //// add "customize animation" button
                                 control_object.main_window_new_html += '<a id="open_animation_customizer_button" onclick="animation_customizer.open()" class="button_customize_animation customize right_positioned"></a>';
 
-                                //// show "sync all" and "multi select" from current mix
-                                if (num_of_led_strips > 1) {
-                                    control_object.main_window_new_html += '<div>';
+                                //// TODO show "sync all" and "multi select" from current mix
+                                // if (num_of_led_strips > 1) {
+                                //     control_object.main_window_new_html += '<div>';
 
-                                    control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all';
-                                    control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"';
-                                    if (web_control_config.sync_all) {
-                                        control_object.main_window_new_html += ' checked="checked"';
-                                    }
-                                    control_object.main_window_new_html += '><span class="checkmark"></span></label>';
+                                //     control_object.main_window_new_html += '<label class="checkbox with_icon sync">Sync all';
+                                //     control_object.main_window_new_html += '<input id="sync_all" onchange="change_sync_all()" type="checkbox"';
+                                //     if (web_control_config.sync_all) {
+                                //         control_object.main_window_new_html += ' checked="checked"';
+                                //     }
+                                //     control_object.main_window_new_html += '><span class="checkmark"></span></label>';
 
-                                    control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select';
-                                    control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"';
-                                    if (web_control_config.multi_select) {
-                                        control_object.main_window_new_html += ' checked="checked"';
-                                    }
-                                    control_object.main_window_new_html += '><span class="checkmark"></span></label>';
+                                //     control_object.main_window_new_html += '<label class="checkbox with_icon multi_select right_positioned">Multi select';
+                                //     control_object.main_window_new_html += '<input id="multi_select" onchange="change_multi_select()" type="checkbox"';
+                                //     if (web_control_config.multi_select) {
+                                //         control_object.main_window_new_html += ' checked="checked"';
+                                //     }
+                                //     control_object.main_window_new_html += '><span class="checkmark"></span></label>';
 
-                                    control_object.main_window_new_html += '</div>';
-                                }
+                                //     control_object.main_window_new_html += '</div>';
+                                // }
 
 
                                 control_object.main_window_new_html += '<div>';
                                 control_object.main_window_new_html += '<div class="fixed_bottom_left">';
 
-                                //// show "save mix" button
-                                if (num_of_led_strips > 1) {
-                                    control_object.main_window_new_html += '<a id="save_mix_button" class="cta with_icon save">Save mix</a>';
-                                }
+                                //// TODO show "save mix" button
+                                // if (num_of_led_strips > 1) {
+                                //     control_object.main_window_new_html += '<a id="save_mix_button" class="cta with_icon save">Save mix</a>';
+                                // }
 
                                 control_object.main_window_new_html += '</div>';
 
