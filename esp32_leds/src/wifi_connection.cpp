@@ -8,7 +8,7 @@ using namespace std;
 
 const char* wifi_ssid;
 const char* wifi_password;
-const char* glowing_stripes_ssid = "TheGlowingStripes";
+const char* glowing_stripes_ssid = "💡TheGlowingStripes";
 const char* glowing_stripes_password = "letsglow";
 
 

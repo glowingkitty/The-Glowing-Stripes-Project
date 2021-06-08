@@ -23,7 +23,7 @@
 
 using namespace std;
 
-const char* glowing_stripes_ssid = "glow";
+const char* glowing_stripes_ssid = "💡TheGlowingStripes";
 const char* glowing_stripes_password = "letsglow";
 String host_ip_address;
 
@@ -143,6 +143,9 @@ boolean host_is_online(){
     Serial.print(" || host_is_online()");
     Serial.println("");
 
+    // if multiple LED strips are turned on shortly after each other, all LED won't be able to find the host and therefore try to become the host
+    delay(rand() % 20);
+
     // check if "glow.local" is accessible
     // search for glow domain
     if(mdns_init()!= ESP_OK){
@@ -151,8 +154,10 @@ boolean host_is_online(){
     }
     IPAddress serverIp = MDNS.queryHost("glow");
     if (serverIp){
+        Serial.println("glow.local found: "+serverIp.toString());
         return true;
     }
+    Serial.println("glow.local not found on the network");
     return false;
 }
 
