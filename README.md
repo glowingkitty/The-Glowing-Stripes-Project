@@ -58,6 +58,7 @@ Here is what you need:
 ### **Step 4:** Connect The Glowing Core to main case
 
 ![Image](readme/connect_glowing_core.gif)
+
 Add the M3 nuts into the main case, place the Glowing Core in it and screw it together. Optionally: place the 3000mAh lipo inside as well and connect it with The Glowing Core.
 
 ### **Step 5:** Finish base unit
