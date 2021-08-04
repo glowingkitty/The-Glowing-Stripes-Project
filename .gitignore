@@ -9,5 +9,4 @@ node_modules
 *.shapr
 wifi_credentials.json
 *_autosave
-*.lys
 *.pwmx
